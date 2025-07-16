@@ -1,6 +1,16 @@
 namespace PomodoroTimer.Services
 {
     /// <summary>
+    /// セッションタイプの列挙型
+    /// </summary>
+    public enum SessionType
+    {
+        Work,
+        ShortBreak,
+        LongBreak
+    }
+
+    /// <summary>
     /// タイマーサービスのインターフェース
     /// </summary>
     public interface ITimerService
@@ -33,7 +43,12 @@ namespace PomodoroTimer.Services
         /// <summary>
         /// セッションが完了した時に発生するイベント
         /// </summary>
-        event Action? SessionCompleted;
+        event Action<SessionType>? SessionCompleted;
+
+        /// <summary>
+        /// セッションタイプが変更された時に発生するイベント
+        /// </summary>
+        event Action<SessionType>? SessionTypeChanged;
 
         /// <summary>
         /// タイマーが実行中かどうか
@@ -51,10 +66,25 @@ namespace PomodoroTimer.Services
         TimeSpan SessionDuration { get; }
 
         /// <summary>
+        /// 現在のセッションタイプ
+        /// </summary>
+        SessionType CurrentSessionType { get; }
+
+        /// <summary>
+        /// 完了したポモドーロ数
+        /// </summary>
+        int CompletedPomodoros { get; }
+
+        /// <summary>
         /// タイマーを開始する
         /// </summary>
         /// <param name="duration">セッション時間</param>
         void Start(TimeSpan duration);
+
+        /// <summary>
+        /// 新しいポモドーロサイクルを開始する
+        /// </summary>
+        void StartNewPomodoroCycle();
 
         /// <summary>
         /// タイマーを停止する
@@ -75,5 +105,11 @@ namespace PomodoroTimer.Services
         /// 現在のセッションをスキップする
         /// </summary>
         void Skip();
+
+        /// <summary>
+        /// 設定を更新する
+        /// </summary>
+        /// <param name="settings">アプリケーション設定</param>
+        void UpdateSettings(Models.AppSettings settings);
     }
 }

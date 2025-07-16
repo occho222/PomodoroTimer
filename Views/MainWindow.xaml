@@ -16,6 +16,7 @@
             <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Tasks Panel -->
         <Border Grid.Column="0" Background="White" Margin="10" CornerRadius="10">
             <Grid>
                 <Grid.RowDefinitions>
@@ -67,20 +68,26 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <Button Grid.Row="2" Content="+ Add Task" 
-                        Command="{Binding AddTaskCommand}"
-                        Style="{StaticResource RoundButton}" 
-                        Margin="15" HorizontalAlignment="Stretch"/>
+                <StackPanel Grid.Row="2" Margin="15">
+                    <Button Content="+ Add Task (Ctrl+T)" 
+                            Command="{Binding AddTaskCommand}"
+                            Style="{StaticResource RoundButton}" 
+                            HorizontalAlignment="Stretch" Margin="0,0,0,5"/>
+                    <TextBlock Text="Ctrl+T: Add Task" FontSize="10" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
             </Grid>
         </Border>
 
+        <!-- Timer Panel -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
+            <!-- Current Task Display -->
             <Border Background="White" Margin="10" CornerRadius="10" Padding="20">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="{Binding CurrentTask.Title, FallbackValue=Select a task}" 
@@ -90,9 +97,13 @@
                 </StackPanel>
             </Border>
 
+            <!-- Progress Ring -->
             <Viewbox Grid.Row="1" Margin="40">
                 <Grid Width="300" Height="300">
+                    <!-- Background Circle -->
                     <Ellipse Stroke="#E0E0E0" StrokeThickness="20" Fill="Transparent"/>
+                    
+                    <!-- Progress Arc -->
                     <Path x:Name="ProgressPath" Stroke="{StaticResource PrimaryBrush}" 
                           StrokeThickness="20" Fill="Transparent">
                         <Path.Data>
@@ -106,30 +117,48 @@
                         </Path.Data>
                     </Path>
 
-                    <TextBlock Text="{Binding TimeRemaining}" 
-                               FontSize="48" FontWeight="Bold"
-                               HorizontalAlignment="Center" 
-                               VerticalAlignment="Center"/>
+                    <!-- Timer Display -->
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding TimeRemaining}" 
+                                   FontSize="48" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding SessionTypeText}" 
+                                   FontSize="14" Foreground="Gray"
+                                   HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                    </StackPanel>
                 </Grid>
             </Viewbox>
 
+            <!-- Control Buttons -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
                 <Button Content="{Binding StartPauseButtonText}" 
                         Command="{Binding StartPauseCommand}"
                         Style="{StaticResource RoundButton}" 
-                        Width="120" Height="50" FontSize="18"/>
+                        Width="120" Height="50" FontSize="18" Margin="5"/>
                 <Button Content="Stop" 
                         Command="{Binding StopCommand}"
                         Style="{StaticResource RoundButton}" 
-                        Background="Gray" Width="120" Height="50" FontSize="18"/>
+                        Background="Gray" Width="120" Height="50" FontSize="18" Margin="5"/>
                 <Button Content="Skip" 
                         Command="{Binding SkipCommand}"
                         Style="{StaticResource RoundButton}" 
                         Background="{StaticResource SecondaryBrush}" 
-                        Width="120" Height="50" FontSize="18"/>
+                        Width="120" Height="50" FontSize="18" Margin="5"/>
+            </StackPanel>
+
+            <!-- Hotkey Hints -->
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                <TextBlock Text="Ctrl+Space: Start/Pause" FontSize="10" Foreground="Gray" Margin="5"/>
+                <TextBlock Text="?" FontSize="10" Foreground="Gray" Margin="5,0"/>
+                <TextBlock Text="Ctrl+S: Stop" FontSize="10" Foreground="Gray" Margin="5"/>
+                <TextBlock Text="?" FontSize="10" Foreground="Gray" Margin="5,0"/>
+                <TextBlock Text="Ctrl+N: Skip" FontSize="10" Foreground="Gray" Margin="5"/>
+                <TextBlock Text="?" FontSize="10" Foreground="Gray" Margin="5,0"/>
+                <TextBlock Text="F1: Settings" FontSize="10" Foreground="Gray" Margin="5"/>
             </StackPanel>
         </Grid>
 
+        <!-- Statistics Panel -->
         <Border Grid.Column="2" Background="White" Margin="10" CornerRadius="10" Padding="15">
             <Grid>
                 <Grid.RowDefinitions>
@@ -160,19 +189,32 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Background="LightGray" CornerRadius="8" Padding="15">
+                    <Border Background="LightGray" CornerRadius="8" Padding="15" Margin="0,0,0,10">
                         <StackPanel>
                             <TextBlock Text="Focus Time" Foreground="White" FontSize="14"/>
                             <TextBlock Text="{Binding TotalFocusTime}" Foreground="White" 
                                        FontSize="24" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
+
+                    <!-- Session Progress Indicator -->
+                    <Border Background="#4A90E2" CornerRadius="8" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="Current Session" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="{Binding SessionTypeText}" Foreground="White" 
+                                       FontSize="18" FontWeight="Bold"/>
+                            <ProgressBar Value="{Binding ProgressValue, Mode=OneWay}" 
+                                         Maximum="100" Height="6" Margin="0,5,0,0"
+                                         Background="Transparent" 
+                                         Foreground="White"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
-                <Button Grid.Row="2" Content="Settings" 
+                <Button Grid.Row="2" Content="Settings (F1)" 
                         Command="{Binding OpenSettingsCommand}"
                         Style="{StaticResource RoundButton}" 
-                        Background="Gray" HorizontalAlignment="Right"/>
+                        Background="Gray" HorizontalAlignment="Stretch"/>
             </Grid>
         </Border>
     </Grid>

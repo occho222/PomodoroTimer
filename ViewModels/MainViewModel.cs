@@ -5,6 +5,7 @@ using PomodoroTimer.Services;
 using PomodoroTimer.Views;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Input;
 
 namespace PomodoroTimer.ViewModels
 {
@@ -15,6 +16,7 @@ namespace PomodoroTimer.ViewModels
     {
         private readonly IPomodoroService _pomodoroService;
         private readonly ITimerService _timerService;
+        private AppSettings _settings;
 
         // タスク関連プロパティ
         [ObservableProperty]
@@ -53,6 +55,14 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private bool isLargeArc = false;
 
+        [ObservableProperty]
+        private double progressValue = 0;
+
+        // ホットキー関連
+        private RoutedCommand _startPauseHotkey;
+        private RoutedCommand _stopHotkey;
+        private RoutedCommand _skipHotkey;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -62,6 +72,7 @@ namespace PomodoroTimer.ViewModels
         {
             _pomodoroService = pomodoroService ?? throw new ArgumentNullException(nameof(pomodoroService));
             _timerService = timerService ?? throw new ArgumentNullException(nameof(timerService));
+            _settings = new AppSettings();
 
             // サービスからタスクを取得
             Tasks = _pomodoroService.GetTasks();
@@ -69,8 +80,56 @@ namespace PomodoroTimer.ViewModels
             // タイマーイベントを購読
             SubscribeToTimerEvents();
 
+            // ホットキーを初期化
+            InitializeHotkeys();
+
+            // タイマーに設定を適用
+            _timerService.UpdateSettings(_settings);
+
             // 初期表示更新
             UpdateProgress();
+            UpdateSessionTypeText();
+        }
+
+        /// <summary>
+        /// ホットキーを初期化する
+        /// </summary>
+        private void InitializeHotkeys()
+        {
+            _startPauseHotkey = new RoutedCommand();
+            _startPauseHotkey.InputGestures.Add(new KeyGesture(Key.Space, ModifierKeys.Control));
+
+            _stopHotkey = new RoutedCommand();
+            _stopHotkey.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
+
+            _skipHotkey = new RoutedCommand();
+            _skipHotkey.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
+        }
+
+        /// <summary>
+        /// ホットキーのコマンドバインディングを取得する
+        /// </summary>
+        public CommandBinding[] GetHotkeyBindings()
+        {
+            return new[]
+            {
+                new CommandBinding(_startPauseHotkey, (s, e) => StartPause()),
+                new CommandBinding(_stopHotkey, (s, e) => Stop()),
+                new CommandBinding(_skipHotkey, (s, e) => Skip())
+            };
+        }
+
+        /// <summary>
+        /// ホットキーのインプットバインディングを取得する
+        /// </summary>
+        public InputBinding[] GetHotkeyInputBindings()
+        {
+            return new[]
+            {
+                new InputBinding(_startPauseHotkey, new KeyGesture(Key.Space, ModifierKeys.Control)),
+                new InputBinding(_stopHotkey, new KeyGesture(Key.S, ModifierKeys.Control)),
+                new InputBinding(_skipHotkey, new KeyGesture(Key.N, ModifierKeys.Control))
+            };
         }
 
         /// <summary>
@@ -84,6 +143,7 @@ namespace PomodoroTimer.ViewModels
             _timerService.TimerResumed += OnTimerResumed;
             _timerService.TimeUpdated += OnTimeUpdated;
             _timerService.SessionCompleted += OnSessionCompleted;
+            _timerService.SessionTypeChanged += OnSessionTypeChanged;
         }
 
         /// <summary>
@@ -100,8 +160,8 @@ namespace PomodoroTimer.ViewModels
             {
                 if (_timerService.RemainingTime <= TimeSpan.Zero)
                 {
-                    // 新しいセッションを開始
-                    _timerService.Start(TimeSpan.FromMinutes(25));
+                    // 新しいポモドーロサイクルを開始
+                    _timerService.StartNewPomodoroCycle();
                 }
                 else
                 {
@@ -160,7 +220,20 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void OpenSettings()
         {
-            MessageBox.Show("Settings will be implemented in the future.", "Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+            var settingsDialog = new SettingsDialog(_settings);
+            if (settingsDialog.ShowDialog() == true)
+            {
+                // 新しい設定を適用
+                UpdateSettings(settingsDialog.Settings);
+                
+                // UIの表示を更新
+                UpdateSessionTypeText();
+                UpdateProgress();
+                UpdateTotalFocusTime();
+
+                MessageBox.Show("Settings updated successfully!", "Settings", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         /// <summary>
@@ -185,6 +258,16 @@ namespace PomodoroTimer.ViewModels
         public void SaveSettings()
         {
             // 設定保存の実装（将来実装予定）
+        }
+
+        /// <summary>
+        /// 設定を更新する
+        /// </summary>
+        /// <param name="settings">新しい設定</param>
+        public void UpdateSettings(AppSettings settings)
+        {
+            _settings = settings;
+            _timerService.UpdateSettings(settings);
         }
 
         #region タイマーイベントハンドラ
@@ -219,34 +302,52 @@ namespace PomodoroTimer.ViewModels
             UpdateProgress();
         }
 
-        private void OnSessionCompleted()
+        private void OnSessionCompleted(SessionType sessionType)
         {
-            // セッション完了処理
-            CompletedPomodoros++;
-            
-            if (CurrentTask != null)
+            // ワークセッションが完了した場合の処理
+            if (sessionType == SessionType.Work)
             {
-                _pomodoroService.IncrementTaskPomodoro(CurrentTask);
+                CompletedPomodoros = _timerService.CompletedPomodoros;
                 
-                if (CurrentTask.IsCompleted)
+                if (CurrentTask != null)
                 {
-                    CompletedTasks++;
+                    _pomodoroService.IncrementTaskPomodoro(CurrentTask);
+                    
+                    if (CurrentTask.IsCompleted)
+                    {
+                        CompletedTasks++;
+                    }
                 }
+
+                // 集中時間を更新
+                UpdateTotalFocusTime();
             }
 
-            // 集中時間を更新
-            UpdateTotalFocusTime();
-
-            // 完了通知
-            MessageBox.Show("Session completed! Great work.", "Pomodoro Timer", 
-                MessageBoxButton.OK, MessageBoxImage.Information);
-
-            // 次のセッションの準備
+            // セッション完了後の状態更新
             IsRunning = false;
             StartPauseButtonText = "Start";
         }
 
+        private void OnSessionTypeChanged(SessionType sessionType)
+        {
+            UpdateSessionTypeText();
+        }
+
         #endregion
+
+        /// <summary>
+        /// セッションタイプのテキストを更新する
+        /// </summary>
+        private void UpdateSessionTypeText()
+        {
+            SessionTypeText = _timerService.CurrentSessionType switch
+            {
+                SessionType.Work => "Work Session",
+                SessionType.ShortBreak => "Short Break",
+                SessionType.LongBreak => "Long Break",
+                _ => "Work Session"
+            };
+        }
 
         /// <summary>
         /// 進捗表示を更新する
@@ -259,6 +360,8 @@ namespace PomodoroTimer.ViewModels
             if (totalSeconds <= 0) return;
 
             var progress = (totalSeconds - remainingSeconds) / totalSeconds;
+            
+            // 円形プログレス用
             var angle = progress * 360;
             var radians = (angle - 90) * Math.PI / 180;
 
@@ -267,6 +370,9 @@ namespace PomodoroTimer.ViewModels
 
             ProgressPoint = new Point(x, y);
             IsLargeArc = angle > 180;
+
+            // 線形プログレス用（パーセンテージ）
+            ProgressValue = progress * 100;
         }
 
         /// <summary>
@@ -274,7 +380,7 @@ namespace PomodoroTimer.ViewModels
         /// </summary>
         private void UpdateTotalFocusTime()
         {
-            var totalMinutes = CompletedPomodoros * 25; // 1ポモドーロ = 25分として計算
+            var totalMinutes = CompletedPomodoros * _settings.WorkSessionMinutes;
             var hours = totalMinutes / 60;
             var minutes = totalMinutes % 60;
             TotalFocusTime = $"{hours}h {minutes}m";

@@ -76,6 +76,16 @@ namespace PomodoroTimer.Views
             var skipCommand = new RoutedCommand();
             skipCommand.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(skipCommand, (s, e) => _viewModel.SkipCommand.Execute(null)));
+
+            // Ctrl+T: タスク追加
+            var addTaskCommand = new RoutedCommand();
+            addTaskCommand.InputGestures.Add(new KeyGesture(Key.T, ModifierKeys.Control));
+            CommandBindings.Add(new CommandBinding(addTaskCommand, (s, e) => _viewModel.AddTaskCommand.Execute(null)));
+
+            // F1: 設定画面
+            var settingsCommand = new RoutedCommand();
+            settingsCommand.InputGestures.Add(new KeyGesture(Key.F1));
+            CommandBindings.Add(new CommandBinding(settingsCommand, (s, e) => _viewModel.OpenSettingsCommand.Execute(null)));
         }
 
         #region ドラッグ&ドロップ処理

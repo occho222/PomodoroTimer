@@ -83,8 +83,13 @@ namespace PomodoroTimer
             var services = new ServiceCollection();
 
             // サービスの登録
+            services.AddSingleton<INotificationService, NotificationService>();
             services.AddSingleton<IPomodoroService, PomodoroService>();
-            services.AddSingleton<ITimerService, TimerService>();
+            services.AddSingleton<ITimerService>(serviceProvider =>
+            {
+                var notificationService = serviceProvider.GetRequiredService<INotificationService>();
+                return new TimerService(notificationService);
+            });
 
             // ViewModelの登録
             services.AddSingleton<MainViewModel>();
