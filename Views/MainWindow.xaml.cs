@@ -1,15 +1,14 @@
-using PomodoroTimer.Models;
+ï»¿using PomodoroTimer.Models;
 using PomodoroTimer.ViewModels;
 using PomodoroTimer.Services;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace PomodoroTimer.Views
 {
     /// <summary>
-    /// ƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ÌƒR[ƒhƒrƒnƒCƒ“ƒh
+    /// ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ã‚³ãƒ¼ãƒ‰ãƒ“ãƒã‚¤ãƒ³ãƒ‰
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -17,81 +16,61 @@ namespace PomodoroTimer.Views
         private PomodoroTask? _draggedTask;
 
         /// <summary>
-        /// DIƒRƒ“ƒeƒi‚©‚ç’“ü‚³‚ê‚éƒRƒ“ƒXƒgƒ‰ƒNƒ^
-        /// </summary>
-        /// <param name="viewModel">ƒƒCƒ“ƒrƒ…[ƒ‚ƒfƒ‹</param>
-        public MainWindow(MainViewModel viewModel)
-        {
-            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-            InitializeComponent();
-            DataContext = _viewModel;
-
-            // ƒzƒbƒgƒL[‚Ì“o˜^
-            RegisterHotKeys();
-        }
-
-        /// <summary>
-        /// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^iƒfƒUƒCƒi[—pj
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ï¼ˆãƒ‡ã‚¶ã‚¤ãƒŠãƒ¼ç”¨ï¼‰
         /// </summary>
         public MainWindow()
         {
             InitializeComponent();
             
-            try
-            {
-                // DIƒRƒ“ƒeƒi‚©‚çæ“¾‚ğs
-                var app = (App)Application.Current;
-                _viewModel = app.Services.GetRequiredService<MainViewModel>();
-            }
-            catch
-            {
-                // DIƒRƒ“ƒeƒi‚ªİ’è‚³‚ê‚Ä‚¢‚È‚¢ê‡‚ÌƒtƒH[ƒ‹ƒoƒbƒN
-                var pomodoroService = new PomodoroService();
-                var timerService = new TimerService();
-                _viewModel = new MainViewModel(pomodoroService, timerService);
-            }
+            // ã‚µãƒ¼ãƒ“ã‚¹ã®ä¾å­˜é–¢ä¿‚ã‚’æ‰‹å‹•ã§æ§‹ç¯‰
+            var dataPersistenceService = new JsonDataPersistenceService();
+            var pomodoroService = new PomodoroService(dataPersistenceService);
+            var timerService = new TimerService();
+            var statisticsService = new StatisticsService(dataPersistenceService);
+            
+            _viewModel = new MainViewModel(pomodoroService, timerService, statisticsService, dataPersistenceService);
             
             DataContext = _viewModel;
 
-            // ƒzƒbƒgƒL[‚Ì“o˜^
+            // ãƒ›ãƒƒãƒˆã‚­ãƒ¼ã®ç™»éŒ²
             RegisterHotKeys();
         }
 
         /// <summary>
-        /// ƒzƒbƒgƒL[‚ğ“o˜^‚·‚é
+        /// ãƒ›ãƒƒãƒˆã‚­ãƒ¼ã‚’ç™»éŒ²ã™ã‚‹
         /// </summary>
         private void RegisterHotKeys()
         {
-            // Ctrl+Space: ŠJn/ˆê’â~
+            // Ctrl+Space: é–‹å§‹/ä¸€æ™‚åœæ­¢
             var startPauseCommand = new RoutedCommand();
             startPauseCommand.InputGestures.Add(new KeyGesture(Key.Space, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(startPauseCommand, (s, e) => _viewModel.StartPauseCommand.Execute(null)));
 
-            // Ctrl+S: ’â~
+            // Ctrl+S: åœæ­¢
             var stopCommand = new RoutedCommand();
             stopCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(stopCommand, (s, e) => _viewModel.StopCommand.Execute(null)));
 
-            // Ctrl+N: Ÿ‚ÌƒZƒbƒVƒ‡ƒ“
+            // Ctrl+N: æ¬¡ã®ã‚»ãƒƒã‚·ãƒ§ãƒ³
             var skipCommand = new RoutedCommand();
             skipCommand.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(skipCommand, (s, e) => _viewModel.SkipCommand.Execute(null)));
 
-            // Ctrl+T: ƒ^ƒXƒN’Ç‰Á
+            // Ctrl+T: ã‚¿ã‚¹ã‚¯è¿½åŠ 
             var addTaskCommand = new RoutedCommand();
             addTaskCommand.InputGestures.Add(new KeyGesture(Key.T, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(addTaskCommand, (s, e) => _viewModel.AddTaskCommand.Execute(null)));
 
-            // F1: İ’è‰æ–Ê
+            // F1: è¨­å®šç”»é¢
             var settingsCommand = new RoutedCommand();
             settingsCommand.InputGestures.Add(new KeyGesture(Key.F1));
             CommandBindings.Add(new CommandBinding(settingsCommand, (s, e) => _viewModel.OpenSettingsCommand.Execute(null)));
         }
 
-        #region ƒhƒ‰ƒbƒO&ƒhƒƒbƒvˆ—
+        #region ãƒ‰ãƒ©ãƒƒã‚°&ãƒ‰ãƒ­ãƒƒãƒ—å‡¦ç†
 
         /// <summary>
-        /// ƒ^ƒXƒNƒAƒCƒeƒ€‚ªƒ}ƒEƒX‚ÅƒNƒŠƒbƒN‚³‚ê‚½‚Ìˆ—
+        /// ã‚¿ã‚¹ã‚¯ã‚¢ã‚¤ãƒ†ãƒ ãŒãƒã‚¦ã‚¹ã§ã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸæ™‚ã®å‡¦ç†
         /// </summary>
         private void TaskItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -103,7 +82,7 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// ƒ^ƒXƒNƒAƒCƒeƒ€‚ªƒhƒƒbƒv‚³‚ê‚½‚Ìˆ—
+        /// ã‚¿ã‚¹ã‚¯ã‚¢ã‚¤ãƒ†ãƒ ãŒãƒ‰ãƒ­ãƒƒãƒ—ã•ã‚ŒãŸæ™‚ã®å‡¦ç†
         /// </summary>
         private void TaskItem_Drop(object sender, DragEventArgs e)
         {
@@ -115,7 +94,7 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// ƒhƒ‰ƒbƒOƒI[ƒo[‚Ìˆ—
+        /// ãƒ‰ãƒ©ãƒƒã‚°ã‚ªãƒ¼ãƒãƒ¼æ™‚ã®å‡¦ç†
         /// </summary>
         private void TaskItem_DragOver(object sender, DragEventArgs e)
         {
@@ -133,12 +112,20 @@ namespace PomodoroTimer.Views
         #endregion
 
         /// <summary>
-        /// ƒEƒBƒ“ƒhƒE‚ª•Â‚¶‚ç‚ê‚é‚Ìˆ—
+        /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒé–‰ã˜ã‚‰ã‚Œã‚‹æ™‚ã®å‡¦ç†
         /// </summary>
-        protected override void OnClosed(EventArgs e)
+        protected override async void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            _viewModel.SaveSettings();
+            try
+            {
+                await _viewModel.SaveSettingsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"è¨­å®šã®ä¿å­˜ã«å¤±æ•—ã—ã¾ã—ãŸ: {ex.Message}", "ã‚¨ãƒ©ãƒ¼", 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 }

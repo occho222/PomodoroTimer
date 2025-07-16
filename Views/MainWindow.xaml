@@ -1,8 +1,9 @@
-<Window x:Class="PomodoroTimer.Views.MainWindow"
+﻿<Window x:Class="PomodoroTimer.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Pomodoro Timer" 
-        Height="700" Width="1200"
+        xmlns:models="clr-namespace:PomodoroTimer.Models"
+        Title="ポモドーロタイマー" 
+        Height="750" Width="1300"
         MinHeight="600" MinWidth="1000"
         WindowStartupLocation="CenterScreen"
         WindowState="Normal"
@@ -11,25 +12,79 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="320"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Tasks Panel -->
-        <Border Grid.Column="0" Background="White" Margin="10" CornerRadius="10">
+        <!-- タスク管理パネル -->
+        <Border Grid.Column="0" Background="White" Margin="10" CornerRadius="12">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Today's Tasks" FontSize="20" FontWeight="Bold" 
-                           Margin="15,15,15,10" Foreground="{StaticResource TextLight}"/>
+                <!-- タスクパネルヘッダー -->
+                <StackPanel Grid.Row="0" Margin="20,20,20,10">
+                    <TextBlock Text="今日のタスク" FontSize="20" FontWeight="Bold" 
+                               Foreground="{StaticResource TextLight}"/>
+                    <TextBlock Text="{Binding FilteredTasks.Count, StringFormat={}合計: {0}件}" 
+                               FontSize="12" Foreground="Gray" Margin="0,2,0,0"/>
+                </StackPanel>
 
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding Tasks}">
+                <!-- フィルター -->
+                <Expander Grid.Row="1" Header="フィルター" Margin="20,0,20,10" IsExpanded="False">
+                    <StackPanel Margin="0,10,0,0">
+                        <!-- 検索 -->
+                        <TextBlock Text="検索:" Margin="0,0,0,4" FontSize="12" FontWeight="SemiBold"/>
+                        <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource SearchTextBox}"
+                                 ToolTip="タスク名や説明で検索"
+                                 Margin="0,0,0,8"/>
+
+                        <!-- カテゴリフィルター -->
+                        <TextBlock Text="カテゴリ:" Margin="0,0,0,4" FontSize="12" FontWeight="SemiBold"/>
+                        <ComboBox ItemsSource="{Binding AvailableCategories}"
+                                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                                  Style="{StaticResource FilterComboBox}"
+                                  Margin="0,0,0,8"/>
+
+                        <!-- タグフィルター -->
+                        <TextBlock Text="タグ:" Margin="0,0,0,4" FontSize="12" FontWeight="SemiBold"/>
+                        <ComboBox ItemsSource="{Binding AvailableTags}"
+                                  SelectedItem="{Binding SelectedTag, Mode=TwoWay}"
+                                  Style="{StaticResource FilterComboBox}"
+                                  Margin="0,0,0,8"/>
+
+                        <!-- 優先度フィルター -->
+                        <TextBlock Text="優先度:" Margin="0,0,0,4" FontSize="12" FontWeight="SemiBold"/>
+                        <ComboBox SelectedItem="{Binding SelectedPriority, Mode=TwoWay}"
+                                  Style="{StaticResource FilterComboBox}"
+                                  Margin="0,0,0,8">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="すべて" Tag="{x:Null}"/>
+                                <ComboBoxItem Content="低" Tag="{x:Static models:TaskPriority.Low}"/>
+                                <ComboBoxItem Content="中" Tag="{x:Static models:TaskPriority.Medium}"/>
+                                <ComboBoxItem Content="高" Tag="{x:Static models:TaskPriority.High}"/>
+                                <ComboBoxItem Content="緊急" Tag="{x:Static models:TaskPriority.Urgent}"/>
+                            </ComboBox.Items>
+                        </ComboBox>
+
+                        <!-- フィルタークリア -->
+                        <Button Content="フィルタークリア" 
+                                Command="{Binding ClearFiltersCommand}"
+                                Style="{StaticResource RoundButton}" 
+                                Background="Gray" FontSize="11" Padding="8,4"
+                                HorizontalAlignment="Stretch" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- タスクリスト -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="10,0">
+                    <ItemsControl ItemsSource="{Binding FilteredTasks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource TaskItemStyle}" 
@@ -38,29 +93,93 @@
                                         Drop="TaskItem_Drop"
                                         DragOver="TaskItem_DragOver">
                                     <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
                                         
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"/>
-                                            <TextBlock Text="{Binding EstimatedPomodoros, StringFormat={}Estimated: {0} Pomodoros}" 
-                                                       FontSize="12" Foreground="Gray"/>
-                                            <TextBlock Text="{Binding CompletedPomodoros, StringFormat={}Completed: {0} Pomodoros}" 
-                                                       FontSize="12" Foreground="Green"/>
+                                        <!-- タスクヘッダー -->
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
                                             
-                                            <ProgressBar Value="{Binding ProgressPercentage, Mode=OneWay}" 
-                                                         Maximum="100" Height="4" Margin="0,2,0,0"
-                                                         Background="LightGray" 
-                                                         Foreground="{StaticResource PrimaryBrush}"/>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                <!-- 優先度インジケーター -->
+                                                <Ellipse Style="{StaticResource PriorityIndicator}"
+                                                         Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            
+                                            <!-- アクションボタン -->
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                <Button Content="▶" 
+                                                        Command="{Binding DataContext.StartTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource RoundButton}"
+                                                        Background="{StaticResource AccentBrush}"
+                                                        Padding="8,4" FontSize="10" Margin="2"/>
+                                                <Button Content="✏" 
+                                                        Command="{Binding DataContext.EditTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource RoundButton}"
+                                                        Background="{StaticResource WarningBrush}"
+                                                        Padding="8,4" FontSize="10" Margin="2"/>
+                                                <Button Content="✓" 
+                                                        Command="{Binding DataContext.CompleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource RoundButton}"
+                                                        Background="{StaticResource AccentBrush}"
+                                                        Padding="8,4" FontSize="10" Margin="2"
+                                                        Visibility="{Binding IsCompleted, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                                                <Button Content="🗑" 
+                                                        Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource RoundButton}"
+                                                        Background="{StaticResource ErrorBrush}"
+                                                        Padding="8,4" FontSize="10" Margin="2"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        
+                                        <!-- カテゴリとタグ -->
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Border Background="{StaticResource SecondaryBrush}" 
+                                                    CornerRadius="3" Margin="0,0,4,0"
+                                                    Visibility="{Binding Category, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <TextBlock Text="{Binding Category}" FontSize="10" 
+                                                           Foreground="White" Padding="4,2"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding TagsText}" FontSize="10" 
+                                                       Foreground="Gray" VerticalAlignment="Center"
+                                                       Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                         </StackPanel>
                                         
-                                        <Button Grid.Column="1" Content="Start" 
-                                                Command="{Binding DataContext.StartTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{StaticResource RoundButton}"
-                                                Padding="10,5" FontSize="12"/>
+                                        <!-- ポモドーロ情報 -->
+                                        <Grid Grid.Row="2" Margin="0,4,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <TextBlock Grid.Column="0" 
+                                                       Text="{Binding CompletedPomodoros, StringFormat={}完了: {0}}" 
+                                                       FontSize="12" Foreground="Green" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" 
+                                                       Text="{Binding EstimatedPomodoros, StringFormat={}/ {0}個}" 
+                                                       FontSize="12" Foreground="Gray" VerticalAlignment="Center"/>
+                                        </Grid>
+                                        
+                                        <!-- 進捗バー -->
+                                        <ProgressBar Grid.Row="3" 
+                                                     Value="{Binding ProgressPercentage, Mode=OneWay}" 
+                                                     Maximum="100" 
+                                                     Style="{StaticResource TaskProgressBar}"
+                                                     Margin="0,4,0,0"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -68,17 +187,38 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <StackPanel Grid.Row="2" Margin="15">
-                    <Button Content="+ Add Task (Ctrl+T)" 
+                <!-- タスク管理ボタン -->
+                <StackPanel Grid.Row="3" Margin="20">
+                    <Button Content="+ タスク追加 (Ctrl+T)" 
                             Command="{Binding AddTaskCommand}"
                             Style="{StaticResource RoundButton}" 
                             HorizontalAlignment="Stretch" Margin="0,0,0,5"/>
-                    <TextBlock Text="Ctrl+T: Add Task" FontSize="10" Foreground="Gray" HorizontalAlignment="Center"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Button Grid.Column="0" Content="インポート" 
+                                Command="{Binding ImportTasksCommand}"
+                                Style="{StaticResource RoundButton}" 
+                                Background="{StaticResource SecondaryBrush}"
+                                FontSize="11" Padding="8,4" Margin="0,0,2,0"/>
+                        <Button Grid.Column="1" Content="エクスポート" 
+                                Command="{Binding ExportTasksCommand}"
+                                Style="{StaticResource RoundButton}" 
+                                Background="{StaticResource WarningBrush}"
+                                FontSize="11" Padding="8,4" Margin="2,0,0,0"/>
+                    </Grid>
+                    
+                    <TextBlock Text="Ctrl+T: タスク追加" FontSize="10" Foreground="Gray" 
+                               HorizontalAlignment="Center" Margin="0,8,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Timer Panel -->
+        <!-- タイマーパネル -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -87,23 +227,23 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Current Task Display -->
-            <Border Background="White" Margin="10" CornerRadius="10" Padding="20">
+            <!-- 現在のタスク表示 -->
+            <Border Background="White" Margin="10" CornerRadius="12" Padding="20">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="{Binding CurrentTask.Title, FallbackValue=Select a task}" 
+                    <TextBlock Text="{Binding CurrentTask.Title, FallbackValue=タスクを選択してください}" 
                                FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
                     <TextBlock Text="{Binding SessionTypeText}" FontSize="16" 
                                Foreground="Gray" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
 
-            <!-- Progress Ring -->
+            <!-- 円形プログレスタイマー -->
             <Viewbox Grid.Row="1" Margin="40">
                 <Grid Width="300" Height="300">
-                    <!-- Background Circle -->
-                    <Ellipse Stroke="#E0E0E0" StrokeThickness="20" Fill="Transparent"/>
+                    <!-- 背景円 -->
+                    <Ellipse Stroke="#E2E8F0" StrokeThickness="20" Fill="Transparent"/>
                     
-                    <!-- Progress Arc -->
+                    <!-- プログレス円弧 -->
                     <Path x:Name="ProgressPath" Stroke="{StaticResource PrimaryBrush}" 
                           StrokeThickness="20" Fill="Transparent">
                         <Path.Data>
@@ -117,7 +257,7 @@
                         </Path.Data>
                     </Path>
 
-                    <!-- Timer Display -->
+                    <!-- タイマー表示 -->
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="{Binding TimeRemaining}" 
                                    FontSize="48" FontWeight="Bold"
@@ -129,37 +269,37 @@
                 </Grid>
             </Viewbox>
 
-            <!-- Control Buttons -->
+            <!-- コントロールボタン -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
                 <Button Content="{Binding StartPauseButtonText}" 
                         Command="{Binding StartPauseCommand}"
                         Style="{StaticResource RoundButton}" 
-                        Width="120" Height="50" FontSize="18" Margin="5"/>
-                <Button Content="Stop" 
+                        Width="140" Height="50" FontSize="18" Margin="8"/>
+                <Button Content="停止" 
                         Command="{Binding StopCommand}"
                         Style="{StaticResource RoundButton}" 
-                        Background="Gray" Width="120" Height="50" FontSize="18" Margin="5"/>
-                <Button Content="Skip" 
+                        Background="Gray" Width="120" Height="50" FontSize="18" Margin="8"/>
+                <Button Content="スキップ" 
                         Command="{Binding SkipCommand}"
                         Style="{StaticResource RoundButton}" 
                         Background="{StaticResource SecondaryBrush}" 
-                        Width="120" Height="50" FontSize="18" Margin="5"/>
+                        Width="120" Height="50" FontSize="18" Margin="8"/>
             </StackPanel>
 
-            <!-- Hotkey Hints -->
+            <!-- ホットキーヒント -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-                <TextBlock Text="Ctrl+Space: Start/Pause" FontSize="10" Foreground="Gray" Margin="5"/>
-                <TextBlock Text="?" FontSize="10" Foreground="Gray" Margin="5,0"/>
-                <TextBlock Text="Ctrl+S: Stop" FontSize="10" Foreground="Gray" Margin="5"/>
-                <TextBlock Text="?" FontSize="10" Foreground="Gray" Margin="5,0"/>
-                <TextBlock Text="Ctrl+N: Skip" FontSize="10" Foreground="Gray" Margin="5"/>
-                <TextBlock Text="?" FontSize="10" Foreground="Gray" Margin="5,0"/>
-                <TextBlock Text="F1: Settings" FontSize="10" Foreground="Gray" Margin="5"/>
+                <TextBlock Text="Ctrl+Space: 開始/一時停止" FontSize="10" Foreground="Gray" Margin="8"/>
+                <TextBlock Text="•" FontSize="10" Foreground="Gray" Margin="4,0"/>
+                <TextBlock Text="Ctrl+S: 停止" FontSize="10" Foreground="Gray" Margin="8"/>
+                <TextBlock Text="•" FontSize="10" Foreground="Gray" Margin="4,0"/>
+                <TextBlock Text="Ctrl+N: スキップ" FontSize="10" Foreground="Gray" Margin="8"/>
+                <TextBlock Text="•" FontSize="10" Foreground="Gray" Margin="4,0"/>
+                <TextBlock Text="F1: 設定" FontSize="10" Foreground="Gray" Margin="8"/>
             </StackPanel>
         </Grid>
 
-        <!-- Statistics Panel -->
-        <Border Grid.Column="2" Background="White" Margin="10" CornerRadius="10" Padding="15">
+        <!-- 統計パネル -->
+        <Border Grid.Column="2" Background="White" Margin="10" CornerRadius="12" Padding="20">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -167,54 +307,60 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Statistics" FontSize="20" FontWeight="Bold" 
-                           Margin="0,0,0,15" Foreground="{StaticResource TextLight}"/>
+                <TextBlock Text="統計情報" FontSize="20" FontWeight="Bold" 
+                           Margin="0,0,0,20" Foreground="{StaticResource TextLight}"/>
 
                 <StackPanel Grid.Row="1">
-                    <Border Background="{StaticResource PrimaryBrush}" CornerRadius="8" 
-                            Padding="15" Margin="0,0,0,10">
+                    <!-- 今日の統計 -->
+                    <Border Style="{StaticResource StatisticCard}" Background="{StaticResource PrimaryBrush}">
                         <StackPanel>
-                            <TextBlock Text="Completed Pomodoros" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="今日の完了ポモドーロ" Foreground="White" FontSize="14"/>
                             <TextBlock Text="{Binding CompletedPomodoros}" Foreground="White" 
                                        FontSize="32" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Background="{StaticResource SecondaryBrush}" CornerRadius="8" 
-                            Padding="15" Margin="0,0,0,10">
+                    <Border Style="{StaticResource StatisticCard}" Background="{StaticResource SecondaryBrush}">
                         <StackPanel>
-                            <TextBlock Text="Completed Tasks" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="今日の完了タスク" Foreground="White" FontSize="14"/>
                             <TextBlock Text="{Binding CompletedTasks}" Foreground="White" 
                                        FontSize="32" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Background="LightGray" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                    <Border Style="{StaticResource StatisticCard}" Background="{StaticResource AccentBrush}">
                         <StackPanel>
-                            <TextBlock Text="Focus Time" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="総集中時間" Foreground="White" FontSize="14"/>
                             <TextBlock Text="{Binding TotalFocusTime}" Foreground="White" 
-                                       FontSize="24" FontWeight="Bold"/>
+                                       FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Session Progress Indicator -->
-                    <Border Background="#4A90E2" CornerRadius="8" Padding="15">
+                    <!-- 現在セッション -->
+                    <Border Style="{StaticResource StatisticCard}" Background="#6366F1">
                         <StackPanel>
-                            <TextBlock Text="Current Session" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="現在セッション" Foreground="White" FontSize="14"/>
                             <TextBlock Text="{Binding SessionTypeText}" Foreground="White" 
                                        FontSize="18" FontWeight="Bold"/>
                             <ProgressBar Value="{Binding ProgressValue, Mode=OneWay}" 
-                                         Maximum="100" Height="6" Margin="0,5,0,0"
+                                         Maximum="100" Height="6" Margin="0,8,0,0"
                                          Background="Transparent" 
                                          Foreground="White"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <Button Grid.Row="2" Content="Settings (F1)" 
-                        Command="{Binding OpenSettingsCommand}"
-                        Style="{StaticResource RoundButton}" 
-                        Background="Gray" HorizontalAlignment="Stretch"/>
+                <StackPanel Grid.Row="2">
+                    <Button Content="統計画面" 
+                            Command="{Binding OpenStatisticsCommand}"
+                            Style="{StaticResource RoundButton}" 
+                            Background="{StaticResource AccentBrush}"
+                            HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                    <Button Content="設定 (F1)" 
+                            Command="{Binding OpenSettingsCommand}"
+                            Style="{StaticResource RoundButton}" 
+                            Background="Gray" HorizontalAlignment="Stretch"/>
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>

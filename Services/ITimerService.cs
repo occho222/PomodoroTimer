@@ -1,7 +1,7 @@
-namespace PomodoroTimer.Services
+ï»¿namespace PomodoroTimer.Services
 {
     /// <summary>
-    /// ƒZƒbƒVƒ‡ƒ“ƒ^ƒCƒv‚Ì—ñ‹“Œ^
+    /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚¿ã‚¤ãƒ—ã®åˆ—æŒ™åž‹
     /// </summary>
     public enum SessionType
     {
@@ -11,105 +11,105 @@ namespace PomodoroTimer.Services
     }
 
     /// <summary>
-    /// ƒ^ƒCƒ}[ƒT[ƒrƒX‚ÌƒCƒ“ƒ^[ƒtƒF[ƒX
+    /// ã‚¿ã‚¤ãƒžãƒ¼ã‚µãƒ¼ãƒ“ã‚¹ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹
     /// </summary>
     public interface ITimerService
     {
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ªŠJŽn‚³‚ê‚½Žž‚É”­¶‚·‚éƒCƒxƒ“ƒg
+        /// ã‚¿ã‚¤ãƒžãƒ¼ãŒé–‹å§‹ã•ã‚ŒãŸæ™‚ã«ç™ºç”Ÿã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
         /// </summary>
         event Action? TimerStarted;
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ª’âŽ~‚³‚ê‚½Žž‚É”­¶‚·‚éƒCƒxƒ“ƒg
+        /// ã‚¿ã‚¤ãƒžãƒ¼ãŒåœæ­¢ã•ã‚ŒãŸæ™‚ã«ç™ºç”Ÿã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
         /// </summary>
         event Action? TimerStopped;
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ªˆêŽž’âŽ~‚³‚ê‚½Žž‚É”­¶‚·‚éƒCƒxƒ“ƒg
+        /// ã‚¿ã‚¤ãƒžãƒ¼ãŒä¸€æ™‚åœæ­¢ã•ã‚ŒãŸæ™‚ã«ç™ºç”Ÿã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
         /// </summary>
         event Action? TimerPaused;
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ªÄŠJ‚³‚ê‚½Žž‚É”­¶‚·‚éƒCƒxƒ“ƒg
+        /// ã‚¿ã‚¤ãƒžãƒ¼ãŒå†é–‹ã•ã‚ŒãŸæ™‚ã«ç™ºç”Ÿã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
         /// </summary>
         event Action? TimerResumed;
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ÌŽžŠÔ‚ªXV‚³‚ê‚½Žž‚É”­¶‚·‚éƒCƒxƒ“ƒg
+        /// ã‚¿ã‚¤ãƒžãƒ¼ã®æ™‚é–“ãŒæ›´æ–°ã•ã‚ŒãŸæ™‚ã«ç™ºç”Ÿã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
         /// </summary>
         event Action<TimeSpan>? TimeUpdated;
 
         /// <summary>
-        /// ƒZƒbƒVƒ‡ƒ“‚ªŠ®—¹‚µ‚½Žž‚É”­¶‚·‚éƒCƒxƒ“ƒg
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒå®Œäº†ã—ãŸæ™‚ã«ç™ºç”Ÿã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
         /// </summary>
         event Action<SessionType>? SessionCompleted;
 
         /// <summary>
-        /// ƒZƒbƒVƒ‡ƒ“ƒ^ƒCƒv‚ª•ÏX‚³‚ê‚½Žž‚É”­¶‚·‚éƒCƒxƒ“ƒg
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚¿ã‚¤ãƒ—ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚ã«ç™ºç”Ÿã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
         /// </summary>
         event Action<SessionType>? SessionTypeChanged;
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ªŽÀs’†‚©‚Ç‚¤‚©
+        /// ã‚¿ã‚¤ãƒžãƒ¼ãŒå®Ÿè¡Œä¸­ã‹ã©ã†ã‹
         /// </summary>
         bool IsRunning { get; }
 
         /// <summary>
-        /// Œ»Ý‚ÌŽc‚èŽžŠÔ
+        /// ç¾åœ¨ã®æ®‹ã‚Šæ™‚é–“
         /// </summary>
         TimeSpan RemainingTime { get; }
 
         /// <summary>
-        /// ƒZƒbƒVƒ‡ƒ“‚Ì‡ŒvŽžŠÔ
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®åˆè¨ˆæ™‚é–“
         /// </summary>
         TimeSpan SessionDuration { get; }
 
         /// <summary>
-        /// Œ»Ý‚ÌƒZƒbƒVƒ‡ƒ“ƒ^ƒCƒv
+        /// ç¾åœ¨ã®ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚¿ã‚¤ãƒ—
         /// </summary>
         SessionType CurrentSessionType { get; }
 
         /// <summary>
-        /// Š®—¹‚µ‚½ƒ|ƒ‚ƒh[ƒ”
+        /// å®Œäº†ã—ãŸãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°
         /// </summary>
         int CompletedPomodoros { get; }
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ðŠJŽn‚·‚é
+        /// ã‚¿ã‚¤ãƒžãƒ¼ã‚’é–‹å§‹ã™ã‚‹
         /// </summary>
-        /// <param name="duration">ƒZƒbƒVƒ‡ƒ“ŽžŠÔ</param>
+        /// <param name="duration">ã‚»ãƒƒã‚·ãƒ§ãƒ³æ™‚é–“</param>
         void Start(TimeSpan duration);
 
         /// <summary>
-        /// V‚µ‚¢ƒ|ƒ‚ƒh[ƒƒTƒCƒNƒ‹‚ðŠJŽn‚·‚é
+        /// æ–°ã—ã„ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­ã‚µã‚¤ã‚¯ãƒ«ã‚’é–‹å§‹ã™ã‚‹
         /// </summary>
         void StartNewPomodoroCycle();
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ð’âŽ~‚·‚é
+        /// ã‚¿ã‚¤ãƒžãƒ¼ã‚’åœæ­¢ã™ã‚‹
         /// </summary>
         void Stop();
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ðˆêŽž’âŽ~‚·‚é
+        /// ã‚¿ã‚¤ãƒžãƒ¼ã‚’ä¸€æ™‚åœæ­¢ã™ã‚‹
         /// </summary>
         void Pause();
 
         /// <summary>
-        /// ƒ^ƒCƒ}[‚ðÄŠJ‚·‚é
+        /// ã‚¿ã‚¤ãƒžãƒ¼ã‚’å†é–‹ã™ã‚‹
         /// </summary>
         void Resume();
 
         /// <summary>
-        /// Œ»Ý‚ÌƒZƒbƒVƒ‡ƒ“‚ðƒXƒLƒbƒv‚·‚é
+        /// ç¾åœ¨ã®ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
         /// </summary>
         void Skip();
 
         /// <summary>
-        /// Ý’è‚ðXV‚·‚é
+        /// è¨­å®šã‚’æ›´æ–°ã™ã‚‹
         /// </summary>
-        /// <param name="settings">ƒAƒvƒŠƒP[ƒVƒ‡ƒ“Ý’è</param>
+        /// <param name="settings">ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³è¨­å®š</param>
         void UpdateSettings(Models.AppSettings settings);
     }
 }

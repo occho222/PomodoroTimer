@@ -1,16 +1,16 @@
-using System.Windows;
+ï»¿using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PomodoroTimer.Models;
 
 namespace PomodoroTimer.Views
 {
     /// <summary>
-    /// İ’èƒ_ƒCƒAƒƒO
+    /// è¨­å®šãƒ€ã‚¤ã‚¢ãƒ­ã‚°
     /// </summary>
     public partial class SettingsDialog : Window
     {
         /// <summary>
-        /// İ’èƒf[ƒ^
+        /// è¨­å®šãƒ‡ãƒ¼ã‚¿
         /// </summary>
         public AppSettings Settings { get; private set; }
 
@@ -18,7 +18,7 @@ namespace PomodoroTimer.Views
         {
             InitializeComponent();
             
-            // Œ»İ‚Ìİ’è‚ğƒRƒs[‚µ‚Ä•ÒW—pViewModel‚ğì¬
+            // ç¾åœ¨ã®è¨­å®šã‚’ã‚³ãƒ”ãƒ¼ã—ã¦ç·¨é›†ç”¨ViewModelã‚’ä½œæˆ
             var viewModel = new SettingsViewModel
             {
                 WorkSessionMinutes = currentSettings.WorkSessionMinutes,
@@ -38,17 +38,17 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// OK ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Ìˆ—
+        /// OK ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸæ™‚ã®å‡¦ç†
         /// </summary>
         private void OK_Click(object sender, RoutedEventArgs e)
         {
             var viewModel = (SettingsViewModel)DataContext;
             
-            // “ü—Í’l‚ÌŒŸØ
+            // å…¥åŠ›å€¤ã®æ¤œè¨¼
             if (!ValidateSettings(viewModel))
                 return;
 
-            // İ’è‚ğXV
+            // è¨­å®šã‚’æ›´æ–°
             Settings = new AppSettings
             {
                 WorkSessionMinutes = viewModel.WorkSessionMinutes,
@@ -68,7 +68,7 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// ƒLƒƒƒ“ƒZƒ‹ ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Ìˆ—
+        /// ã‚­ãƒ£ãƒ³ã‚»ãƒ« ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸæ™‚ã®å‡¦ç†
         /// </summary>
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
@@ -77,7 +77,7 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// ƒŠƒZƒbƒg ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Ìˆ—
+        /// ãƒªã‚»ãƒƒãƒˆ ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸæ™‚ã®å‡¦ç†
         /// </summary>
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
@@ -106,11 +106,11 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// İ’è’l‚ğŒŸØ‚·‚é
+        /// è¨­å®šå€¤ã‚’æ¤œè¨¼ã™ã‚‹
         /// </summary>
         private bool ValidateSettings(SettingsViewModel viewModel)
         {
-            // ì‹ÆŠÔ‚ÌŒŸØi1-120•ªj
+            // ä½œæ¥­æ™‚é–“ã®æ¤œè¨¼ï¼ˆ1-120åˆ†ï¼‰
             if (viewModel.WorkSessionMinutes < 1 || viewModel.WorkSessionMinutes > 120)
             {
                 MessageBox.Show("Work session must be between 1 and 120 minutes.", 
@@ -118,7 +118,7 @@ namespace PomodoroTimer.Views
                 return false;
             }
 
-            // ’Z‹xŒeŠÔ‚ÌŒŸØi1-60•ªj
+            // çŸ­ä¼‘æ†©æ™‚é–“ã®æ¤œè¨¼ï¼ˆ1-60åˆ†ï¼‰
             if (viewModel.ShortBreakMinutes < 1 || viewModel.ShortBreakMinutes > 60)
             {
                 MessageBox.Show("Short break must be between 1 and 60 minutes.", 
@@ -126,7 +126,7 @@ namespace PomodoroTimer.Views
                 return false;
             }
 
-            // ’·‹xŒeŠÔ‚ÌŒŸØi1-120•ªj
+            // é•·ä¼‘æ†©æ™‚é–“ã®æ¤œè¨¼ï¼ˆ1-120åˆ†ï¼‰
             if (viewModel.LongBreakMinutes < 1 || viewModel.LongBreakMinutes > 120)
             {
                 MessageBox.Show("Long break must be between 1 and 120 minutes.", 
@@ -134,7 +134,7 @@ namespace PomodoroTimer.Views
                 return false;
             }
 
-            // ’·‹xŒe‘O‚Ìƒ|ƒ‚ƒh[ƒ”‚ÌŒŸØi1-10j
+            // é•·ä¼‘æ†©å‰ã®ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°ã®æ¤œè¨¼ï¼ˆ1-10ï¼‰
             if (viewModel.PomodorosBeforeLongBreak < 1 || viewModel.PomodorosBeforeLongBreak > 10)
             {
                 MessageBox.Show("Pomodoros before long break must be between 1 and 10.", 
@@ -147,7 +147,7 @@ namespace PomodoroTimer.Views
     }
 
     /// <summary>
-    /// İ’èƒ_ƒCƒAƒƒO—p‚ÌViewModel
+    /// è¨­å®šãƒ€ã‚¤ã‚¢ãƒ­ã‚°ç”¨ã®ViewModel
     /// </summary>
     public partial class SettingsViewModel : ObservableObject
     {

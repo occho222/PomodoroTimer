@@ -1,47 +1,47 @@
-namespace PomodoroTimer.Models
+ï»¿namespace PomodoroTimer.Models
 {
     /// <summary>
-    /// ƒZƒbƒVƒ‡ƒ““Œvî•ñ
+    /// ã‚»ãƒƒã‚·ãƒ§ãƒ³çµ±è¨ˆæƒ…å ±
     /// </summary>
     public class SessionStatistics
     {
         /// <summary>
-        /// “ú•t
+        /// æ—¥ä»˜
         /// </summary>
         public DateTime Date { get; set; } = DateTime.Today;
 
         /// <summary>
-        /// Š®—¹ƒ|ƒ‚ƒh[ƒ”
+        /// å®Œäº†ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°
         /// </summary>
         public int CompletedPomodoros { get; set; }
 
         /// <summary>
-        /// Š®—¹ƒ^ƒXƒN”
+        /// å®Œäº†ã‚¿ã‚¹ã‚¯æ•°
         /// </summary>
         public int CompletedTasks { get; set; }
 
         /// <summary>
-        /// ‘W’†ŠÔi•ªj
+        /// ç·é›†ä¸­æ™‚é–“ï¼ˆåˆ†ï¼‰
         /// </summary>
         public int TotalFocusTimeMinutes { get; set; }
 
         /// <summary>
-        /// ŠJn
+        /// é–‹å§‹æ™‚åˆ»
         /// </summary>
         public DateTime? StartTime { get; set; }
 
         /// <summary>
-        /// I—¹
+        /// çµ‚äº†æ™‚åˆ»
         /// </summary>
         public DateTime? EndTime { get; set; }
 
         /// <summary>
-        /// ’†’f‰ñ”
+        /// ä¸­æ–­å›æ•°
         /// </summary>
         public int InterruptionCount { get; set; }
 
         /// <summary>
-        /// ‘W’†ŠÔ‚ğŠÔ‚Æ•ª‚Ì•¶š—ñ‚Åæ“¾‚·‚é
+        /// ç·é›†ä¸­æ™‚é–“ã‚’æ™‚é–“ã¨åˆ†ã®æ–‡å­—åˆ—ã§å–å¾—ã™ã‚‹
         /// </summary>
         public string TotalFocusTimeFormatted
         {
@@ -49,12 +49,12 @@ namespace PomodoroTimer.Models
             {
                 var hours = TotalFocusTimeMinutes / 60;
                 var minutes = TotalFocusTimeMinutes % 60;
-                return $"{hours}ŠÔ{minutes}•ª";
+                return $"{hours}æ™‚é–“{minutes}åˆ†";
             }
         }
 
         /// <summary>
-        /// •½‹Ïƒ|ƒ‚ƒh[ƒŠÔ‚ğæ“¾‚·‚é
+        /// å¹³å‡ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ™‚é–“ã‚’å–å¾—ã™ã‚‹
         /// </summary>
         public double AveragePomodoroTimeMinutes => CompletedPomodoros > 0 ? 
             (double)TotalFocusTimeMinutes / CompletedPomodoros : 0;

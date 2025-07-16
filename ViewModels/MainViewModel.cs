@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+ï»¿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PomodoroTimer.Models;
 using PomodoroTimer.Services;
@@ -6,39 +6,64 @@ using PomodoroTimer.Views;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Win32;
 
 namespace PomodoroTimer.ViewModels
 {
     /// <summary>
-    /// ƒ|ƒ‚ƒh[ƒƒ^ƒCƒ}[‚ÌƒƒCƒ“ƒrƒ…[ƒ‚ƒfƒ‹
+    /// ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­ã‚¿ã‚¤ãƒãƒ¼ã®ãƒ¡ã‚¤ãƒ³ãƒ“ãƒ¥ãƒ¼ãƒ¢ãƒ‡ãƒ«
     /// </summary>
     public partial class MainViewModel : ObservableObject
     {
         private readonly IPomodoroService _pomodoroService;
         private readonly ITimerService _timerService;
+        private readonly IStatisticsService _statisticsService;
+        private readonly IDataPersistenceService _dataPersistenceService;
         private AppSettings _settings;
 
-        // ƒ^ƒXƒNŠÖ˜AƒvƒƒpƒeƒB
+        // ã‚¿ã‚¹ã‚¯é–¢é€£ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
         [ObservableProperty]
         private ObservableCollection<PomodoroTask> tasks = new();
 
         [ObservableProperty]
         private PomodoroTask? currentTask;
 
-        // ƒ^ƒCƒ}[ŠÖ˜AƒvƒƒpƒeƒB
+        [ObservableProperty]
+        private ObservableCollection<PomodoroTask> filteredTasks = new();
+
+        // ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°é–¢é€£ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
+        [ObservableProperty]
+        private string searchText = string.Empty;
+
+        [ObservableProperty]
+        private string selectedCategory = string.Empty;
+
+        [ObservableProperty]
+        private string selectedTag = string.Empty;
+
+        [ObservableProperty]
+        private TaskPriority? selectedPriority;
+
+        [ObservableProperty]
+        private ObservableCollection<string> availableCategories = new();
+
+        [ObservableProperty]
+        private ObservableCollection<string> availableTags = new();
+
+        // ã‚¿ã‚¤ãƒãƒ¼é–¢é€£ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
         [ObservableProperty]
         private string timeRemaining = "25:00";
 
         [ObservableProperty]
-        private string sessionTypeText = "Work Session";
+        private string sessionTypeText = "ä½œæ¥­ã‚»ãƒƒã‚·ãƒ§ãƒ³";
 
         [ObservableProperty]
-        private string startPauseButtonText = "Start";
+        private string startPauseButtonText = "é–‹å§‹";
 
         [ObservableProperty]
         private bool isRunning = false;
 
-        // “ŒvŠÖ˜AƒvƒƒpƒeƒB
+        // çµ±è¨ˆé–¢é€£ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
         [ObservableProperty]
         private int completedPomodoros = 0;
 
@@ -46,9 +71,12 @@ namespace PomodoroTimer.ViewModels
         private int completedTasks = 0;
 
         [ObservableProperty]
-        private string totalFocusTime = "0h 0m";
+        private string totalFocusTime = "0æ™‚é–“ 0åˆ†";
 
-        // UIŠÖ˜AƒvƒƒpƒeƒB
+        [ObservableProperty]
+        private DailyStatistics todayStatistics = new();
+
+        // UIé–¢é€£ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
         [ObservableProperty]
         private Point progressPoint = new(150, 30);
 
@@ -58,41 +86,68 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private double progressValue = 0;
 
-        // ƒzƒbƒgƒL[ŠÖ˜A
-        private RoutedCommand _startPauseHotkey;
-        private RoutedCommand _stopHotkey;
-        private RoutedCommand _skipHotkey;
+        // ãƒ›ãƒƒãƒˆã‚­ãƒ¼é–¢é€£
+        private RoutedCommand? _startPauseHotkey;
+        private RoutedCommand? _stopHotkey;
+        private RoutedCommand? _skipHotkey;
+        private RoutedCommand? _addTaskHotkey;
+        private RoutedCommand? _settingsHotkey;
 
         /// <summary>
-        /// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        /// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
         /// </summary>
-        /// <param name="pomodoroService">ƒ|ƒ‚ƒh[ƒƒT[ƒrƒX</param>
-        /// <param name="timerService">ƒ^ƒCƒ}[ƒT[ƒrƒX</param>
-        public MainViewModel(IPomodoroService pomodoroService, ITimerService timerService)
+        public MainViewModel(IPomodoroService pomodoroService, ITimerService timerService, 
+            IStatisticsService statisticsService, IDataPersistenceService dataPersistenceService)
         {
             _pomodoroService = pomodoroService ?? throw new ArgumentNullException(nameof(pomodoroService));
             _timerService = timerService ?? throw new ArgumentNullException(nameof(timerService));
+            _statisticsService = statisticsService ?? throw new ArgumentNullException(nameof(statisticsService));
+            _dataPersistenceService = dataPersistenceService ?? throw new ArgumentNullException(nameof(dataPersistenceService));
             _settings = new AppSettings();
 
-            // ƒT[ƒrƒX‚©‚çƒ^ƒXƒN‚ğæ“¾
+            // ã‚µãƒ¼ãƒ“ã‚¹ã‹ã‚‰ã‚¿ã‚¹ã‚¯ã‚’å–å¾—
             Tasks = _pomodoroService.GetTasks();
+            FilteredTasks = new ObservableCollection<PomodoroTask>(Tasks);
 
-            // ƒ^ƒCƒ}[ƒCƒxƒ“ƒg‚ğw“Ç
+            // ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆã‚’è³¼èª­
             SubscribeToTimerEvents();
 
-            // ƒzƒbƒgƒL[‚ğ‰Šú‰»
+            // ãƒ›ãƒƒãƒˆã‚­ãƒ¼ã‚’åˆæœŸåŒ–
             InitializeHotkeys();
 
-            // ƒ^ƒCƒ}[‚Éİ’è‚ğ“K—p
+            // ã‚¿ã‚¤ãƒãƒ¼ã«è¨­å®šã‚’é©ç”¨
             _timerService.UpdateSettings(_settings);
 
-            // ‰Šú•\¦XV
+            // ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°ç”¨ãƒªã‚¹ãƒˆã‚’åˆæœŸåŒ–
+            UpdateFilteringLists();
+
+            // çµ±è¨ˆæƒ…å ±ã‚’èª­ã¿è¾¼ã¿
+            LoadTodayStatistics();
+
+            // åˆæœŸè¡¨ç¤ºæ›´æ–°
             UpdateProgress();
             UpdateSessionTypeText();
+
+            // ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£å¤‰æ›´ç›£è¦–
+            PropertyChanged += OnPropertyChanged;
         }
 
         /// <summary>
-        /// ƒzƒbƒgƒL[‚ğ‰Šú‰»‚·‚é
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£å¤‰æ›´æ™‚ã®å‡¦ç†
+        /// </summary>
+        private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SearchText) || 
+                e.PropertyName == nameof(SelectedCategory) || 
+                e.PropertyName == nameof(SelectedTag) || 
+                e.PropertyName == nameof(SelectedPriority))
+            {
+                ApplyFilters();
+            }
+        }
+
+        /// <summary>
+        /// ãƒ›ãƒƒãƒˆã‚­ãƒ¼ã‚’åˆæœŸåŒ–ã™ã‚‹
         /// </summary>
         private void InitializeHotkeys()
         {
@@ -104,10 +159,16 @@ namespace PomodoroTimer.ViewModels
 
             _skipHotkey = new RoutedCommand();
             _skipHotkey.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
+
+            _addTaskHotkey = new RoutedCommand();
+            _addTaskHotkey.InputGestures.Add(new KeyGesture(Key.T, ModifierKeys.Control));
+
+            _settingsHotkey = new RoutedCommand();
+            _settingsHotkey.InputGestures.Add(new KeyGesture(Key.F1));
         }
 
         /// <summary>
-        /// ƒzƒbƒgƒL[‚ÌƒRƒ}ƒ“ƒhƒoƒCƒ“ƒfƒBƒ“ƒO‚ğæ“¾‚·‚é
+        /// ãƒ›ãƒƒãƒˆã‚­ãƒ¼ã®ã‚³ãƒãƒ³ãƒ‰ãƒã‚¤ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ã‚’å–å¾—ã™ã‚‹
         /// </summary>
         public CommandBinding[] GetHotkeyBindings()
         {
@@ -115,12 +176,14 @@ namespace PomodoroTimer.ViewModels
             {
                 new CommandBinding(_startPauseHotkey, (s, e) => StartPause()),
                 new CommandBinding(_stopHotkey, (s, e) => Stop()),
-                new CommandBinding(_skipHotkey, (s, e) => Skip())
+                new CommandBinding(_skipHotkey, (s, e) => Skip()),
+                new CommandBinding(_addTaskHotkey, (s, e) => AddTask()),
+                new CommandBinding(_settingsHotkey, (s, e) => OpenSettings())
             };
         }
 
         /// <summary>
-        /// ƒzƒbƒgƒL[‚ÌƒCƒ“ƒvƒbƒgƒoƒCƒ“ƒfƒBƒ“ƒO‚ğæ“¾‚·‚é
+        /// ãƒ›ãƒƒãƒˆã‚­ãƒ¼ã®ã‚¤ãƒ³ãƒ—ãƒƒãƒˆãƒã‚¤ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ã‚’å–å¾—ã™ã‚‹
         /// </summary>
         public InputBinding[] GetHotkeyInputBindings()
         {
@@ -128,12 +191,14 @@ namespace PomodoroTimer.ViewModels
             {
                 new InputBinding(_startPauseHotkey, new KeyGesture(Key.Space, ModifierKeys.Control)),
                 new InputBinding(_stopHotkey, new KeyGesture(Key.S, ModifierKeys.Control)),
-                new InputBinding(_skipHotkey, new KeyGesture(Key.N, ModifierKeys.Control))
+                new InputBinding(_skipHotkey, new KeyGesture(Key.N, ModifierKeys.Control)),
+                new InputBinding(_addTaskHotkey, new KeyGesture(Key.T, ModifierKeys.Control)),
+                new InputBinding(_settingsHotkey, new KeyGesture(Key.F1))
             };
         }
 
         /// <summary>
-        /// ƒ^ƒCƒ}[ƒCƒxƒ“ƒg‚ğw“Ç‚·‚é
+        /// ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆã‚’è³¼èª­ã™ã‚‹
         /// </summary>
         private void SubscribeToTimerEvents()
         {
@@ -147,7 +212,7 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
-        /// ŠJn/ˆê’â~ƒRƒ}ƒ“ƒh
+        /// é–‹å§‹/ä¸€æ™‚åœæ­¢ã‚³ãƒãƒ³ãƒ‰
         /// </summary>
         [RelayCommand]
         private void StartPause()
@@ -160,19 +225,19 @@ namespace PomodoroTimer.ViewModels
             {
                 if (_timerService.RemainingTime <= TimeSpan.Zero)
                 {
-                    // V‚µ‚¢ƒ|ƒ‚ƒh[ƒƒTƒCƒNƒ‹‚ğŠJn
+                    // æ–°ã—ã„ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­ã‚µã‚¤ã‚¯ãƒ«ã‚’é–‹å§‹
                     _timerService.StartNewPomodoroCycle();
                 }
                 else
                 {
-                    // ˆê’â~‚©‚çÄŠJ
+                    // ä¸€æ™‚åœæ­¢ã‹ã‚‰å†é–‹
                     _timerService.Resume();
                 }
             }
         }
 
         /// <summary>
-        /// ’â~ƒRƒ}ƒ“ƒh
+        /// åœæ­¢ã‚³ãƒãƒ³ãƒ‰
         /// </summary>
         [RelayCommand]
         private void Stop()
@@ -181,7 +246,7 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
-        /// ƒXƒLƒbƒvƒRƒ}ƒ“ƒh
+        /// ã‚¹ã‚­ãƒƒãƒ—ã‚³ãƒãƒ³ãƒ‰
         /// </summary>
         [RelayCommand]
         private void Skip()
@@ -190,18 +255,18 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
-        /// ƒ^ƒXƒNŠJnƒRƒ}ƒ“ƒh
+        /// ã‚¿ã‚¹ã‚¯é–‹å§‹ã‚³ãƒãƒ³ãƒ‰
         /// </summary>
-        /// <param name="task">ŠJn‚·‚éƒ^ƒXƒN</param>
+        /// <param name="task">é–‹å§‹ã™ã‚‹ã‚¿ã‚¹ã‚¯</param>
         [RelayCommand]
         private void StartTask(PomodoroTask task)
         {
             CurrentTask = task;
-            Stop(); // Œ»İ‚Ìƒ^ƒCƒ}[‚ğ’â~‚µ‚ÄƒŠƒZƒbƒg
+            Stop(); // ç¾åœ¨ã®ã‚¿ã‚¤ãƒãƒ¼ã‚’åœæ­¢ã—ã¦ãƒªã‚»ãƒƒãƒˆ
         }
 
         /// <summary>
-        /// ƒ^ƒXƒN’Ç‰ÁƒRƒ}ƒ“ƒh
+        /// ã‚¿ã‚¹ã‚¯è¿½åŠ ã‚³ãƒãƒ³ãƒ‰
         /// </summary>
         [RelayCommand]
         private void AddTask()
@@ -209,13 +274,135 @@ namespace PomodoroTimer.ViewModels
             var dialog = new TaskDialog();
             if (dialog.ShowDialog() == true)
             {
-                var newTask = new PomodoroTask(dialog.TaskTitle, dialog.EstimatedPomodoros);
+                var newTask = new PomodoroTask(dialog.TaskTitle, dialog.EstimatedPomodoros)
+                {
+                    Description = dialog.TaskDescription,
+                    Category = dialog.Category,
+                    TagsText = dialog.TagsText,
+                    Priority = dialog.Priority
+                };
+                
                 _pomodoroService.AddTask(newTask);
+                UpdateFilteringLists();
+                ApplyFilters();
             }
         }
 
         /// <summary>
-        /// İ’è‰æ–Ê‚ğŠJ‚­ƒRƒ}ƒ“ƒh
+        /// ã‚¿ã‚¹ã‚¯ç·¨é›†ã‚³ãƒãƒ³ãƒ‰
+        /// </summary>
+        /// <param name="task">ç·¨é›†ã™ã‚‹ã‚¿ã‚¹ã‚¯</param>
+        [RelayCommand]
+        private void EditTask(PomodoroTask task)
+        {
+            var dialog = new TaskDialog(task);
+            if (dialog.ShowDialog() == true)
+            {
+                task.Title = dialog.TaskTitle;
+                task.Description = dialog.TaskDescription;
+                task.Category = dialog.Category;
+                task.TagsText = dialog.TagsText;
+                task.Priority = dialog.Priority;
+                task.EstimatedPomodoros = dialog.EstimatedPomodoros;
+                
+                _pomodoroService.UpdateTask(task);
+                UpdateFilteringLists();
+                ApplyFilters();
+            }
+        }
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯å‰Šé™¤ã‚³ãƒãƒ³ãƒ‰
+        /// </summary>
+        /// <param name="task">å‰Šé™¤ã™ã‚‹ã‚¿ã‚¹ã‚¯</param>
+        [RelayCommand]
+        private void DeleteTask(PomodoroTask task)
+        {
+            var result = MessageBox.Show($"ã‚¿ã‚¹ã‚¯ã€Œ{task.Title}ã€ã‚’å‰Šé™¤ã—ã¾ã™ã‹ï¼Ÿ", "ç¢ºèª", 
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                _pomodoroService.RemoveTask(task);
+                UpdateFilteringLists();
+                ApplyFilters();
+            }
+        }
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯å®Œäº†ã‚³ãƒãƒ³ãƒ‰
+        /// </summary>
+        /// <param name="task">å®Œäº†ã™ã‚‹ã‚¿ã‚¹ã‚¯</param>
+        [RelayCommand]
+        private void CompleteTask(PomodoroTask task)
+        {
+            _pomodoroService.CompleteTask(task);
+            _statisticsService.RecordTaskComplete(task);
+            LoadTodayStatistics();
+            ApplyFilters();
+        }
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯ã‚¤ãƒ³ãƒãƒ¼ãƒˆã‚³ãƒãƒ³ãƒ‰
+        /// </summary>
+        [RelayCommand]
+        private async Task ImportTasks()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
+                Title = "ã‚¿ã‚¹ã‚¯ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é¸æŠ"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    await _pomodoroService.ImportTasksFromCsvAsync(openFileDialog.FileName);
+                    UpdateFilteringLists();
+                    ApplyFilters();
+                    MessageBox.Show("ã‚¿ã‚¹ã‚¯ã®ã‚¤ãƒ³ãƒãƒ¼ãƒˆãŒå®Œäº†ã—ã¾ã—ãŸã€‚", "æˆåŠŸ", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"ã‚¤ãƒ³ãƒãƒ¼ãƒˆã«å¤±æ•—ã—ã¾ã—ãŸ: {ex.Message}", "ã‚¨ãƒ©ãƒ¼", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã‚³ãƒãƒ³ãƒ‰
+        /// </summary>
+        [RelayCommand]
+        private async Task ExportTasks()
+        {
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "CSV files (*.csv)|*.csv",
+                Title = "ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆå…ˆã‚’é¸æŠ",
+                FileName = $"tasks_{DateTime.Now:yyyyMMdd}.csv"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    await _pomodoroService.ExportTasksToCsvAsync(saveFileDialog.FileName);
+                    MessageBox.Show("ã‚¿ã‚¹ã‚¯ã®ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆãŒå®Œäº†ã—ã¾ã—ãŸã€‚", "æˆåŠŸ", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã«å¤±æ•—ã—ã¾ã—ãŸ: {ex.Message}", "ã‚¨ãƒ©ãƒ¼", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// è¨­å®šç”»é¢ã‚’é–‹ãã‚³ãƒãƒ³ãƒ‰
         /// </summary>
         [RelayCommand]
         private void OpenSettings()
@@ -223,24 +410,119 @@ namespace PomodoroTimer.ViewModels
             var settingsDialog = new SettingsDialog(_settings);
             if (settingsDialog.ShowDialog() == true)
             {
-                // V‚µ‚¢İ’è‚ğ“K—p
+                // æ–°ã—ã„è¨­å®šã‚’é©ç”¨
                 UpdateSettings(settingsDialog.Settings);
                 
-                // UI‚Ì•\¦‚ğXV
+                // UIã®è¡¨ç¤ºã‚’æ›´æ–°
                 UpdateSessionTypeText();
                 UpdateProgress();
                 UpdateTotalFocusTime();
 
-                MessageBox.Show("Settings updated successfully!", "Settings", 
+                MessageBox.Show("è¨­å®šãŒæ›´æ–°ã•ã‚Œã¾ã—ãŸã€‚", "è¨­å®š", 
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
         /// <summary>
-        /// ƒ^ƒXƒN‚Ì‡˜‚ğ•ÏX‚·‚é
+        /// çµ±è¨ˆç”»é¢ã‚’é–‹ãã‚³ãƒãƒ³ãƒ‰
         /// </summary>
-        /// <param name="draggedTask">ƒhƒ‰ƒbƒO‚³‚ê‚½ƒ^ƒXƒN</param>
-        /// <param name="targetTask">ƒhƒƒbƒvæ‚Ìƒ^ƒXƒN</param>
+        [RelayCommand]
+        private void OpenStatistics()
+        {
+            var statisticsDialog = new StatisticsDialog(_statisticsService, _pomodoroService);
+            statisticsDialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ã‚’ã‚¯ãƒªã‚¢ã™ã‚‹ã‚³ãƒãƒ³ãƒ‰
+        /// </summary>
+        [RelayCommand]
+        private void ClearFilters()
+        {
+            SearchText = string.Empty;
+            SelectedCategory = string.Empty;
+            SelectedTag = string.Empty;
+            SelectedPriority = null;
+        }
+
+        /// <summary>
+        /// ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°ç”¨ãƒªã‚¹ãƒˆã‚’æ›´æ–°ã™ã‚‹
+        /// </summary>
+        private void UpdateFilteringLists()
+        {
+            AvailableCategories.Clear();
+            AvailableCategories.Add("ã™ã¹ã¦");
+            foreach (var category in _pomodoroService.GetAllCategories())
+            {
+                AvailableCategories.Add(category);
+            }
+
+            AvailableTags.Clear();
+            AvailableTags.Add("ã™ã¹ã¦");
+            foreach (var tag in _pomodoroService.GetAllTags())
+            {
+                AvailableTags.Add(tag);
+            }
+        }
+
+        /// <summary>
+        /// ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ã‚’é©ç”¨ã™ã‚‹
+        /// </summary>
+        private void ApplyFilters()
+        {
+            var filteredTasks = Tasks.AsEnumerable();
+
+            // ãƒ†ã‚­ã‚¹ãƒˆæ¤œç´¢
+            if (!string.IsNullOrEmpty(SearchText))
+            {
+                filteredTasks = filteredTasks.Where(t => 
+                    t.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                    t.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // ã‚«ãƒ†ã‚´ãƒªãƒ•ã‚£ãƒ«ã‚¿ãƒ¼
+            if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "ã™ã¹ã¦")
+            {
+                filteredTasks = filteredTasks.Where(t => 
+                    t.Category.Equals(SelectedCategory, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // ã‚¿ã‚°ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼
+            if (!string.IsNullOrEmpty(SelectedTag) && SelectedTag != "ã™ã¹ã¦")
+            {
+                filteredTasks = filteredTasks.Where(t => 
+                    t.Tags.Any(tag => tag.Equals(SelectedTag, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            // å„ªå…ˆåº¦ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼
+            if (SelectedPriority.HasValue)
+            {
+                filteredTasks = filteredTasks.Where(t => t.Priority == SelectedPriority.Value);
+            }
+
+            FilteredTasks.Clear();
+            foreach (var task in filteredTasks.OrderBy(t => t.DisplayOrder))
+            {
+                FilteredTasks.Add(task);
+            }
+        }
+
+        /// <summary>
+        /// æœ¬æ—¥ã®çµ±è¨ˆã‚’èª­ã¿è¾¼ã‚€
+        /// </summary>
+        private void LoadTodayStatistics()
+        {
+            TodayStatistics = _statisticsService.GetDailyStatistics(DateTime.Today);
+            CompletedPomodoros = TodayStatistics.CompletedPomodoros;
+            CompletedTasks = TodayStatistics.CompletedTasks;
+            UpdateTotalFocusTime();
+        }
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯ã®é †åºã‚’å¤‰æ›´ã™ã‚‹
+        /// </summary>
+        /// <param name="draggedTask">ãƒ‰ãƒ©ãƒƒã‚°ã•ã‚ŒãŸã‚¿ã‚¹ã‚¯</param>
+        /// <param name="targetTask">ãƒ‰ãƒ­ãƒƒãƒ—å…ˆã®ã‚¿ã‚¹ã‚¯</param>
         public void ReorderTasks(PomodoroTask draggedTask, PomodoroTask targetTask)
         {
             var draggedIndex = Tasks.IndexOf(draggedTask);
@@ -249,28 +531,38 @@ namespace PomodoroTimer.ViewModels
             if (draggedIndex != -1 && targetIndex != -1)
             {
                 _pomodoroService.ReorderTasks(draggedIndex, targetIndex);
+                ApplyFilters();
             }
         }
 
         /// <summary>
-        /// İ’è‚ğ•Û‘¶‚·‚é
+        /// è¨­å®šã‚’ä¿å­˜ã™ã‚‹
         /// </summary>
-        public void SaveSettings()
+        public async Task SaveSettingsAsync()
         {
-            // İ’è•Û‘¶‚ÌÀ‘•i«—ˆÀ‘•—\’èj
+            try
+            {
+                await _dataPersistenceService.SaveDataAsync("settings.json", _settings);
+                await _pomodoroService.SaveTasksAsync();
+                await _statisticsService.SaveStatisticsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"è¨­å®šã®ä¿å­˜ã«å¤±æ•—ã—ã¾ã—ãŸ: {ex.Message}");
+            }
         }
 
         /// <summary>
-        /// İ’è‚ğXV‚·‚é
+        /// è¨­å®šã‚’æ›´æ–°ã™ã‚‹
         /// </summary>
-        /// <param name="settings">V‚µ‚¢İ’è</param>
+        /// <param name="settings">æ–°ã—ã„è¨­å®š</param>
         public void UpdateSettings(AppSettings settings)
         {
             _settings = settings;
             _timerService.UpdateSettings(settings);
         }
 
-        #region ƒ^ƒCƒ}[ƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰
+        #region ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©
 
         private void OnTimerStarted()
         {
@@ -304,7 +596,7 @@ namespace PomodoroTimer.ViewModels
 
         private void OnSessionCompleted(SessionType sessionType)
         {
-            // ƒ[ƒNƒZƒbƒVƒ‡ƒ“‚ªŠ®—¹‚µ‚½ê‡‚Ìˆ—
+            // ãƒ¯ãƒ¼ã‚¯ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒå®Œäº†ã—ãŸå ´åˆã®å‡¦ç†
             if (sessionType == SessionType.Work)
             {
                 CompletedPomodoros = _timerService.CompletedPomodoros;
@@ -319,11 +611,11 @@ namespace PomodoroTimer.ViewModels
                     }
                 }
 
-                // W’†ŠÔ‚ğXV
+                // é›†ä¸­æ™‚é–“ã‚’æ›´æ–°
                 UpdateTotalFocusTime();
             }
 
-            // ƒZƒbƒVƒ‡ƒ“Š®—¹Œã‚Ìó‘ÔXV
+            // ã‚»ãƒƒã‚·ãƒ§ãƒ³å®Œäº†å¾Œã®çŠ¶æ…‹æ›´æ–°
             IsRunning = false;
             StartPauseButtonText = "Start";
         }
@@ -336,7 +628,7 @@ namespace PomodoroTimer.ViewModels
         #endregion
 
         /// <summary>
-        /// ƒZƒbƒVƒ‡ƒ“ƒ^ƒCƒv‚ÌƒeƒLƒXƒg‚ğXV‚·‚é
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚¿ã‚¤ãƒ—ã®ãƒ†ã‚­ã‚¹ãƒˆã‚’æ›´æ–°ã™ã‚‹
         /// </summary>
         private void UpdateSessionTypeText()
         {
@@ -350,7 +642,7 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
-        /// i’»•\¦‚ğXV‚·‚é
+        /// é€²æ—è¡¨ç¤ºã‚’æ›´æ–°ã™ã‚‹
         /// </summary>
         private void UpdateProgress()
         {
@@ -361,7 +653,7 @@ namespace PomodoroTimer.ViewModels
 
             var progress = (totalSeconds - remainingSeconds) / totalSeconds;
             
-            // ‰~Œ`ƒvƒƒOƒŒƒX—p
+            // å††å½¢ãƒ—ãƒ­ã‚°ãƒ¬ã‚¹ç”¨
             var angle = progress * 360;
             var radians = (angle - 90) * Math.PI / 180;
 
@@ -371,12 +663,12 @@ namespace PomodoroTimer.ViewModels
             ProgressPoint = new Point(x, y);
             IsLargeArc = angle > 180;
 
-            // üŒ`ƒvƒƒOƒŒƒX—piƒp[ƒZƒ“ƒe[ƒWj
+            // ç·šå½¢ãƒ—ãƒ­ã‚°ãƒ¬ã‚¹ç”¨ï¼ˆãƒ‘ãƒ¼ã‚»ãƒ³ãƒ†ãƒ¼ã‚¸ï¼‰
             ProgressValue = progress * 100;
         }
 
         /// <summary>
-        /// ‘W’†ŠÔ‚ğXV‚·‚é
+        /// ç·é›†ä¸­æ™‚é–“ã‚’æ›´æ–°ã™ã‚‹
         /// </summary>
         private void UpdateTotalFocusTime()
         {

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using PomodoroTimer.Services;
+﻿using PomodoroTimer.Services;
 using PomodoroTimer.ViewModels;
 using PomodoroTimer.Views;
 using System.Windows;
@@ -11,13 +10,6 @@ namespace PomodoroTimer
     /// </summary>
     public partial class App : Application
     {
-        private ServiceProvider? _serviceProvider;
-
-        /// <summary>
-        /// サービスプロバイダー
-        /// </summary>
-        public IServiceProvider Services => _serviceProvider ?? throw new InvalidOperationException("Services not configured");
-
         /// <summary>
         /// アプリケーション開始時の処理
         /// </summary>
@@ -26,13 +18,13 @@ namespace PomodoroTimer
             // グローバル例外ハンドラーを設定
             DispatcherUnhandledException += (sender, ex) =>
             {
-                var message = $"Unhandled exception: {ex.Exception.Message}";
+                var message = $"予期しないエラーが発生しました: {ex.Exception.Message}";
                 if (ex.Exception.InnerException != null)
                 {
-                    message += $"\nInner Exception: {ex.Exception.InnerException.Message}";
+                    message += $"\n詳細: {ex.Exception.InnerException.Message}";
                 }
                 
-                MessageBox.Show(message, "Error", 
+                MessageBox.Show(message, "エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 ex.Handled = true;
             };
@@ -40,17 +32,14 @@ namespace PomodoroTimer
             // アプリケーションドメインレベルの例外ハンドラー
             AppDomain.CurrentDomain.UnhandledException += (sender, ex) =>
             {
-                MessageBox.Show($"Unhandled domain exception: {ex.ExceptionObject}", "Critical Error", 
+                MessageBox.Show($"重大なエラーが発生しました: {ex.ExceptionObject}", "重大なエラー", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
             };
 
             try
             {
-                // DIコンテナの設定
-                ConfigureServices();
-
-                // メインウィンドウを作成・設定
-                var mainWindow = Services.GetRequiredService<MainWindow>();
+                // メインウィンドウを作成・設定（DIコンテナを使わずにシンプルに）
+                var mainWindow = new MainWindow();
                 MainWindow = mainWindow;
                 
                 // ウィンドウを表示
@@ -61,14 +50,13 @@ namespace PomodoroTimer
             catch (Exception ex)
             {
                 // 起動時エラーのデバッグ情報を表示
-                var errorMessage = $"Application startup failed: {ex.Message}";
+                var errorMessage = $"アプリケーションの起動に失敗しました: {ex.Message}";
                 if (ex.InnerException != null)
                 {
-                    errorMessage += $"\nInner Exception: {ex.InnerException.Message}";
+                    errorMessage += $"\n詳細: {ex.InnerException.Message}";
                 }
-                errorMessage += $"\n\nStack Trace:\n{ex.StackTrace}";
                 
-                MessageBox.Show(errorMessage, "Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(errorMessage, "起動エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                 
                 // アプリケーションを終了
                 Shutdown();
@@ -76,40 +64,10 @@ namespace PomodoroTimer
         }
 
         /// <summary>
-        /// サービスの設定
-        /// </summary>
-        private void ConfigureServices()
-        {
-            var services = new ServiceCollection();
-
-            // サービスの登録
-            services.AddSingleton<INotificationService, NotificationService>();
-            services.AddSingleton<IPomodoroService, PomodoroService>();
-            services.AddSingleton<ITimerService>(serviceProvider =>
-            {
-                var notificationService = serviceProvider.GetRequiredService<INotificationService>();
-                return new TimerService(notificationService);
-            });
-
-            // ViewModelの登録
-            services.AddSingleton<MainViewModel>();
-
-            // Viewの登録（ViewModelを注入）
-            services.AddTransient<MainWindow>(serviceProvider => 
-            {
-                var viewModel = serviceProvider.GetRequiredService<MainViewModel>();
-                return new MainWindow(viewModel);
-            });
-
-            _serviceProvider = services.BuildServiceProvider();
-        }
-
-        /// <summary>
         /// アプリケーション終了時の処理
         /// </summary>
         protected override void OnExit(ExitEventArgs e)
         {
-            _serviceProvider?.Dispose();
             base.OnExit(e);
         }
     }

@@ -1,27 +1,43 @@
-using System.Windows;
+ï»¿using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using PomodoroTimer.Models;
 
 namespace PomodoroTimer.Views
 {
     /// <summary>
-    /// ƒ^ƒXƒN’Ç‰Áƒ_ƒCƒAƒƒO
+    /// ã‚¿ã‚¹ã‚¯è¿½åŠ ãƒ€ã‚¤ã‚¢ãƒ­ã‚°
     /// </summary>
     public partial class TaskDialog : Window
     {
         /// <summary>
-        /// ƒ^ƒXƒN‚Ìƒ^ƒCƒgƒ‹
+        /// ã‚¿ã‚¹ã‚¯ã®ã‚¿ã‚¤ãƒˆãƒ«
         /// </summary>
         public string TaskTitle { get; set; } = string.Empty;
 
         /// <summary>
-        /// —\’èƒ|ƒ‚ƒh[ƒ”
+        /// äºˆå®šãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°
         /// </summary>
         public int EstimatedPomodoros { get; set; } = 1;
 
         /// <summary>
-        /// ƒ^ƒXƒN‚Ìà–¾
+        /// ã‚¿ã‚¹ã‚¯ã®èª¬æ˜
         /// </summary>
         public string TaskDescription { get; set; } = string.Empty;
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯ã®ã‚«ãƒ†ã‚´ãƒª
+        /// </summary>
+        public string Category { get; set; } = string.Empty;
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯ã®ã‚¿ã‚°
+        /// </summary>
+        public string TagsText { get; set; } = string.Empty;
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯ã®å„ªå…ˆåº¦
+        /// </summary>
+        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
 
         public TaskDialog()
         {
@@ -30,38 +46,63 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// OKƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Ìˆ—
+        /// æ—¢å­˜ã‚¿ã‚¹ã‚¯ã‚’ç·¨é›†ç”¨ã«é–‹ãã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+        /// </summary>
+        /// <param name="task">ç·¨é›†ã™ã‚‹ã‚¿ã‚¹ã‚¯</param>
+        public TaskDialog(PomodoroTask task)
+        {
+            InitializeComponent();
+            
+            var viewModel = new TaskDialogViewModel
+            {
+                TaskTitle = task.Title,
+                EstimatedPomodoros = task.EstimatedPomodoros,
+                TaskDescription = task.Description,
+                Category = task.Category,
+                TagsText = task.TagsText,
+                Priority = task.Priority
+            };
+            
+            DataContext = viewModel;
+            Title = "ã‚¿ã‚¹ã‚¯ã®ç·¨é›†";
+        }
+
+        /// <summary>
+        /// OKãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸæ™‚ã®å‡¦ç†
         /// </summary>
         private void OK_Click(object sender, RoutedEventArgs e)
         {
             var viewModel = (TaskDialogViewModel)DataContext;
             
-            // “ü—Í’l‚ÌŒŸØ
+            // å…¥åŠ›å€¤ã®æ¤œè¨¼
             if (string.IsNullOrWhiteSpace(viewModel.TaskTitle))
             {
-                MessageBox.Show("Please enter a task name.", "Input Error", 
+                MessageBox.Show("ã‚¿ã‚¹ã‚¯åã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚", "å…¥åŠ›ã‚¨ãƒ©ãƒ¼", 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (viewModel.EstimatedPomodoros < 1 || viewModel.EstimatedPomodoros > 10)
             {
-                MessageBox.Show("Estimated pomodoros must be between 1 and 10.", "Input Error", 
+                MessageBox.Show("äºˆå®šãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°ã¯1ã‹ã‚‰10ã®é–“ã§è¨­å®šã—ã¦ãã ã•ã„ã€‚", "å…¥åŠ›ã‚¨ãƒ©ãƒ¼", 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // ƒvƒƒpƒeƒB‚É’l‚ğİ’è
+            // ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã«å€¤ã‚’è¨­å®š
             TaskTitle = viewModel.TaskTitle;
             EstimatedPomodoros = viewModel.EstimatedPomodoros;
             TaskDescription = viewModel.TaskDescription;
+            Category = viewModel.Category;
+            TagsText = viewModel.TagsText;
+            Priority = viewModel.Priority;
 
             DialogResult = true;
             Close();
         }
 
         /// <summary>
-        /// ƒLƒƒƒ“ƒZƒ‹ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Ìˆ—
+        /// ã‚­ãƒ£ãƒ³ã‚»ãƒ«ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸæ™‚ã®å‡¦ç†
         /// </summary>
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
@@ -71,7 +112,7 @@ namespace PomodoroTimer.Views
     }
 
     /// <summary>
-    /// TaskDialog—p‚ÌViewModel
+    /// TaskDialogç”¨ã®ViewModel
     /// </summary>
     public partial class TaskDialogViewModel : ObservableObject
     {
@@ -83,5 +124,14 @@ namespace PomodoroTimer.Views
 
         [ObservableProperty]
         private string taskDescription = string.Empty;
+
+        [ObservableProperty]
+        private string category = string.Empty;
+
+        [ObservableProperty]
+        private string tagsText = string.Empty;
+
+        [ObservableProperty]
+        private TaskPriority priority = TaskPriority.Medium;
     }
 }

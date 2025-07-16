@@ -1,20 +1,27 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+ï»¿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PomodoroTimer.Models
 {
     /// <summary>
-    /// ƒ|ƒ‚ƒh[ƒƒ^ƒXƒN‚Ìƒ‚ƒfƒ‹
+    /// ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­ã‚¿ã‚¹ã‚¯ã®ãƒ¢ãƒ‡ãƒ«
     /// </summary>
     public partial class PomodoroTask : ObservableObject
     {
         /// <summary>
-        /// ƒ^ƒXƒN‚Ìƒ^ƒCƒgƒ‹
+        /// ã‚¿ã‚¹ã‚¯ã®ä¸€æ„ã®ID
+        /// </summary>
+        [ObservableProperty]
+        private Guid id = Guid.NewGuid();
+
+        /// <summary>
+        /// ã‚¿ã‚¹ã‚¯ã®ã‚¿ã‚¤ãƒˆãƒ«
         /// </summary>
         [ObservableProperty]
         private string title = string.Empty;
 
         /// <summary>
-        /// —\’èƒ|ƒ‚ƒh[ƒ”
+        /// äºˆå®šãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°
         /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ProgressPercentage))]
@@ -22,7 +29,7 @@ namespace PomodoroTimer.Models
         private int estimatedPomodoros = 1;
 
         /// <summary>
-        /// Š®—¹ƒ|ƒ‚ƒh[ƒ”
+        /// å®Œäº†ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°
         /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ProgressPercentage))]
@@ -30,53 +37,110 @@ namespace PomodoroTimer.Models
         private int completedPomodoros = 0;
 
         /// <summary>
-        /// ƒ^ƒXƒN‚ªŠ®—¹‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚©
+        /// ã‚¿ã‚¹ã‚¯ãŒå®Œäº†ã—ã¦ã„ã‚‹ã‹ã©ã†ã‹
         /// </summary>
         [ObservableProperty]
         private bool isCompleted = false;
 
         /// <summary>
-        /// ƒ^ƒXƒN‚Ìì¬“ú
+        /// ã‚¿ã‚¹ã‚¯ã®ä½œæˆæ—¥æ™‚
         /// </summary>
         [ObservableProperty]
         private DateTime createdAt = DateTime.Now;
 
         /// <summary>
-        /// ƒ^ƒXƒN‚ÌŠ®—¹“ú
+        /// ã‚¿ã‚¹ã‚¯ã®å®Œäº†æ—¥æ™‚
         /// </summary>
         [ObservableProperty]
         private DateTime? completedAt;
 
         /// <summary>
-        /// ƒ^ƒXƒN‚Ì—Dæ“x
+        /// ã‚¿ã‚¹ã‚¯ã®å„ªå…ˆåº¦
         /// </summary>
         [ObservableProperty]
         private TaskPriority priority = TaskPriority.Medium;
 
         /// <summary>
-        /// ƒ^ƒXƒN‚Ìà–¾
+        /// ã‚¿ã‚¹ã‚¯ã®èª¬æ˜
         /// </summary>
         [ObservableProperty]
         private string description = string.Empty;
 
         /// <summary>
-        /// ƒ^ƒXƒN‚ÌƒJƒeƒSƒŠ
+        /// ã‚¿ã‚¹ã‚¯ã®ã‚«ãƒ†ã‚´ãƒª
         /// </summary>
         [ObservableProperty]
         private string category = string.Empty;
 
         /// <summary>
-        /// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        /// ã‚¿ã‚¹ã‚¯ã®ã‚¿ã‚°ãƒªã‚¹ãƒˆ
+        /// </summary>
+        [ObservableProperty]
+        private List<string> tags = new();
+
+        /// <summary>
+        /// è¡¨ç¤ºé †åº
+        /// </summary>
+        [ObservableProperty]
+        private int displayOrder = 0;
+
+        /// <summary>
+        /// ã‚¿ã‚°ã®æ–‡å­—åˆ—è¡¨ç¾ï¼ˆã‚«ãƒ³ãƒåŒºåˆ‡ã‚Šï¼‰
+        /// </summary>
+        public string TagsText
+        {
+            get => string.Join(", ", Tags);
+            set
+            {
+                var newTags = value?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(tag => tag.Trim())
+                    .Where(tag => !string.IsNullOrEmpty(tag))
+                    .ToList() ?? new List<string>();
+                
+                if (!Tags.SequenceEqual(newTags))
+                {
+                    Tags = newTags;
+                    OnPropertyChanged(nameof(TagsText));
+                }
+            }
+        }
+
+        /// <summary>
+        /// å„ªå…ˆåº¦ã®è¡¨ç¤ºãƒ†ã‚­ã‚¹ãƒˆ
+        /// </summary>
+        public string PriorityText => Priority switch
+        {
+            TaskPriority.Low => "ä½",
+            TaskPriority.Medium => "ä¸­",
+            TaskPriority.High => "é«˜",
+            TaskPriority.Urgent => "ç·Šæ€¥",
+            _ => "ä¸­"
+        };
+
+        /// <summary>
+        /// å„ªå…ˆåº¦ã®è‰²
+        /// </summary>
+        public string PriorityColor => Priority switch
+        {
+            TaskPriority.Low => "Green",
+            TaskPriority.Medium => "Orange",
+            TaskPriority.High => "Red",
+            TaskPriority.Urgent => "DarkRed",
+            _ => "Orange"
+        };
+
+        /// <summary>
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
         /// </summary>
         public PomodoroTask()
         {
         }
 
         /// <summary>
-        /// ƒ^ƒCƒgƒ‹‚Æ—\’èƒ|ƒ‚ƒh[ƒ”‚ğw’è‚·‚éƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        /// ã‚¿ã‚¤ãƒˆãƒ«ã¨äºˆå®šãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°ã‚’æŒ‡å®šã™ã‚‹ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
         /// </summary>
-        /// <param name="title">ƒ^ƒXƒN‚Ìƒ^ƒCƒgƒ‹</param>
-        /// <param name="estimatedPomodoros">—\’èƒ|ƒ‚ƒh[ƒ”</param>
+        /// <param name="title">ã‚¿ã‚¹ã‚¯ã®ã‚¿ã‚¤ãƒˆãƒ«</param>
+        /// <param name="estimatedPomodoros">äºˆå®šãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°</param>
         public PomodoroTask(string title, int estimatedPomodoros = 1)
         {
             Title = title ?? string.Empty;
@@ -84,7 +148,7 @@ namespace PomodoroTimer.Models
         }
 
         /// <summary>
-        /// ƒ^ƒXƒN‚Ìi’»—¦‚ğæ“¾‚·‚é
+        /// ã‚¿ã‚¹ã‚¯ã®é€²æ—ç‡ã‚’å–å¾—ã™ã‚‹
         /// </summary>
         public double ProgressPercentage
         {
@@ -104,7 +168,7 @@ namespace PomodoroTimer.Models
         }
 
         /// <summary>
-        /// c‚è—\’èƒ|ƒ‚ƒh[ƒ”‚ğæ“¾‚·‚é
+        /// æ®‹ã‚Šäºˆå®šãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°ã‚’å–å¾—ã™ã‚‹
         /// </summary>
         public int RemainingPomodoros
         {
@@ -123,27 +187,27 @@ namespace PomodoroTimer.Models
     }
 
     /// <summary>
-    /// ƒ^ƒXƒN‚Ì—Dæ“x
+    /// ã‚¿ã‚¹ã‚¯ã®å„ªå…ˆåº¦
     /// </summary>
     public enum TaskPriority
     {
         /// <summary>
-        /// ’á—Dæ“x
+        /// ä½å„ªå…ˆåº¦
         /// </summary>
         Low,
         
         /// <summary>
-        /// ’†—Dæ“x
+        /// ä¸­å„ªå…ˆåº¦
         /// </summary>
         Medium,
         
         /// <summary>
-        /// ‚—Dæ“x
+        /// é«˜å„ªå…ˆåº¦
         /// </summary>
         High,
         
         /// <summary>
-        /// ‹Ù‹}
+        /// ç·Šæ€¥
         /// </summary>
         Urgent
     }

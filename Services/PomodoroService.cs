@@ -1,31 +1,59 @@
-using PomodoroTimer.Models;
+﻿using PomodoroTimer.Models;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Text;
 
 namespace PomodoroTimer.Services
 {
     /// <summary>
-    /// �|���h�[���^�C�}�[�̃r�W�l�X���W�b�N����
+    /// ポモドーロタイマーのビジネスロジック実装
     /// </summary>
     public class PomodoroService : IPomodoroService
     {
         private readonly ObservableCollection<PomodoroTask> _tasks;
+        private readonly IDataPersistenceService _dataPersistenceService;
+        private const string TasksFileName = "tasks.json";
 
-        public PomodoroService()
+        public PomodoroService(IDataPersistenceService dataPersistenceService)
         {
+            _dataPersistenceService = dataPersistenceService ?? throw new ArgumentNullException(nameof(dataPersistenceService));
             _tasks = new ObservableCollection<PomodoroTask>();
             
-            // �����T���v���^�X�N��ǉ�
+            // 初期サンプルタスクを追加
             InitializeSampleTasks();
         }
 
         /// <summary>
-        /// �����T���v���^�X�N��ݒ肷��
+        /// 初期サンプルタスクを設定する
         /// </summary>
         private void InitializeSampleTasks()
         {
-            _tasks.Add(new PomodoroTask("Check and reply to emails", 1));
-            _tasks.Add(new PomodoroTask("Create project documentation", 3));
-            _tasks.Add(new PomodoroTask("Prepare for meeting", 2));
+            var sampleTasks = new[]
+            {
+                new PomodoroTask("メールの確認と返信", 1) 
+                { 
+                    Priority = TaskPriority.Medium, 
+                    Category = "仕事",
+                    TagsText = "コミュニケーション, 日課"
+                },
+                new PomodoroTask("プロジェクト資料の作成", 3) 
+                { 
+                    Priority = TaskPriority.High, 
+                    Category = "仕事",
+                    TagsText = "ドキュメント, 重要"
+                },
+                new PomodoroTask("会議の準備", 2) 
+                { 
+                    Priority = TaskPriority.High, 
+                    Category = "仕事",
+                    TagsText = "会議, 準備"
+                }
+            };
+
+            foreach (var task in sampleTasks)
+            {
+                _tasks.Add(task);
+            }
         }
 
         public ObservableCollection<PomodoroTask> GetTasks()
@@ -38,6 +66,7 @@ namespace PomodoroTimer.Services
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
+            task.DisplayOrder = _tasks.Count;
             _tasks.Add(task);
         }
 
@@ -47,6 +76,28 @@ namespace PomodoroTimer.Services
                 throw new ArgumentNullException(nameof(task));
 
             _tasks.Remove(task);
+            UpdateDisplayOrders();
+        }
+
+        public void UpdateTask(PomodoroTask task)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
+            var existingTask = GetTaskById(task.Id);
+            if (existingTask != null)
+            {
+                var index = _tasks.IndexOf(existingTask);
+                if (index >= 0)
+                {
+                    _tasks[index] = task;
+                }
+            }
+        }
+
+        public PomodoroTask? GetTaskById(Guid taskId)
+        {
+            return _tasks.FirstOrDefault(t => t.Id == taskId);
         }
 
         public void ReorderTasks(int sourceIndex, int targetIndex)
@@ -58,6 +109,7 @@ namespace PomodoroTimer.Services
                 throw new ArgumentOutOfRangeException(nameof(targetIndex));
 
             _tasks.Move(sourceIndex, targetIndex);
+            UpdateDisplayOrders();
         }
 
         public void CompleteTask(PomodoroTask task)
@@ -76,11 +128,247 @@ namespace PomodoroTimer.Services
 
             task.CompletedPomodoros++;
             
-            // �\��|���h�[�����ɒB�����ꍇ�͎�������
+            // 予定ポモドーロ数に達した場合は自動完了
             if (task.CompletedPomodoros >= task.EstimatedPomodoros)
             {
                 CompleteTask(task);
             }
+        }
+
+        public List<PomodoroTask> GetTasksByCategory(string category)
+        {
+            if (string.IsNullOrEmpty(category))
+                return new List<PomodoroTask>();
+
+            return _tasks.Where(t => t.Category.Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        public List<PomodoroTask> GetTasksByTag(string tag)
+        {
+            if (string.IsNullOrEmpty(tag))
+                return new List<PomodoroTask>();
+
+            return _tasks.Where(t => t.Tags.Any(tagItem => 
+                tagItem.Equals(tag, StringComparison.OrdinalIgnoreCase))).ToList();
+        }
+
+        public List<PomodoroTask> GetTasksByPriority(TaskPriority priority)
+        {
+            return _tasks.Where(t => t.Priority == priority).ToList();
+        }
+
+        public async Task ExportTasksToCsvAsync(string filePath)
+        {
+            try
+            {
+                var csv = new StringBuilder();
+                
+                // ヘッダー行
+                csv.AppendLine("ID,タイトル,説明,カテゴリ,タグ,優先度,予定ポモドーロ数,完了ポモドーロ数,完了状態,作成日,完了日");
+
+                // データ行
+                foreach (var task in _tasks)
+                {
+                    csv.AppendLine($"{task.Id}," +
+                                 $"\"{EscapeCsvField(task.Title)}\"," +
+                                 $"\"{EscapeCsvField(task.Description)}\"," +
+                                 $"\"{EscapeCsvField(task.Category)}\"," +
+                                 $"\"{EscapeCsvField(task.TagsText)}\"," +
+                                 $"{task.Priority}," +
+                                 $"{task.EstimatedPomodoros}," +
+                                 $"{task.CompletedPomodoros}," +
+                                 $"{(task.IsCompleted ? "完了" : "未完了")}," +
+                                 $"{task.CreatedAt:yyyy-MM-dd HH:mm:ss}," +
+                                 $"{(task.CompletedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "")}");
+                }
+
+                await System.IO.File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"CSVエクスポートに失敗しました: {ex.Message}", ex);
+            }
+        }
+
+        public async Task ImportTasksFromCsvAsync(string filePath)
+        {
+            try
+            {
+                var lines = await System.IO.File.ReadAllLinesAsync(filePath, Encoding.UTF8);
+                
+                if (lines.Length < 2) // ヘッダー + 最低1行のデータ
+                    return;
+
+                // ヘッダー行をスキップして処理
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    var fields = ParseCsvLine(lines[i]);
+                    if (fields.Length < 11) continue;
+
+                    try
+                    {
+                        var task = new PomodoroTask
+                        {
+                            Id = Guid.TryParse(fields[0], out var id) ? id : Guid.NewGuid(),
+                            Title = fields[1],
+                            Description = fields[2],
+                            Category = fields[3],
+                            TagsText = fields[4],
+                            Priority = Enum.TryParse<TaskPriority>(fields[5], out var priority) ? priority : TaskPriority.Medium,
+                            EstimatedPomodoros = int.TryParse(fields[6], out var estimated) ? estimated : 1,
+                            CompletedPomodoros = int.TryParse(fields[7], out var completed) ? completed : 0,
+                            IsCompleted = fields[8] == "完了",
+                            CreatedAt = DateTime.TryParse(fields[9], out var created) ? created : DateTime.Now,
+                            CompletedAt = DateTime.TryParse(fields[10], out var completedAt) ? completedAt : null
+                        };
+
+                        AddTask(task);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"行 {i + 1} のインポートに失敗しました: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"CSVインポートに失敗しました: {ex.Message}", ex);
+            }
+        }
+
+        public List<string> GetAllCategories()
+        {
+            return _tasks
+                .Where(t => !string.IsNullOrEmpty(t.Category))
+                .Select(t => t.Category)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
+        }
+
+        public List<string> GetAllTags()
+        {
+            return _tasks
+                .SelectMany(t => t.Tags)
+                .Where(tag => !string.IsNullOrEmpty(tag))
+                .Distinct()
+                .OrderBy(tag => tag)
+                .ToList();
+        }
+
+        public async Task SaveTasksAsync()
+        {
+            try
+            {
+                await _dataPersistenceService.SaveDataAsync("tasks.json", _tasks.ToList());
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"タスクデータの保存に失敗しました: {ex.Message}", ex);
+            }
+        }
+
+        public async Task LoadTasksAsync()
+        {
+            try
+            {
+                var tasks = await _dataPersistenceService.LoadDataAsync<List<PomodoroTask>>("tasks.json");
+                
+                if (tasks != null)
+                {
+                    _tasks.Clear();
+                    foreach (var task in tasks.OrderBy(t => t.DisplayOrder))
+                    {
+                        _tasks.Add(task);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"タスクデータの読み込みに失敗しました: {ex.Message}");
+                // 読み込みに失敗した場合はサンプルタスクを表示
+                InitializeSampleTasks();
+            }
+        }
+
+        /// <summary>
+        /// 表示順序を更新する
+        /// </summary>
+        private void UpdateDisplayOrders()
+        {
+            for (int i = 0; i < _tasks.Count; i++)
+            {
+                _tasks[i].DisplayOrder = i;
+            }
+        }
+
+        /// <summary>
+        /// CSVフィールドをエスケープする
+        /// </summary>
+        /// <param name="field">フィールド値</param>
+        /// <returns>エスケープされた値</returns>
+        private string EscapeCsvField(string field)
+        {
+            if (string.IsNullOrEmpty(field))
+                return string.Empty;
+
+            return field.Replace("\"", "\"\"");
+        }
+
+        /// <summary>
+        /// CSV行を解析する
+        /// </summary>
+        /// <param name="line">CSV行</param>
+        /// <returns>フィールドの配列</returns>
+        private string[] ParseCsvLine(string line)
+        {
+            var fields = new List<string>();
+            var currentField = new StringBuilder();
+            bool inQuotes = false;
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+
+                if (inQuotes)
+                {
+                    if (c == '"')
+                    {
+                        if (i + 1 < line.Length && line[i + 1] == '"')
+                        {
+                            currentField.Append('"');
+                            i++; // Skip next quote
+                        }
+                        else
+                        {
+                            inQuotes = false;
+                        }
+                    }
+                    else
+                    {
+                        currentField.Append(c);
+                    }
+                }
+                else
+                {
+                    if (c == '"')
+                    {
+                        inQuotes = true;
+                    }
+                    else if (c == ',')
+                    {
+                        fields.Add(currentField.ToString());
+                        currentField.Clear();
+                    }
+                    else
+                    {
+                        currentField.Append(c);
+                    }
+                }
+            }
+
+            fields.Add(currentField.ToString());
+            return fields.ToArray();
         }
     }
 }

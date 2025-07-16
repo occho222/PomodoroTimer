@@ -1,10 +1,10 @@
-using System.Windows.Threading;
+ï»¿using System.Windows.Threading;
 using PomodoroTimer.Models;
 
 namespace PomodoroTimer.Services
 {
     /// <summary>
-    /// ƒ^ƒCƒ}[ƒT[ƒrƒX‚ÌÀ‘•
+    /// ã‚¿ã‚¤ãƒãƒ¼ã‚µãƒ¼ãƒ“ã‚¹ã®å®Ÿè£…
     /// </summary>
     public class TimerService : ITimerService
     {
@@ -39,7 +39,7 @@ namespace PomodoroTimer.Services
             
             _currentSessionType = SessionType.Work;
             _completedPomodoros = 0;
-            _settings = new AppSettings(); // ƒfƒtƒHƒ‹ƒgİ’è
+            _settings = new AppSettings(); // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆè¨­å®š
             _notificationService = notificationService ?? new NotificationService();
         }
 
@@ -116,7 +116,7 @@ namespace PomodoroTimer.Services
 
             if (_remainingTime <= TimeSpan.Zero)
             {
-                // ƒZƒbƒVƒ‡ƒ“Š®—¹
+                // ã‚»ãƒƒã‚·ãƒ§ãƒ³å®Œäº†
                 _timer.Stop();
                 _isRunning = false;
                 HandleSessionCompletion();
@@ -125,26 +125,26 @@ namespace PomodoroTimer.Services
 
         private void HandleSessionCompletion()
         {
-            // ’Ê’m‚ÆƒTƒEƒ“ƒhÄ¶
+            // é€šçŸ¥ã¨ã‚µã‚¦ãƒ³ãƒ‰å†ç”Ÿ
             ShowSessionCompletionNotification();
 
-            // ƒZƒbƒVƒ‡ƒ“Š®—¹ƒCƒxƒ“ƒg‚ğ”­‰Î
+            // ã‚»ãƒƒã‚·ãƒ§ãƒ³å®Œäº†ã‚¤ãƒ™ãƒ³ãƒˆã‚’ç™ºç«
             SessionCompleted?.Invoke(_currentSessionType);
 
-            // Œ»İ‚ÌƒZƒbƒVƒ‡ƒ“‚ªƒ[ƒNƒZƒbƒVƒ‡ƒ“‚Ìê‡Aƒ|ƒ‚ƒh[ƒ”‚ğƒCƒ“ƒNƒŠƒƒ“ƒg
+            // ç¾åœ¨ã®ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒãƒ¯ãƒ¼ã‚¯ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®å ´åˆã€ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ•°ã‚’ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆ
             if (_currentSessionType == SessionType.Work)
             {
                 _completedPomodoros++;
             }
 
-            // ©“®‚ÅŸ‚ÌƒZƒbƒVƒ‡ƒ“‚ÉˆÚs‚·‚é‚©‚Ç‚¤‚©
+            // è‡ªå‹•ã§æ¬¡ã®ã‚»ãƒƒã‚·ãƒ§ãƒ³ã«ç§»è¡Œã™ã‚‹ã‹ã©ã†ã‹
             if (_settings.AutoStartNextSession)
             {
                 StartNextSession();
             }
             else
             {
-                // Ÿ‚ÌƒZƒbƒVƒ‡ƒ“‚Ì€”õ‚¾‚¯‚·‚é
+                // æ¬¡ã®ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®æº–å‚™ã ã‘ã™ã‚‹
                 PrepareNextSession();
             }
         }
@@ -178,7 +178,7 @@ namespace PomodoroTimer.Services
             switch (_currentSessionType)
             {
                 case SessionType.Work:
-                    // 4ƒ|ƒ‚ƒh[ƒ–ˆ‚É’·‹xŒe
+                    // 4ãƒãƒ¢ãƒ‰ãƒ¼ãƒ­æ¯ã«é•·ä¼‘æ†©
                     return (_completedPomodoros % _settings.PomodorosBeforeLongBreak == 0) 
                         ? SessionType.LongBreak 
                         : SessionType.ShortBreak;
@@ -232,7 +232,7 @@ namespace PomodoroTimer.Services
                 message += "Ready to get back to work?";
             }
 
-            // ‰¹º‚ÆƒfƒXƒNƒgƒbƒv’Ê’m
+            // éŸ³å£°ã¨ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—é€šçŸ¥
             _notificationService.PlayNotificationSound();
             _notificationService.ShowDesktopNotification(title, message);
         }

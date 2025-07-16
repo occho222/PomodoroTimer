@@ -1,35 +1,35 @@
-using System.Media;
+ï»¿using System.Media;
 using System.Windows;
 
 namespace PomodoroTimer.Services
 {
     /// <summary>
-    /// ’Ê’mƒT[ƒrƒX‚ÌƒCƒ“ƒ^[ƒtƒF[ƒX
+    /// é€šçŸ¥ã‚µãƒ¼ãƒ“ã‚¹ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹
     /// </summary>
     public interface INotificationService
     {
         /// <summary>
-        /// ƒfƒXƒNƒgƒbƒv’Ê’m‚ğ•\¦‚·‚é
+        /// ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—é€šçŸ¥ã‚’è¡¨ç¤ºã™ã‚‹
         /// </summary>
-        /// <param name="title">’Ê’m‚Ìƒ^ƒCƒgƒ‹</param>
-        /// <param name="message">’Ê’m‚ÌƒƒbƒZ[ƒW</param>
+        /// <param name="title">é€šçŸ¥ã®ã‚¿ã‚¤ãƒˆãƒ«</param>
+        /// <param name="message">é€šçŸ¥ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸</param>
         void ShowDesktopNotification(string title, string message);
 
         /// <summary>
-        /// ‰¹º’Ê’m‚ğÄ¶‚·‚é
+        /// éŸ³å£°é€šçŸ¥ã‚’å†ç”Ÿã™ã‚‹
         /// </summary>
         void PlayNotificationSound();
 
         /// <summary>
-        /// İ’è‚ğXV‚·‚é
+        /// è¨­å®šã‚’æ›´æ–°ã™ã‚‹
         /// </summary>
-        /// <param name="enableSound">‰¹º’Ê’m‚ğ—LŒø‚É‚·‚é‚©</param>
-        /// <param name="enableDesktop">ƒfƒXƒNƒgƒbƒv’Ê’m‚ğ—LŒø‚É‚·‚é‚©</param>
+        /// <param name="enableSound">éŸ³å£°é€šçŸ¥ã‚’æœ‰åŠ¹ã«ã™ã‚‹ã‹</param>
+        /// <param name="enableDesktop">ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—é€šçŸ¥ã‚’æœ‰åŠ¹ã«ã™ã‚‹ã‹</param>
         void UpdateSettings(bool enableSound, bool enableDesktop);
     }
 
     /// <summary>
-    /// ’Ê’mƒT[ƒrƒX‚ÌÀ‘•
+    /// é€šçŸ¥ã‚µãƒ¼ãƒ“ã‚¹ã®å®Ÿè£…
     /// </summary>
     public class NotificationService : INotificationService
     {
@@ -46,12 +46,12 @@ namespace PomodoroTimer.Services
         {
             try
             {
-                // ƒVƒXƒeƒ€‚Ì’Ê’m‰¹‚ğg—p
+                // ã‚·ã‚¹ãƒ†ãƒ ã®é€šçŸ¥éŸ³ã‚’ä½¿ç”¨
                 _soundPlayer = new SoundPlayer();
             }
             catch
             {
-                // ƒTƒEƒ“ƒh‚Ì‰Šú‰»‚É¸”s‚µ‚½ê‡‚Í null ‚Ì‚Ü‚Ü
+                // ã‚µã‚¦ãƒ³ãƒ‰ã®åˆæœŸåŒ–ã«å¤±æ•—ã—ãŸå ´åˆã¯ null ã®ã¾ã¾
                 _soundPlayer = null;
             }
         }
@@ -68,7 +68,7 @@ namespace PomodoroTimer.Services
 
             try
             {
-                // WPF MessageBox ‚ğg—pi«—ˆ“I‚É‚ÍToast’Ê’m‚É•ÏX‰Â”\j
+                // WPF MessageBox ã‚’ä½¿ç”¨ï¼ˆå°†æ¥çš„ã«ã¯Toasté€šçŸ¥ã«å¤‰æ›´å¯èƒ½ï¼‰
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     MessageBox.Show(message, title, 
@@ -77,7 +77,7 @@ namespace PomodoroTimer.Services
             }
             catch
             {
-                // ’Ê’m•\¦‚É¸”s‚µ‚½ê‡‚Í–³‹
+                // é€šçŸ¥è¡¨ç¤ºã«å¤±æ•—ã—ãŸå ´åˆã¯ç„¡è¦–
             }
         }
 
@@ -87,12 +87,12 @@ namespace PomodoroTimer.Services
 
             try
             {
-                // ƒVƒXƒeƒ€ƒTƒEƒ“ƒh‚ğÄ¶
+                // ã‚·ã‚¹ãƒ†ãƒ ã‚µã‚¦ãƒ³ãƒ‰ã‚’å†ç”Ÿ
                 SystemSounds.Beep.Play();
             }
             catch
             {
-                // ƒTƒEƒ“ƒhÄ¶‚É¸”s‚µ‚½ê‡‚Í–³‹
+                // ã‚µã‚¦ãƒ³ãƒ‰å†ç”Ÿã«å¤±æ•—ã—ãŸå ´åˆã¯ç„¡è¦–
             }
         }
     }
