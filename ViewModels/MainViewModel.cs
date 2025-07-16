@@ -19,6 +19,7 @@ namespace PomodoroTimer.ViewModels
         private readonly ITimerService _timerService;
         private readonly IStatisticsService _statisticsService;
         private readonly IDataPersistenceService _dataPersistenceService;
+        private readonly ISystemTrayService _systemTrayService;
         private AppSettings _settings;
 
         // タスク関連プロパティ
@@ -78,7 +79,7 @@ namespace PomodoroTimer.ViewModels
 
         // UI関連プロパティ
         [ObservableProperty]
-        private Point progressPoint = new(150, 30);
+        private System.Windows.Point progressPoint = new(150, 30);
 
         [ObservableProperty]
         private bool isLargeArc = false;
@@ -97,12 +98,14 @@ namespace PomodoroTimer.ViewModels
         /// コンストラクタ
         /// </summary>
         public MainViewModel(IPomodoroService pomodoroService, ITimerService timerService, 
-            IStatisticsService statisticsService, IDataPersistenceService dataPersistenceService)
+            IStatisticsService statisticsService, IDataPersistenceService dataPersistenceService,
+            ISystemTrayService systemTrayService)
         {
             _pomodoroService = pomodoroService ?? throw new ArgumentNullException(nameof(pomodoroService));
             _timerService = timerService ?? throw new ArgumentNullException(nameof(timerService));
             _statisticsService = statisticsService ?? throw new ArgumentNullException(nameof(statisticsService));
             _dataPersistenceService = dataPersistenceService ?? throw new ArgumentNullException(nameof(dataPersistenceService));
+            _systemTrayService = systemTrayService ?? throw new ArgumentNullException(nameof(systemTrayService));
             _settings = new AppSettings();
 
             // サービスからタスクを取得
@@ -114,6 +117,9 @@ namespace PomodoroTimer.ViewModels
 
             // ホットキーを初期化
             InitializeHotkeys();
+
+            // システムトレイを初期化
+            _systemTrayService.Initialize();
 
             // タイマーに設定を適用
             _timerService.UpdateSettings(_settings);
@@ -271,7 +277,7 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void AddTask()
         {
-            var dialog = new TaskDialog();
+            var dialog = new Views.TaskDialog();
             if (dialog.ShowDialog() == true)
             {
                 var newTask = new PomodoroTask(dialog.TaskTitle, dialog.EstimatedPomodoros)
@@ -295,7 +301,7 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void EditTask(PomodoroTask task)
         {
-            var dialog = new TaskDialog(task);
+            var dialog = new Views.TaskDialog(task);
             if (dialog.ShowDialog() == true)
             {
                 task.Title = dialog.TaskTitle;
@@ -318,7 +324,7 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void DeleteTask(PomodoroTask task)
         {
-            var result = MessageBox.Show($"タスク「{task.Title}」を削除しますか？", "確認", 
+            var result = System.Windows.MessageBox.Show($"タスク「{task.Title}」を削除しますか？", "確認", 
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             
             if (result == MessageBoxResult.Yes)
@@ -348,7 +354,7 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private async Task ImportTasks()
         {
-            var openFileDialog = new OpenFileDialog
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
                 Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
                 Title = "タスクファイルを選択"
@@ -361,12 +367,12 @@ namespace PomodoroTimer.ViewModels
                     await _pomodoroService.ImportTasksFromCsvAsync(openFileDialog.FileName);
                     UpdateFilteringLists();
                     ApplyFilters();
-                    MessageBox.Show("タスクのインポートが完了しました。", "成功", 
+                    System.Windows.MessageBox.Show("タスクのインポートが完了しました。", "成功", 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"インポートに失敗しました: {ex.Message}", "エラー", 
+                    System.Windows.MessageBox.Show($"インポートに失敗しました: {ex.Message}", "エラー", 
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
@@ -378,7 +384,7 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private async Task ExportTasks()
         {
-            var saveFileDialog = new SaveFileDialog
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
             {
                 Filter = "CSV files (*.csv)|*.csv",
                 Title = "エクスポート先を選択",
@@ -390,12 +396,12 @@ namespace PomodoroTimer.ViewModels
                 try
                 {
                     await _pomodoroService.ExportTasksToCsvAsync(saveFileDialog.FileName);
-                    MessageBox.Show("タスクのエクスポートが完了しました。", "成功", 
+                    System.Windows.MessageBox.Show("タスクのエクスポートが完了しました。", "成功", 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"エクスポートに失敗しました: {ex.Message}", "エラー", 
+                    System.Windows.MessageBox.Show($"エクスポートに失敗しました: {ex.Message}", "エラー", 
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
@@ -418,7 +424,7 @@ namespace PomodoroTimer.ViewModels
                 UpdateProgress();
                 UpdateTotalFocusTime();
 
-                MessageBox.Show("設定が更新されました。", "設定", 
+                System.Windows.MessageBox.Show("設定が更新されました。", "設定", 
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
@@ -431,6 +437,27 @@ namespace PomodoroTimer.ViewModels
         {
             var statisticsDialog = new StatisticsDialog(_statisticsService, _pomodoroService);
             statisticsDialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// システムトレイに最小化するコマンド
+        /// </summary>
+        [RelayCommand]
+        private void MinimizeToTray()
+        {
+            if (_settings.MinimizeToTray)
+            {
+                _systemTrayService.MinimizeToTray();
+            }
+        }
+
+        /// <summary>
+        /// システムトレイから復元するコマンド
+        /// </summary>
+        [RelayCommand]
+        private void RestoreFromTray()
+        {
+            _systemTrayService.RestoreFromTray();
         }
 
         /// <summary>
@@ -562,36 +589,50 @@ namespace PomodoroTimer.ViewModels
             _timerService.UpdateSettings(settings);
         }
 
+        /// <summary>
+        /// 現在の設定を取得する
+        /// </summary>
+        /// <returns>現在の設定</returns>
+        public AppSettings GetCurrentSettings()
+        {
+            return _settings;
+        }
+
         #region タイマーイベントハンドラ
 
         private void OnTimerStarted()
         {
             IsRunning = true;
-            StartPauseButtonText = "Pause";
+            StartPauseButtonText = "一時停止";
+            _systemTrayService.UpdateTimerStatus(true, _timerService.RemainingTime);
         }
 
         private void OnTimerStopped()
         {
             IsRunning = false;
-            StartPauseButtonText = "Start";
+            StartPauseButtonText = "開始";
+            _systemTrayService.UpdateTimerStatus(false, _timerService.RemainingTime);
         }
 
         private void OnTimerPaused()
         {
             IsRunning = false;
-            StartPauseButtonText = "Resume";
+            StartPauseButtonText = "再開";
+            _systemTrayService.UpdateTimerStatus(false, _timerService.RemainingTime);
         }
 
         private void OnTimerResumed()
         {
             IsRunning = true;
-            StartPauseButtonText = "Pause";
+            StartPauseButtonText = "一時停止";
+            _systemTrayService.UpdateTimerStatus(true, _timerService.RemainingTime);
         }
 
         private void OnTimeUpdated(TimeSpan remainingTime)
         {
             TimeRemaining = $"{remainingTime.Minutes:D2}:{remainingTime.Seconds:D2}";
             UpdateProgress();
+            _systemTrayService.UpdateTimerStatus(IsRunning, remainingTime);
         }
 
         private void OnSessionCompleted(SessionType sessionType)
@@ -613,11 +654,23 @@ namespace PomodoroTimer.ViewModels
 
                 // 集中時間を更新
                 UpdateTotalFocusTime();
+                
+                // システムトレイ通知
+                var sessionName = sessionType switch
+                {
+                    SessionType.Work => "作業セッション",
+                    SessionType.ShortBreak => "短い休憩",
+                    SessionType.LongBreak => "長い休憩",
+                    _ => "セッション"
+                };
+                _systemTrayService.ShowBalloonTip("ポモドーロタイマー", 
+                    $"{sessionName}が完了しました！", System.Windows.Forms.ToolTipIcon.Info);
             }
 
             // セッション完了後の状態更新
             IsRunning = false;
-            StartPauseButtonText = "Start";
+            StartPauseButtonText = "開始";
+            _systemTrayService.UpdateTimerStatus(false, _timerService.RemainingTime);
         }
 
         private void OnSessionTypeChanged(SessionType sessionType)
@@ -634,10 +687,10 @@ namespace PomodoroTimer.ViewModels
         {
             SessionTypeText = _timerService.CurrentSessionType switch
             {
-                SessionType.Work => "Work Session",
-                SessionType.ShortBreak => "Short Break",
-                SessionType.LongBreak => "Long Break",
-                _ => "Work Session"
+                SessionType.Work => "作業セッション",
+                SessionType.ShortBreak => "短い休憩",
+                SessionType.LongBreak => "長い休憩",
+                _ => "作業セッション"
             };
         }
 
@@ -660,7 +713,7 @@ namespace PomodoroTimer.ViewModels
             var x = 150 + 120 * Math.Cos(radians);
             var y = 150 + 120 * Math.Sin(radians);
 
-            ProgressPoint = new Point(x, y);
+            ProgressPoint = new System.Windows.Point(x, y);
             IsLargeArc = angle > 180;
 
             // 線形プログレス用（パーセンテージ）

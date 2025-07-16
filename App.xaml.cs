@@ -8,7 +8,7 @@ namespace PomodoroTimer
     /// <summary>
     /// アプリケーションエントリポイント
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         /// <summary>
         /// アプリケーション開始時の処理
@@ -24,7 +24,7 @@ namespace PomodoroTimer
                     message += $"\n詳細: {ex.Exception.InnerException.Message}";
                 }
                 
-                MessageBox.Show(message, "エラー", 
+                System.Windows.MessageBox.Show(message, "エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 ex.Handled = true;
             };
@@ -32,7 +32,7 @@ namespace PomodoroTimer
             // アプリケーションドメインレベルの例外ハンドラー
             AppDomain.CurrentDomain.UnhandledException += (sender, ex) =>
             {
-                MessageBox.Show($"重大なエラーが発生しました: {ex.ExceptionObject}", "重大なエラー", 
+                System.Windows.MessageBox.Show($"重大なエラーが発生しました: {ex.ExceptionObject}", "重大なエラー", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
             };
 
@@ -56,7 +56,7 @@ namespace PomodoroTimer
                     errorMessage += $"\n詳細: {ex.InnerException.Message}";
                 }
                 
-                MessageBox.Show(errorMessage, "起動エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show(errorMessage, "起動エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                 
                 // アプリケーションを終了
                 Shutdown();

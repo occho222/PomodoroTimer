@@ -77,14 +77,14 @@ namespace PomodoroTimer.Views
             // 入力値の検証
             if (string.IsNullOrWhiteSpace(viewModel.TaskTitle))
             {
-                MessageBox.Show("タスク名を入力してください。", "入力エラー", 
+                System.Windows.MessageBox.Show("タスク名を入力してください。", "入力エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (viewModel.EstimatedPomodoros < 1 || viewModel.EstimatedPomodoros > 10)
             {
-                MessageBox.Show("予定ポモドーロ数は1から10の間で設定してください。", "入力エラー", 
+                System.Windows.MessageBox.Show("予定ポモドーロ数は1から10の間で設定してください。", "入力エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }

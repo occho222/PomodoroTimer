@@ -4,6 +4,8 @@ using PomodoroTimer.Services;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.ComponentModel;
+using WpfDragEventArgs = System.Windows.DragEventArgs;
 
 namespace PomodoroTimer.Views
 {
@@ -13,6 +15,7 @@ namespace PomodoroTimer.Views
     public partial class MainWindow : Window
     {
         private readonly MainViewModel _viewModel;
+        private readonly ISystemTrayService _systemTrayService;
         private PomodoroTask? _draggedTask;
 
         /// <summary>
@@ -27,13 +30,47 @@ namespace PomodoroTimer.Views
             var pomodoroService = new PomodoroService(dataPersistenceService);
             var timerService = new TimerService();
             var statisticsService = new StatisticsService(dataPersistenceService);
+            _systemTrayService = new SystemTrayService();
             
-            _viewModel = new MainViewModel(pomodoroService, timerService, statisticsService, dataPersistenceService);
+            _viewModel = new MainViewModel(pomodoroService, timerService, statisticsService, 
+                dataPersistenceService, _systemTrayService);
             
             DataContext = _viewModel;
 
             // ホットキーの登録
             RegisterHotKeys();
+            
+            // ウィンドウイベントの購読
+            StateChanged += OnWindowStateChanged;
+            Closing += OnWindowClosing;
+        }
+
+        /// <summary>
+        /// ウィンドウ状態変更時の処理
+        /// </summary>
+        private void OnWindowStateChanged(object? sender, EventArgs e)
+        {
+            // 最小化時にシステムトレイに移動する設定の場合
+            var settings = _viewModel.GetCurrentSettings();
+            if (WindowState == WindowState.Minimized && settings.MinimizeToTray)
+            {
+                _viewModel.MinimizeToTrayCommand.Execute(null);
+            }
+        }
+
+        /// <summary>
+        /// ウィンドウが閉じられる時の処理
+        /// </summary>
+        private void OnWindowClosing(object? sender, CancelEventArgs e)
+        {
+            // 設定によってはシステムトレイに最小化して終了をキャンセル
+            var settings = _viewModel.GetCurrentSettings();
+            if (settings.MinimizeToTray)
+            {
+                e.Cancel = true;
+                _viewModel.MinimizeToTrayCommand.Execute(null);
+                return;
+            }
         }
 
         /// <summary>
@@ -77,14 +114,14 @@ namespace PomodoroTimer.Views
             if (sender is Border border && border.DataContext is PomodoroTask task)
             {
                 _draggedTask = task;
-                DragDrop.DoDragDrop(border, task, DragDropEffects.Move);
+                DragDrop.DoDragDrop(border, task, System.Windows.DragDropEffects.Move);
             }
         }
 
         /// <summary>
         /// タスクアイテムがドロップされた時の処理
         /// </summary>
-        private void TaskItem_Drop(object sender, DragEventArgs e)
+        private void TaskItem_Drop(object sender, System.Windows.DragEventArgs e)
         {
             if (sender is Border border && border.DataContext is PomodoroTask targetTask && _draggedTask != null)
             {
@@ -96,15 +133,15 @@ namespace PomodoroTimer.Views
         /// <summary>
         /// ドラッグオーバー時の処理
         /// </summary>
-        private void TaskItem_DragOver(object sender, DragEventArgs e)
+        private void TaskItem_DragOver(object sender, System.Windows.DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(PomodoroTask)))
             {
-                e.Effects = DragDropEffects.Move;
+                e.Effects = System.Windows.DragDropEffects.Move;
             }
             else
             {
-                e.Effects = DragDropEffects.None;
+                e.Effects = System.Windows.DragDropEffects.None;
             }
             e.Handled = true;
         }
@@ -120,10 +157,11 @@ namespace PomodoroTimer.Views
             try
             {
                 await _viewModel.SaveSettingsAsync();
+                _systemTrayService.Dispose();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"設定の保存に失敗しました: {ex.Message}", "エラー", 
+                System.Windows.MessageBox.Show($"設定の保存に失敗しました: {ex.Message}", "エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }

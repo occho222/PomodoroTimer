@@ -69,9 +69,9 @@ namespace PomodoroTimer.Services
             try
             {
                 // WPF MessageBox を使用（将来的にはToast通知に変更可能）
-                Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show(message, title, 
+                    System.Windows.MessageBox.Show(message, title, 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 });
             }

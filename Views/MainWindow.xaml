@@ -359,7 +359,12 @@
                     <Button Content="設定 (F1)" 
                             Command="{Binding OpenSettingsCommand}"
                             Style="{StaticResource RoundButton}" 
-                            Background="Gray" HorizontalAlignment="Stretch"/>
+                            Background="Gray" HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                    <Button Content="トレイに最小化" 
+                            Command="{Binding MinimizeToTrayCommand}"
+                            Style="{StaticResource RoundButton}" 
+                            Background="{StaticResource SecondaryBrush}" 
+                            HorizontalAlignment="Stretch"/>
                 </StackPanel>
             </Grid>
         </Border>

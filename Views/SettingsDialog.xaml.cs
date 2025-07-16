@@ -81,9 +81,9 @@ namespace PomodoroTimer.Views
         /// </summary>
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
-                "Are you sure you want to reset all settings to default values?",
-                "Reset Settings",
+            var result = System.Windows.MessageBox.Show(
+                "すべての設定をデフォルト値にリセットしますか？",
+                "設定リセット",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -113,32 +113,32 @@ namespace PomodoroTimer.Views
             // 作業時間の検証（1-120分）
             if (viewModel.WorkSessionMinutes < 1 || viewModel.WorkSessionMinutes > 120)
             {
-                MessageBox.Show("Work session must be between 1 and 120 minutes.", 
-                    "Invalid Setting", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show("作業セッション時間は1分から120分の間で設定してください。", 
+                    "設定エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             // 短休憩時間の検証（1-60分）
             if (viewModel.ShortBreakMinutes < 1 || viewModel.ShortBreakMinutes > 60)
             {
-                MessageBox.Show("Short break must be between 1 and 60 minutes.", 
-                    "Invalid Setting", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show("短い休憩時間は1分から60分の間で設定してください。", 
+                    "設定エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             // 長休憩時間の検証（1-120分）
             if (viewModel.LongBreakMinutes < 1 || viewModel.LongBreakMinutes > 120)
             {
-                MessageBox.Show("Long break must be between 1 and 120 minutes.", 
-                    "Invalid Setting", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show("長い休憩時間は1分から120分の間で設定してください。", 
+                    "設定エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             // 長休憩前のポモドーロ数の検証（1-10）
             if (viewModel.PomodorosBeforeLongBreak < 1 || viewModel.PomodorosBeforeLongBreak > 10)
             {
-                MessageBox.Show("Pomodoros before long break must be between 1 and 10.", 
-                    "Invalid Setting", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show("長い休憩前のポモドーロ数は1から10の間で設定してください。", 
+                    "設定エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
