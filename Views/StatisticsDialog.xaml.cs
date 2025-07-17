@@ -5,23 +5,21 @@ using PomodoroTimer.ViewModels;
 namespace PomodoroTimer.Views
 {
     /// <summary>
-    /// 統計画面のダイアログ
+    /// 統計ダイアログ
     /// </summary>
     public partial class StatisticsDialog : Window
     {
         public StatisticsDialog(IStatisticsService statisticsService, IPomodoroService pomodoroService)
         {
             InitializeComponent();
-            DataContext = new StatisticsViewModel(statisticsService, pomodoroService);
             
-            // ウィンドウサイズと位置の設定
-            Width = 1000;
-            Height = 700;
-            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            // 統計ViewModelを作成してDataContextに設定
+            var viewModel = new StatisticsViewModel(statisticsService, pomodoroService);
+            DataContext = viewModel;
         }
 
         /// <summary>
-        /// 閉じるボタンのクリックイベント
+        /// 閉じるボタンクリック時の処理
         /// </summary>
         private void Close_Click(object sender, RoutedEventArgs e)
         {

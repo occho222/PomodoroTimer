@@ -26,6 +26,16 @@
         public int PomodorosBeforeLongBreak { get; set; } = 4;
 
         /// <summary>
+        /// 長い休憩の間隔（ポモドーロ数）
+        /// </summary>
+        public int LongBreakInterval { get; set; } = 4;
+
+        /// <summary>
+        /// 通知を表示するかどうか
+        /// </summary>
+        public bool ShowNotifications { get; set; } = true;
+
+        /// <summary>
         /// 音声通知を有効にするかどうか
         /// </summary>
         public bool EnableSoundNotification { get; set; } = true;

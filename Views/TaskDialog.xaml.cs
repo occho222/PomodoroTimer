@@ -39,10 +39,13 @@ namespace PomodoroTimer.Views
         /// </summary>
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
 
+        private TaskDialogViewModel _viewModel;
+
         public TaskDialog()
         {
             InitializeComponent();
-            DataContext = new TaskDialogViewModel();
+            _viewModel = new TaskDialogViewModel();
+            DataContext = _viewModel;
         }
 
         /// <summary>
@@ -53,7 +56,7 @@ namespace PomodoroTimer.Views
         {
             InitializeComponent();
             
-            var viewModel = new TaskDialogViewModel
+            _viewModel = new TaskDialogViewModel
             {
                 TaskTitle = task.Title,
                 EstimatedPomodoros = task.EstimatedPomodoros,
@@ -63,7 +66,7 @@ namespace PomodoroTimer.Views
                 Priority = task.Priority
             };
             
-            DataContext = viewModel;
+            DataContext = _viewModel;
             Title = "タスクの編集";
         }
 
@@ -72,33 +75,47 @@ namespace PomodoroTimer.Views
         /// </summary>
         private void OK_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = (TaskDialogViewModel)DataContext;
-            
-            // 入力値の検証
-            if (string.IsNullOrWhiteSpace(viewModel.TaskTitle))
+            try
             {
-                System.Windows.MessageBox.Show("タスク名を入力してください。", "入力エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+                // ViewModelが正しく設定されているか確認
+                if (_viewModel == null)
+                {
+                    System.Windows.MessageBox.Show("内部エラーが発生しました。", "エラー", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-            if (viewModel.EstimatedPomodoros < 1 || viewModel.EstimatedPomodoros > 10)
+                // 入力値の検証
+                if (string.IsNullOrWhiteSpace(_viewModel.TaskTitle))
+                {
+                    System.Windows.MessageBox.Show("タスク名を入力してください。", "入力エラー", 
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (_viewModel.EstimatedPomodoros < 1 || _viewModel.EstimatedPomodoros > 10)
+                {
+                    System.Windows.MessageBox.Show("予定ポモドーロ数は1から10の間で設定してください。", "入力エラー", 
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // プロパティに値を設定
+                TaskTitle = _viewModel.TaskTitle ?? string.Empty;
+                EstimatedPomodoros = _viewModel.EstimatedPomodoros;
+                TaskDescription = _viewModel.TaskDescription ?? string.Empty;
+                Category = _viewModel.Category ?? string.Empty;
+                TagsText = _viewModel.TagsText ?? string.Empty;
+                Priority = _viewModel.Priority;
+
+                DialogResult = true;
+                Close();
+            }
+            catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("予定ポモドーロ数は1から10の間で設定してください。", "入力エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                System.Windows.MessageBox.Show($"エラーが発生しました: {ex.Message}", "エラー", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            // プロパティに値を設定
-            TaskTitle = viewModel.TaskTitle;
-            EstimatedPomodoros = viewModel.EstimatedPomodoros;
-            TaskDescription = viewModel.TaskDescription;
-            Category = viewModel.Category;
-            TagsText = viewModel.TagsText;
-            Priority = viewModel.Priority;
-
-            DialogResult = true;
-            Close();
         }
 
         /// <summary>

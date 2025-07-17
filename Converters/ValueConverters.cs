@@ -99,11 +99,20 @@ namespace PomodoroTimer.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            // 文字列の場合は空でないかチェック
+            if (value is string stringValue)
+            {
+                return !string.IsNullOrEmpty(stringValue) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            }
+            
+            // ブール値の場合
             if (value is bool boolValue)
             {
                 return boolValue ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
             }
-            return System.Windows.Visibility.Collapsed;
+            
+            // その他のオブジェクトの場合はnullチェック
+            return value != null ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

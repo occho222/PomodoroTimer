@@ -1,6 +1,6 @@
 using System.Drawing;
-using System.Windows;
 using System.Windows.Forms;
+using PomodoroTimer.Models;
 
 namespace PomodoroTimer.Services
 {
@@ -10,167 +10,127 @@ namespace PomodoroTimer.Services
     public class SystemTrayService : ISystemTrayService, IDisposable
     {
         private NotifyIcon? _notifyIcon;
-        private Window? _mainWindow;
-        private bool _isDisposed = false;
-
-        public SystemTrayService()
-        {
-            _mainWindow = System.Windows.Application.Current?.MainWindow;
-        }
+        private bool _disposed = false;
 
         public void Initialize()
         {
-            CreateNotifyIcon();
+            try
+            {
+                _notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Application, // デフォルトアイコンを使用
+                    Text = "ポモドーロタイマー",
+                    Visible = false
+                };
+
+                // コンテキストメニューを作成
+                var contextMenu = new ContextMenuStrip();
+                contextMenu.Items.Add("表示", null, (s, e) => RestoreFromTray());
+                contextMenu.Items.Add("-"); // セパレーター
+                contextMenu.Items.Add("終了", null, (s, e) => System.Windows.Application.Current.Shutdown());
+
+                _notifyIcon.ContextMenuStrip = contextMenu;
+                _notifyIcon.DoubleClick += (s, e) => RestoreFromTray();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"システムトレイの初期化に失敗しました: {ex.Message}");
+            }
         }
 
         public void MinimizeToTray()
         {
-            if (_mainWindow != null)
+            try
             {
-                _mainWindow.Hide();
-                ShowTrayIcon();
+                if (_notifyIcon != null)
+                {
+                    _notifyIcon.Visible = true;
+                    System.Windows.Application.Current.MainWindow.Hide();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"システムトレイへの最小化に失敗しました: {ex.Message}");
             }
         }
 
         public void RestoreFromTray()
         {
-            if (_mainWindow != null)
+            try
             {
-                _mainWindow.Show();
-                _mainWindow.WindowState = WindowState.Normal;
-                _mainWindow.Activate();
-                HideTrayIcon();
+                if (_notifyIcon != null)
+                {
+                    _notifyIcon.Visible = false;
+                    System.Windows.Application.Current.MainWindow.Show();
+                    System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
+                    System.Windows.Application.Current.MainWindow.Activate();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"システムトレイからの復元に失敗しました: {ex.Message}");
             }
         }
 
         public void ShowTrayIcon()
         {
-            if (_notifyIcon != null)
+            try
             {
-                _notifyIcon.Visible = true;
+                if (_notifyIcon != null)
+                {
+                    _notifyIcon.Visible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"システムトレイアイコンの表示に失敗しました: {ex.Message}");
             }
         }
 
         public void HideTrayIcon()
         {
-            if (_notifyIcon != null)
+            try
             {
-                _notifyIcon.Visible = false;
+                if (_notifyIcon != null)
+                {
+                    _notifyIcon.Visible = false;
+                }
             }
-        }
-
-        public void ShowBalloonTip(string title, string message, ToolTipIcon icon = ToolTipIcon.Info)
-        {
-            if (_notifyIcon != null && _notifyIcon.Visible)
+            catch (Exception ex)
             {
-                _notifyIcon.ShowBalloonTip(3000, title, message, icon);
+                Console.WriteLine($"システムトレイアイコンの非表示に失敗しました: {ex.Message}");
             }
         }
 
         public void UpdateTimerStatus(bool isRunning, TimeSpan remainingTime)
         {
-            if (_notifyIcon == null) return;
-
-            // ツールチップテキストを更新
-            var statusText = isRunning ? "動作中" : "停止中";
-            var timeText = $"{remainingTime.Minutes:D2}:{remainingTime.Seconds:D2}";
-            _notifyIcon.Text = $"ポモドーロタイマー - {statusText} ({timeText})";
-
-            // アイコンを状態に応じて変更
-            UpdateTrayIcon(isRunning);
-        }
-
-        private void CreateNotifyIcon()
-        {
-            _notifyIcon = new NotifyIcon
-            {
-                Icon = CreateDefaultIcon(),
-                Text = "ポモドーロタイマー",
-                Visible = false
-            };
-
-            // アイコンがダブルクリックされた時のイベント
-            _notifyIcon.DoubleClick += (sender, args) => RestoreFromTray();
-
-            // 右クリックメニューイベント
-            _notifyIcon.MouseClick += OnNotifyIconClick;
-        }
-
-        private void OnNotifyIconClick(object? sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                ShowContextMenu();
-            }
-        }
-
-        private void ShowContextMenu()
-        {
-            // 簡単なコンテキストメニューの代替実装
-            var result = System.Windows.MessageBox.Show(
-                "ポモドーロタイマーを表示しますか？\n\n「はい」: 表示\n「いいえ」: そのまま\n「キャンセル」: 終了", 
-                "ポモドーロタイマー", 
-                MessageBoxButton.YesNoCancel, 
-                MessageBoxImage.Question);
-
-            switch (result)
-            {
-                case MessageBoxResult.Yes:
-                    RestoreFromTray();
-                    break;
-                case MessageBoxResult.Cancel:
-                    ExitApplication();
-                    break;
-                // MessageBoxResult.No の場合は何もしない
-            }
-        }
-
-        private Icon CreateDefaultIcon()
-        {
-            // デフォルトアイコンを作成（簡単な円形）
-            var bitmap = new Bitmap(16, 16);
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                graphics.Clear(Color.Transparent);
-                graphics.FillEllipse(Brushes.Red, 2, 2, 12, 12);
-            }
-
-            return Icon.FromHandle(bitmap.GetHicon());
-        }
-
-        private Icon CreateRunningIcon()
-        {
-            // 動作中アイコンを作成（緑色の円形）
-            var bitmap = new Bitmap(16, 16);
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                graphics.Clear(Color.Transparent);
-                graphics.FillEllipse(Brushes.Green, 2, 2, 12, 12);
-            }
-
-            return Icon.FromHandle(bitmap.GetHicon());
-        }
-
-        private void UpdateTrayIcon(bool isRunning)
-        {
-            if (_notifyIcon == null) return;
-
             try
             {
-                var oldIcon = _notifyIcon.Icon;
-                _notifyIcon.Icon = isRunning ? CreateRunningIcon() : CreateDefaultIcon();
-                oldIcon?.Dispose();
+                if (_notifyIcon != null)
+                {
+                    var status = isRunning ? "実行中" : "停止中";
+                    _notifyIcon.Text = $"ポモドーロタイマー - {status} ({remainingTime.Minutes:D2}:{remainingTime.Seconds:D2})";
+                }
             }
             catch (Exception ex)
             {
-                // アイコン更新エラーはログのみ記録
-                System.Diagnostics.Debug.WriteLine($"トレイアイコン更新エラー: {ex.Message}");
+                Console.WriteLine($"タイマー状態の更新に失敗しました: {ex.Message}");
             }
         }
 
-        private void ExitApplication()
+        public void ShowBalloonTip(string title, string text, ToolTipIcon icon)
         {
-            System.Windows.Application.Current?.Shutdown();
+            try
+            {
+                if (_notifyIcon != null)
+                {
+                    _notifyIcon.ShowBalloonTip(3000, title, text, icon);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"バルーン通知の表示に失敗しました: {ex.Message}");
+            }
         }
 
         public void Dispose()
@@ -181,16 +141,14 @@ namespace PomodoroTimer.Services
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_isDisposed && disposing)
+            if (!_disposed)
             {
-                _notifyIcon?.Dispose();
-                _isDisposed = true;
+                if (disposing)
+                {
+                    _notifyIcon?.Dispose();
+                }
+                _disposed = true;
             }
-        }
-
-        ~SystemTrayService()
-        {
-            Dispose(false);
         }
     }
 }

@@ -2,10 +2,8 @@
 using PomodoroTimer.ViewModels;
 using PomodoroTimer.Services;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.ComponentModel;
-using WpfDragEventArgs = System.Windows.DragEventArgs;
 
 namespace PomodoroTimer.Views
 {
@@ -16,7 +14,6 @@ namespace PomodoroTimer.Views
     {
         private readonly MainViewModel _viewModel;
         private readonly ISystemTrayService _systemTrayService;
-        private PomodoroTask? _draggedTask;
 
         /// <summary>
         /// デフォルトコンストラクタ（デザイナー用）
@@ -104,65 +101,25 @@ namespace PomodoroTimer.Views
             CommandBindings.Add(new CommandBinding(settingsCommand, (s, e) => _viewModel.OpenSettingsCommand.Execute(null)));
         }
 
-        #region ドラッグ&ドロップ処理
-
-        /// <summary>
-        /// タスクアイテムがマウスでクリックされた時の処理
-        /// </summary>
-        private void TaskItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is Border border && border.DataContext is PomodoroTask task)
-            {
-                _draggedTask = task;
-                DragDrop.DoDragDrop(border, task, System.Windows.DragDropEffects.Move);
-            }
-        }
-
-        /// <summary>
-        /// タスクアイテムがドロップされた時の処理
-        /// </summary>
-        private void TaskItem_Drop(object sender, System.Windows.DragEventArgs e)
-        {
-            if (sender is Border border && border.DataContext is PomodoroTask targetTask && _draggedTask != null)
-            {
-                _viewModel.ReorderTasks(_draggedTask, targetTask);
-                _draggedTask = null;
-            }
-        }
-
-        /// <summary>
-        /// ドラッグオーバー時の処理
-        /// </summary>
-        private void TaskItem_DragOver(object sender, System.Windows.DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(PomodoroTask)))
-            {
-                e.Effects = System.Windows.DragDropEffects.Move;
-            }
-            else
-            {
-                e.Effects = System.Windows.DragDropEffects.None;
-            }
-            e.Handled = true;
-        }
-
-        #endregion
-
         /// <summary>
         /// ウィンドウが閉じられる時の処理
         /// </summary>
         protected override async void OnClosed(EventArgs e)
         {
-            base.OnClosed(e);
             try
             {
-                await _viewModel.SaveSettingsAsync();
+                // ViewModelのクリーンアップを実行
+                await _viewModel.CleanupAsync();
                 _systemTrayService.Dispose();
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show($"設定の保存に失敗しました: {ex.Message}", "エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            finally
+            {
+                base.OnClosed(e);
             }
         }
     }

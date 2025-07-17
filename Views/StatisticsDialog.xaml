@@ -2,236 +2,123 @@
 <Window x:Class="PomodoroTimer.Views.StatisticsDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="統計情報" Height="700" Width="1000"
+        Title="統計情報" Height="500" Width="700"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BackgroundLight}">
     
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Border Background="White" Margin="20" CornerRadius="10" Padding="30">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- ヘッダー -->
-        <Border Grid.Row="0" Background="White" Padding="20" Margin="10,10,10,0">
-            <StackPanel>
-                <TextBlock Text="統計ダッシュボード" FontSize="24" FontWeight="Bold" 
-                           Foreground="{StaticResource TextLight}"/>
-                <TextBlock Text="あなたの集中活動を振り返りましょう" FontSize="14" 
-                           Foreground="Gray" Margin="0,5,0,0"/>
-            </StackPanel>
-        </Border>
+            <TextBlock Text="統計情報" FontSize="20" FontWeight="Bold" 
+                       Margin="0,0,0,20" Foreground="{StaticResource TextLight}"/>
 
-        <!-- 期間選択 -->
-        <Border Grid.Row="1" Background="White" Padding="20" Margin="10,0,10,0">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="表示期間:" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>
-                
-                <ComboBox SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}" Width="120" Margin="0,0,20,0">
-                    <ComboBoxItem Content="今日" Tag="Today"/>
-                    <ComboBoxItem Content="今週" Tag="Week"/>
-                    <ComboBoxItem Content="今月" Tag="Month"/>
-                </ComboBox>
-
-                <Button Content="◀" Command="{Binding MoveToPreviousPeriodCommand}" 
-                        Width="30" Height="30" Margin="0,0,5,0"/>
-                        
-                <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}" 
-                            Width="120" Margin="0,0,5,0"/>
-                            
-                <Button Content="▶" Command="{Binding MoveToNextPeriodCommand}" 
-                        Width="30" Height="30" Margin="0,0,20,0"/>
-
-                <Button Content="更新" Command="{Binding LoadStatisticsDataCommand}" 
-                        Style="{StaticResource RoundButton}" Padding="15,5"/>
-                        
-                <Button Content="エクスポート" Command="{Binding ExportStatisticsCommand}" 
-                        Style="{StaticResource RoundButton}" Background="{StaticResource SecondaryBrush}" 
-                        Padding="15,5" Margin="10,0,0,0"/>
-            </StackPanel>
-        </Border>
-
-        <!-- メインコンテンツ -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <!-- サマリーカード -->
-                <Grid Grid.Row="0" Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- 完了ポモドーロ数 -->
-                    <Border Grid.Column="0" Background="{StaticResource PrimaryBrush}" 
-                            CornerRadius="10" Padding="20" Margin="0,0,10,0">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- 本日の統計 -->
+                    <Border Style="{StaticResource StatisticCard}" Background="{StaticResource PrimaryBrush}" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="完了ポモドーロ" Foreground="White" FontSize="14"/>
-                            <TextBlock Text="{Binding TotalPomodorosText}" Foreground="White" 
-                                       FontSize="32" FontWeight="Bold"/>
+                            <TextBlock Text="本日の統計" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="完了ポモドーロ" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding TodayPomodoros}" Foreground="White" 
+                                               FontSize="24" FontWeight="Bold"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="完了タスク" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding TodayTasks}" Foreground="White" 
+                                               FontSize="24" FontWeight="Bold"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="集中時間" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding TodayFocusTime}" Foreground="White" 
+                                               FontSize="16" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
-                    <!-- 完了タスク数 -->
-                    <Border Grid.Column="1" Background="{StaticResource SecondaryBrush}" 
-                            CornerRadius="10" Padding="20" Margin="5,0">
+                    <!-- 今週の統計 -->
+                    <Border Style="{StaticResource StatisticCard}" Background="{StaticResource SecondaryBrush}" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="完了タスク" Foreground="White" FontSize="14"/>
-                            <TextBlock Text="{Binding TotalTasksText}" Foreground="White" 
-                                       FontSize="32" FontWeight="Bold"/>
+                            <TextBlock Text="今週の統計" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="完了ポモドーロ" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding WeekPomodoros}" Foreground="White" 
+                                               FontSize="24" FontWeight="Bold"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="完了タスク" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding WeekTasks}" Foreground="White" 
+                                               FontSize="24" FontWeight="Bold"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="集中時間" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding WeekFocusTime}" Foreground="White" 
+                                               FontSize="16" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
-                    <!-- 平均集中時間 -->
-                    <Border Grid.Column="2" Background="#10B981" 
-                            CornerRadius="10" Padding="20" Margin="5,0">
+                    <!-- 総計 -->
+                    <Border Style="{StaticResource StatisticCard}" Background="{StaticResource AccentBrush}">
                         <StackPanel>
-                            <TextBlock Text="平均集中時間" Foreground="White" FontSize="14"/>
-                            <TextBlock Text="{Binding AverageFocusTimeText}" Foreground="White" 
-                                       FontSize="24" FontWeight="Bold"/>
+                            <TextBlock Text="総計" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="完了ポモドーロ" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding TotalPomodoros}" Foreground="White" 
+                                               FontSize="24" FontWeight="Bold"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="完了タスク" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding TotalTasks}" Foreground="White" 
+                                               FontSize="24" FontWeight="Bold"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="集中時間" Foreground="White" FontSize="12"/>
+                                    <TextBlock Text="{Binding TotalFocusTime}" Foreground="White" 
+                                               FontSize="16" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
+                </StackPanel>
+            </ScrollViewer>
 
-                    <!-- 集中ストリーク -->
-                    <Border Grid.Column="3" Background="#F59E0B" 
-                            CornerRadius="10" Padding="20" Margin="10,0,0,0">
-                        <StackPanel>
-                            <TextBlock Text="集中ストリーク" Foreground="White" FontSize="14"/>
-                            <TextBlock Text="{Binding FocusStreakText}" Foreground="White" 
-                                       FontSize="24" FontWeight="Bold"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-
-                <!-- 集中度スコア -->
-                <Border Grid.Row="1" Background="White" CornerRadius="10" 
-                        Padding="20" Margin="0,0,0,20">
-                    <StackPanel>
-                        <TextBlock Text="集中度スコア" FontSize="18" FontWeight="Bold" 
-                                   Margin="0,0,0,10"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <ProgressBar Grid.Column="0" Value="{Binding FocusScoreProgress}" 
-                                         Maximum="100" Height="20" 
-                                         Background="LightGray" 
-                                         Foreground="{StaticResource PrimaryBrush}"/>
-                            
-                            <TextBlock Grid.Column="1" 
-                                       Text="{Binding FocusScoreProgress, StringFormat={}{0:F0}点}" 
-                                       VerticalAlignment="Center" Margin="15,0,0,0" 
-                                       FontWeight="Bold" FontSize="16"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- チャートとプロジェクト統計 -->
-                <Grid Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- 日別ポモドーロチャート -->
-                    <Border Grid.Column="0" Background="White" CornerRadius="10" 
-                            Padding="20" Margin="0,0,10,0">
-                        <StackPanel>
-                            <TextBlock Text="日別ポモドーロ数" FontSize="18" FontWeight="Bold" 
-                                       Margin="0,0,0,15"/>
-                            
-                            <!-- 簡易チャート表示 -->
-                            <ItemsControl ItemsSource="{Binding DailyPomodoroChart}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Vertical"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Margin="0,0,0,10">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="60"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="40"/>
-                                            </Grid.ColumnDefinitions>
-                                            
-                                            <TextBlock Grid.Column="0" Text="{Binding Label}" 
-                                                       VerticalAlignment="Center" FontSize="12"/>
-                                            
-                                            <Border Grid.Column="1" Height="20" 
-                                                    Background="{Binding Color}" 
-                                                    CornerRadius="3" Margin="5,0">
-                                                <Border.Width>
-                                                    <MultiBinding Converter="{StaticResource ValueToWidthConverter}">
-                                                        <Binding Path="Value"/>
-                                                        <Binding RelativeSource="{RelativeSource AncestorType=Border}" Path="ActualWidth"/>
-                                                    </MultiBinding>
-                                                </Border.Width>
-                                            </Border>
-                                            
-                                            <TextBlock Grid.Column="2" Text="{Binding Value}" 
-                                                       VerticalAlignment="Center" FontSize="12" 
-                                                       HorizontalAlignment="Center"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- プロジェクト別統計 -->
-                    <Border Grid.Column="1" Background="White" CornerRadius="10" 
-                            Padding="20" Margin="10,0,0,0">
-                        <StackPanel>
-                            <TextBlock Text="プロジェクト別統計" FontSize="18" FontWeight="Bold" 
-                                       Margin="0,0,0,15"/>
-                            
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300">
-                                <ItemsControl ItemsSource="{Binding ProjectStatistics}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Background="LightGray" CornerRadius="5" 
-                                                    Padding="10" Margin="0,0,0,5">
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding ProjectName}" 
-                                                               FontWeight="SemiBold" FontSize="14"/>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding CompletedPomodoros, StringFormat={}ポモドーロ: {0}}" 
-                                                                   FontSize="12" Margin="0,0,10,0"/>
-                                                        <TextBlock Text="{Binding CompletedTasks, StringFormat={}タスク: {0}}" 
-                                                                   FontSize="12"/>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Grid>
-        </ScrollViewer>
-
-        <!-- フッター -->
-        <Border Grid.Row="3" Background="White" Padding="20" Margin="10,0,10,10">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="閉じる" Click="Close_Click" 
-                        Style="{StaticResource RoundButton}" 
-                        Background="Gray" Width="100"/>
-            </StackPanel>
-        </Border>
-    </Grid>
+            <Button Grid.Row="2" Content="閉じる" Click="Close_Click" Width="100" 
+                    Style="{StaticResource RoundButton}" HorizontalAlignment="Right" Margin="0,20,0,0"/>
+        </Grid>
+    </Border>
 </Window>

@@ -9,13 +9,12 @@ namespace PomodoroTimer.Services
     public class TimerService : ITimerService
     {
         private DispatcherTimer _timer;
-        private TimeSpan _sessionDuration;
+        private AppSettings _settings;
         private TimeSpan _remainingTime;
-        private bool _isRunning;
+        private TimeSpan _sessionDuration;
         private SessionType _currentSessionType;
         private int _completedPomodoros;
-        private AppSettings _settings;
-        private INotificationService _notificationService;
+        private int _currentCycleCount;
 
         public event Action? TimerStarted;
         public event Action? TimerStopped;
@@ -25,216 +24,135 @@ namespace PomodoroTimer.Services
         public event Action<SessionType>? SessionCompleted;
         public event Action<SessionType>? SessionTypeChanged;
 
-        public bool IsRunning => _isRunning;
+        public bool IsRunning => _timer?.IsEnabled ?? false;
         public TimeSpan RemainingTime => _remainingTime;
         public TimeSpan SessionDuration => _sessionDuration;
         public SessionType CurrentSessionType => _currentSessionType;
         public int CompletedPomodoros => _completedPomodoros;
 
-        public TimerService(INotificationService? notificationService = null)
+        public TimerService()
         {
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
-            _timer.Tick += Timer_Tick;
+            _timer.Tick += OnTimerTick;
             
+            _settings = new AppSettings();
             _currentSessionType = SessionType.Work;
+            _remainingTime = TimeSpan.FromMinutes(_settings.WorkSessionMinutes);
+            _sessionDuration = _remainingTime;
             _completedPomodoros = 0;
-            _settings = new AppSettings(); // デフォルト設定
-            _notificationService = notificationService ?? new NotificationService();
-        }
-
-        public void UpdateSettings(AppSettings settings)
-        {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _notificationService.UpdateSettings(settings.EnableSoundNotification, settings.EnableDesktopNotification);
+            _currentCycleCount = 0;
         }
 
         public void Start(TimeSpan duration)
         {
             _sessionDuration = duration;
             _remainingTime = duration;
-            _isRunning = true;
             _timer.Start();
-            
             TimerStarted?.Invoke();
-            TimeUpdated?.Invoke(_remainingTime);
         }
 
         public void StartNewPomodoroCycle()
         {
             _currentSessionType = SessionType.Work;
-            _completedPomodoros = 0;
-            
             var duration = TimeSpan.FromMinutes(_settings.WorkSessionMinutes);
-            Start(duration);
-            
+            _sessionDuration = duration;
+            _remainingTime = duration;
+            _timer.Start();
+            TimerStarted?.Invoke();
             SessionTypeChanged?.Invoke(_currentSessionType);
         }
 
         public void Stop()
         {
             _timer.Stop();
-            _isRunning = false;
             _remainingTime = _sessionDuration;
-            
             TimerStopped?.Invoke();
-            TimeUpdated?.Invoke(_remainingTime);
         }
 
         public void Pause()
         {
-            if (_isRunning)
-            {
-                _timer.Stop();
-                _isRunning = false;
-                TimerPaused?.Invoke();
-            }
+            _timer.Stop();
+            TimerPaused?.Invoke();
         }
 
         public void Resume()
         {
-            if (!_isRunning && _remainingTime > TimeSpan.Zero)
-            {
-                _timer.Start();
-                _isRunning = true;
-                TimerResumed?.Invoke();
-            }
+            _timer.Start();
+            TimerResumed?.Invoke();
         }
 
         public void Skip()
         {
             _timer.Stop();
-            _isRunning = false;
-            
-            HandleSessionCompletion();
+            OnSessionCompleted();
         }
 
-        private void Timer_Tick(object? sender, EventArgs e)
+        public void UpdateSettings(AppSettings settings)
+        {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            
+            // 現在停止中の場合は新しい設定を適用
+            if (!IsRunning)
+            {
+                var duration = _currentSessionType switch
+                {
+                    SessionType.Work => TimeSpan.FromMinutes(_settings.WorkSessionMinutes),
+                    SessionType.ShortBreak => TimeSpan.FromMinutes(_settings.ShortBreakMinutes),
+                    SessionType.LongBreak => TimeSpan.FromMinutes(_settings.LongBreakMinutes),
+                    _ => TimeSpan.FromMinutes(_settings.WorkSessionMinutes)
+                };
+                
+                _sessionDuration = duration;
+                _remainingTime = duration;
+                TimeUpdated?.Invoke(_remainingTime);
+            }
+        }
+
+        private void OnTimerTick(object? sender, EventArgs e)
         {
             _remainingTime = _remainingTime.Subtract(TimeSpan.FromSeconds(1));
             TimeUpdated?.Invoke(_remainingTime);
 
             if (_remainingTime <= TimeSpan.Zero)
             {
-                // セッション完了
                 _timer.Stop();
-                _isRunning = false;
-                HandleSessionCompletion();
+                OnSessionCompleted();
             }
         }
 
-        private void HandleSessionCompletion()
+        private void OnSessionCompleted()
         {
-            // 通知とサウンド再生
-            ShowSessionCompletionNotification();
+            var completedSessionType = _currentSessionType;
+            SessionCompleted?.Invoke(completedSessionType);
 
-            // セッション完了イベントを発火
-            SessionCompleted?.Invoke(_currentSessionType);
-
-            // 現在のセッションがワークセッションの場合、ポモドーロ数をインクリメント
             if (_currentSessionType == SessionType.Work)
             {
                 _completedPomodoros++;
-            }
+                _currentCycleCount++;
 
-            // 自動で次のセッションに移行するかどうか
-            if (_settings.AutoStartNextSession)
-            {
-                StartNextSession();
+                // 次のセッションタイプを決定
+                if (_currentCycleCount % _settings.LongBreakInterval == 0)
+                {
+                    _currentSessionType = SessionType.LongBreak;
+                    _sessionDuration = TimeSpan.FromMinutes(_settings.LongBreakMinutes);
+                }
+                else
+                {
+                    _currentSessionType = SessionType.ShortBreak;
+                    _sessionDuration = TimeSpan.FromMinutes(_settings.ShortBreakMinutes);
+                }
             }
             else
             {
-                // 次のセッションの準備だけする
-                PrepareNextSession();
+                // 休憩から作業セッションに戻る
+                _currentSessionType = SessionType.Work;
+                _sessionDuration = TimeSpan.FromMinutes(_settings.WorkSessionMinutes);
             }
-        }
 
-        private void StartNextSession()
-        {
-            var nextSessionType = GetNextSessionType();
-            var duration = GetSessionDuration(nextSessionType);
-            
-            _currentSessionType = nextSessionType;
-            SessionTypeChanged?.Invoke(_currentSessionType);
-            
-            Start(duration);
-        }
-
-        private void PrepareNextSession()
-        {
-            var nextSessionType = GetNextSessionType();
-            var duration = GetSessionDuration(nextSessionType);
-            
-            _currentSessionType = nextSessionType;
-            _sessionDuration = duration;
-            _remainingTime = duration;
-            
+            _remainingTime = _sessionDuration;
             SessionTypeChanged?.Invoke(_currentSessionType);
             TimeUpdated?.Invoke(_remainingTime);
-        }
-
-        private SessionType GetNextSessionType()
-        {
-            switch (_currentSessionType)
-            {
-                case SessionType.Work:
-                    // 4ポモドーロ毎に長休憩
-                    return (_completedPomodoros % _settings.PomodorosBeforeLongBreak == 0) 
-                        ? SessionType.LongBreak 
-                        : SessionType.ShortBreak;
-                
-                case SessionType.ShortBreak:
-                case SessionType.LongBreak:
-                    return SessionType.Work;
-                
-                default:
-                    return SessionType.Work;
-            }
-        }
-
-        private TimeSpan GetSessionDuration(SessionType sessionType)
-        {
-            return sessionType switch
-            {
-                SessionType.Work => TimeSpan.FromMinutes(_settings.WorkSessionMinutes),
-                SessionType.ShortBreak => TimeSpan.FromMinutes(_settings.ShortBreakMinutes),
-                SessionType.LongBreak => TimeSpan.FromMinutes(_settings.LongBreakMinutes),
-                _ => TimeSpan.FromMinutes(_settings.WorkSessionMinutes)
-            };
-        }
-
-        private void ShowSessionCompletionNotification()
-        {
-            var sessionName = _currentSessionType switch
-            {
-                SessionType.Work => "Work Session",
-                SessionType.ShortBreak => "Short Break",
-                SessionType.LongBreak => "Long Break",
-                _ => "Session"
-            };
-
-            var title = "Pomodoro Timer";
-            var message = $"{sessionName} completed! ";
-            
-            if (_currentSessionType == SessionType.Work)
-            {
-                var nextSession = GetNextSessionType();
-                var nextSessionName = nextSession switch
-                {
-                    SessionType.ShortBreak => "Time for a short break!",
-                    SessionType.LongBreak => "Time for a long break!",
-                    _ => "Great work!"
-                };
-                message += nextSessionName;
-            }
-            else
-            {
-                message += "Ready to get back to work?";
-            }
-
-            // 音声とデスクトップ通知
-            _notificationService.PlayNotificationSound();
-            _notificationService.ShowDesktopNotification(title, message);
         }
     }
 }

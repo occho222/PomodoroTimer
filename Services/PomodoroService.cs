@@ -19,8 +19,17 @@ namespace PomodoroTimer.Services
             _dataPersistenceService = dataPersistenceService ?? throw new ArgumentNullException(nameof(dataPersistenceService));
             _tasks = new ObservableCollection<PomodoroTask>();
             
-            // 初期サンプルタスクを追加
-            InitializeSampleTasks();
+            // 起動時にタスクデータを読み込み
+            _ = Task.Run(async () =>
+            {
+                await LoadTasksAsync();
+                
+                // データが存在しない場合のみサンプルタスクを追加
+                if (_tasks.Count == 0)
+                {
+                    InitializeSampleTasks();
+                }
+            });
         }
 
         /// <summary>
@@ -64,10 +73,26 @@ namespace PomodoroTimer.Services
         public void AddTask(PomodoroTask task)
         {
             if (task == null)
+            {
+                Console.WriteLine("警告: nullのタスクを追加しようとしました");
                 throw new ArgumentNullException(nameof(task));
+            }
 
-            task.DisplayOrder = _tasks.Count;
-            _tasks.Add(task);
+            try
+            {
+                task.DisplayOrder = _tasks.Count;
+                _tasks.Add(task);
+                
+                Console.WriteLine($"タスクが追加されました: {task.Title}");
+                
+                // タスク追加時に自動保存
+                _ = Task.Run(SaveTasksAsync);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"タスクの追加に失敗しました: {ex.Message}");
+                throw;
+            }
         }
 
         public void RemoveTask(PomodoroTask task)
@@ -77,6 +102,9 @@ namespace PomodoroTimer.Services
 
             _tasks.Remove(task);
             UpdateDisplayOrders();
+            
+            // タスク削除時に自動保存
+            _ = Task.Run(SaveTasksAsync);
         }
 
         public void UpdateTask(PomodoroTask task)
@@ -91,6 +119,9 @@ namespace PomodoroTimer.Services
                 if (index >= 0)
                 {
                     _tasks[index] = task;
+                    
+                    // タスク更新時に自動保存
+                    _ = Task.Run(SaveTasksAsync);
                 }
             }
         }
@@ -110,6 +141,9 @@ namespace PomodoroTimer.Services
 
             _tasks.Move(sourceIndex, targetIndex);
             UpdateDisplayOrders();
+            
+            // 順序変更時に自動保存
+            _ = Task.Run(SaveTasksAsync);
         }
 
         public void CompleteTask(PomodoroTask task)
@@ -119,6 +153,9 @@ namespace PomodoroTimer.Services
 
             task.IsCompleted = true;
             task.CompletedAt = DateTime.Now;
+            
+            // タスク完了時に自動保存
+            _ = Task.Run(SaveTasksAsync);
         }
 
         public void IncrementTaskPomodoro(PomodoroTask task)
@@ -132,6 +169,11 @@ namespace PomodoroTimer.Services
             if (task.CompletedPomodoros >= task.EstimatedPomodoros)
             {
                 CompleteTask(task);
+            }
+            else
+            {
+                // 完了しない場合も保存
+                _ = Task.Run(SaveTasksAsync);
             }
         }
 
@@ -264,7 +306,7 @@ namespace PomodoroTimer.Services
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"タスクデータの保存に失敗しました: {ex.Message}", ex);
+                Console.WriteLine($"タスクデータの保存に失敗しました: {ex.Message}");
             }
         }
 
@@ -274,7 +316,7 @@ namespace PomodoroTimer.Services
             {
                 var tasks = await _dataPersistenceService.LoadDataAsync<List<PomodoroTask>>("tasks.json");
                 
-                if (tasks != null)
+                if (tasks != null && tasks.Count > 0)
                 {
                     _tasks.Clear();
                     foreach (var task in tasks.OrderBy(t => t.DisplayOrder))
@@ -286,8 +328,6 @@ namespace PomodoroTimer.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"タスクデータの読み込みに失敗しました: {ex.Message}");
-                // 読み込みに失敗した場合はサンプルタスクを表示
-                InitializeSampleTasks();
             }
         }
 
