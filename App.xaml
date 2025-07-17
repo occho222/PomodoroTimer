@@ -22,6 +22,7 @@
             <Color x:Key="BackgroundDarkColor">#1E293B</Color>
             <Color x:Key="TextLightColor">#1E293B</Color>
             <Color x:Key="TextDarkColor">#F1F5F9</Color>
+            <Color x:Key="TextSecondaryColor">#64748B</Color>
 
             <!-- ブラシリソース -->
             <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
@@ -33,6 +34,7 @@
             <SolidColorBrush x:Key="BackgroundDark" Color="{StaticResource BackgroundDarkColor}"/>
             <SolidColorBrush x:Key="TextLight" Color="{StaticResource TextLightColor}"/>
             <SolidColorBrush x:Key="TextDark" Color="{StaticResource TextDarkColor}"/>
+            <SolidColorBrush x:Key="TextSecondary" Color="{StaticResource TextSecondaryColor}"/>
 
             <!-- ボタンスタイル -->
             <Style x:Key="RoundButton" TargetType="Button">

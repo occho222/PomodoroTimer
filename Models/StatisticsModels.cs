@@ -256,4 +256,217 @@ namespace PomodoroTimer.Models
             }
         }
     }
+
+    /// <summary>
+    /// 週次レポート
+    /// </summary>
+    public partial class WeeklyReport : ObservableObject
+    {
+        /// <summary>
+        /// 週の開始日
+        /// </summary>
+        [ObservableProperty]
+        private DateTime weekStart = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+
+        /// <summary>
+        /// 週の終了日
+        /// </summary>
+        public DateTime WeekEnd => WeekStart.AddDays(6);
+
+        /// <summary>
+        /// 日別統計のリスト
+        /// </summary>
+        [ObservableProperty]
+        private List<DailyStatistics> dailyStatistics = new();
+
+        /// <summary>
+        /// 最も生産的だった日
+        /// </summary>
+        public DailyStatistics? MostProductiveDay =>
+            DailyStatistics.OrderByDescending(d => d.TotalFocusMinutes).FirstOrDefault();
+
+        /// <summary>
+        /// 最も使用されたプロジェクト
+        /// </summary>
+        [ObservableProperty]
+        private string topProject = string.Empty;
+
+        /// <summary>
+        /// 最も使用されたタグ
+        /// </summary>
+        [ObservableProperty]
+        private string topTag = string.Empty;
+
+        /// <summary>
+        /// 週の総ポモドーロ数
+        /// </summary>
+        public int TotalPomodoros => DailyStatistics.Sum(d => d.CompletedPomodoros);
+
+        /// <summary>
+        /// 週の総タスク数
+        /// </summary>
+        public int TotalTasks => DailyStatistics.Sum(d => d.CompletedTasks);
+
+        /// <summary>
+        /// 週の総集中時間（分）
+        /// </summary>
+        public int TotalFocusMinutes => DailyStatistics.Sum(d => d.TotalFocusMinutes);
+
+        /// <summary>
+        /// 日平均ポモドーロ数
+        /// </summary>
+        public double AveragePomodorosPerDay => DailyStatistics.Count > 0 ? (double)TotalPomodoros / 7 : 0;
+
+        /// <summary>
+        /// 前週比較（ポモドーロ数）
+        /// </summary>
+        [ObservableProperty]
+        private int pomodoroChangeFromLastWeek = 0;
+
+        /// <summary>
+        /// 前週比較の表示テキスト
+        /// </summary>
+        public string PomodoroChangeText
+        {
+            get
+            {
+                if (PomodoroChangeFromLastWeek > 0)
+                    return $"? +{PomodoroChangeFromLastWeek}";
+                else if (PomodoroChangeFromLastWeek < 0)
+                    return $"? {PomodoroChangeFromLastWeek}";
+                else
+                    return "→ ±0";
+            }
+        }
+    }
+
+    /// <summary>
+    /// 月間統計
+    /// </summary>
+    public partial class MonthlyStatistics : ObservableObject
+    {
+        /// <summary>
+        /// 年
+        /// </summary>
+        [ObservableProperty]
+        private int year = DateTime.Today.Year;
+
+        /// <summary>
+        /// 月
+        /// </summary>
+        [ObservableProperty]
+        private int month = DateTime.Today.Month;
+
+        /// <summary>
+        /// 日別統計のリスト
+        /// </summary>
+        [ObservableProperty]
+        private List<DailyStatistics> dailyStatistics = new();
+
+        /// <summary>
+        /// 月の総ポモドーロ数
+        /// </summary>
+        public int TotalPomodoros => DailyStatistics.Sum(d => d.CompletedPomodoros);
+
+        /// <summary>
+        /// 月の総タスク数
+        /// </summary>
+        public int TotalTasks => DailyStatistics.Sum(d => d.CompletedTasks);
+
+        /// <summary>
+        /// 月の総集中時間（分）
+        /// </summary>
+        public int TotalFocusMinutes => DailyStatistics.Sum(d => d.TotalFocusMinutes);
+
+        /// <summary>
+        /// 作業した日数
+        /// </summary>
+        public int WorkedDays => DailyStatistics.Count(d => d.CompletedPomodoros > 0);
+
+        /// <summary>
+        /// 月の名前
+        /// </summary>
+        public string MonthName => $"{Year}年{Month}月";
+    }
+
+    /// <summary>
+    /// 生産性トレンド
+    /// </summary>
+    public partial class ProductivityTrend : ObservableObject
+    {
+        /// <summary>
+        /// 日付
+        /// </summary>
+        [ObservableProperty]
+        private DateTime date = DateTime.Today;
+
+        /// <summary>
+        /// ポモドーロ数
+        /// </summary>
+        [ObservableProperty]
+        private int pomodoros = 0;
+
+        /// <summary>
+        /// 集中時間（分）
+        /// </summary>
+        [ObservableProperty]
+        private int focusMinutes = 0;
+
+        /// <summary>
+        /// 集中度スコア
+        /// </summary>
+        [ObservableProperty]
+        private double focusScore = 0;
+
+        /// <summary>
+        /// 日付表示
+        /// </summary>
+        public string DateText => Date.ToString("MM/dd");
+    }
+
+    /// <summary>
+    /// 時間帯別生産性
+    /// </summary>
+    public partial class HourlyProductivity : ObservableObject
+    {
+        /// <summary>
+        /// 時間（0-23）
+        /// </summary>
+        [ObservableProperty]
+        private int hour = 0;
+
+        /// <summary>
+        /// ポモドーロ数
+        /// </summary>
+        [ObservableProperty]
+        private int pomodoros = 0;
+
+        /// <summary>
+        /// 集中時間（分）
+        /// </summary>
+        [ObservableProperty]
+        private int focusMinutes = 0;
+
+        /// <summary>
+        /// 時間表示
+        /// </summary>
+        public string HourText => $"{Hour:00}:00";
+
+        /// <summary>
+        /// 時間帯の名前
+        /// </summary>
+        public string TimePeriodName
+        {
+            get
+            {
+                return Hour switch
+                {
+                    >= 5 and < 12 => "朝",
+                    >= 12 and < 17 => "昼",
+                    >= 17 and < 21 => "夕方",
+                    _ => "夜"
+                };
+            }
+        }
+    }
 }

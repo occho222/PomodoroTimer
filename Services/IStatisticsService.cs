@@ -77,6 +77,37 @@ namespace PomodoroTimer.Services
             DateTime startDate, DateTime endDate, int topCount = 10);
 
         /// <summary>
+        /// 週次レポートを取得する
+        /// </summary>
+        /// <param name="weekStart">週の開始日</param>
+        /// <returns>週次レポート</returns>
+        WeeklyReport GetWeeklyReport(DateTime weekStart);
+
+        /// <summary>
+        /// 月間統計を取得する
+        /// </summary>
+        /// <param name="year">年</param>
+        /// <param name="month">月</param>
+        /// <returns>月間統計</returns>
+        MonthlyStatistics GetMonthlyStatistics(int year, int month);
+
+        /// <summary>
+        /// 生産性トレンドを取得する
+        /// </summary>
+        /// <param name="startDate">開始日</param>
+        /// <param name="endDate">終了日</param>
+        /// <returns>生産性トレンドデータ</returns>
+        List<ProductivityTrend> GetProductivityTrend(DateTime startDate, DateTime endDate);
+
+        /// <summary>
+        /// 時間帯別作業分析を取得する
+        /// </summary>
+        /// <param name="startDate">開始日</param>
+        /// <param name="endDate">終了日</param>
+        /// <returns>時間帯別作業分析</returns>
+        Dictionary<int, HourlyProductivity> GetHourlyProductivity(DateTime startDate, DateTime endDate);
+
+        /// <summary>
         /// 統計データをクリアする
         /// </summary>
         void ClearStatistics();
