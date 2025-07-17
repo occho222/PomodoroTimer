@@ -540,7 +540,7 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void OpenSettings()
         {
-            var settingsDialog = new SettingsDialog(_settings);
+            var settingsDialog = new SettingsDialog(_settings, _dataPersistenceService);
             if (settingsDialog.ShowDialog() == true)
             {
                 // 新しい設定を適用

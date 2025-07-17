@@ -1,79 +1,141 @@
 ﻿<Window x:Class="PomodoroTimer.Views.SettingsDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="設定" Height="450" Width="500"
+        Title="設定" Height="550" Width="500"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="{StaticResource BackgroundLight}">
     
     <Border Background="White" Margin="20" CornerRadius="10" Padding="30">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <TextBlock Text="ポモドーロタイマー設定" FontSize="20" FontWeight="Bold" 
-                       Margin="0,0,0,20" Foreground="{StaticResource TextLight}"/>
+                <TextBlock Text="ポモドーロタイマー設定" FontSize="20" FontWeight="Bold" 
+                           Margin="0,0,0,20" Foreground="{StaticResource TextLight}"/>
 
-            <!-- 作業セッション時間 -->
-            <StackPanel Grid.Row="1" Margin="0,0,0,15">
-                <TextBlock Text="作業セッション時間 (分):" Margin="0,0,0,5" FontWeight="SemiBold"/>
-                <Slider x:Name="WorkSessionSlider" Value="{Binding WorkSessionMinutes, Mode=TwoWay}" 
-                        Minimum="5" Maximum="60" IsSnapToTickEnabled="True" TickFrequency="5"/>
-                <TextBlock Text="{Binding ElementName=WorkSessionSlider, Path=Value, StringFormat={}{0} 分}" 
-                           FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
-            </StackPanel>
+                <!-- 作業セッション時間 -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,15">
+                    <TextBlock Text="作業セッション時間 (分):" Margin="0,0,0,5" FontWeight="SemiBold"/>
+                    <Slider x:Name="WorkSessionSlider" Value="{Binding WorkSessionMinutes, Mode=TwoWay}" 
+                            Minimum="5" Maximum="60" IsSnapToTickEnabled="True" TickFrequency="5"/>
+                    <TextBlock Text="{Binding ElementName=WorkSessionSlider, Path=Value, StringFormat={}{0} 分}" 
+                               FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
 
-            <!-- 短い休憩時間 -->
-            <StackPanel Grid.Row="2" Margin="0,0,0,15">
-                <TextBlock Text="短い休憩時間 (分):" Margin="0,0,0,5" FontWeight="SemiBold"/>
-                <Slider x:Name="ShortBreakSlider" Value="{Binding ShortBreakMinutes, Mode=TwoWay}" 
-                        Minimum="1" Maximum="15" IsSnapToTickEnabled="True" TickFrequency="1"/>
-                <TextBlock Text="{Binding ElementName=ShortBreakSlider, Path=Value, StringFormat={}{0} 分}" 
-                           FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
-            </StackPanel>
+                <!-- 短い休憩時間 -->
+                <StackPanel Grid.Row="2" Margin="0,0,0,15">
+                    <TextBlock Text="短い休憩時間 (分):" Margin="0,0,0,5" FontWeight="SemiBold"/>
+                    <Slider x:Name="ShortBreakSlider" Value="{Binding ShortBreakMinutes, Mode=TwoWay}" 
+                            Minimum="1" Maximum="15" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                    <TextBlock Text="{Binding ElementName=ShortBreakSlider, Path=Value, StringFormat={}{0} 分}" 
+                               FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
 
-            <!-- 長い休憩時間 -->
-            <StackPanel Grid.Row="3" Margin="0,0,0,15">
-                <TextBlock Text="長い休憩時間 (分):" Margin="0,0,0,5" FontWeight="SemiBold"/>
-                <Slider x:Name="LongBreakSlider" Value="{Binding LongBreakMinutes, Mode=TwoWay}" 
-                        Minimum="10" Maximum="60" IsSnapToTickEnabled="True" TickFrequency="5"/>
-                <TextBlock Text="{Binding ElementName=LongBreakSlider, Path=Value, StringFormat={}{0} 分}" 
-                           FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
-            </StackPanel>
+                <!-- 長い休憩時間 -->
+                <StackPanel Grid.Row="3" Margin="0,0,0,15">
+                    <TextBlock Text="長い休憩時間 (分):" Margin="0,0,0,5" FontWeight="SemiBold"/>
+                    <Slider x:Name="LongBreakSlider" Value="{Binding LongBreakMinutes, Mode=TwoWay}" 
+                            Minimum="10" Maximum="60" IsSnapToTickEnabled="True" TickFrequency="5"/>
+                    <TextBlock Text="{Binding ElementName=LongBreakSlider, Path=Value, StringFormat={}{0} 分}" 
+                               FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
 
-            <!-- 長い休憩の間隔 -->
-            <StackPanel Grid.Row="4" Margin="0,0,0,15">
-                <TextBlock Text="長い休憩の間隔 (ポモドーロ数):" Margin="0,0,0,5" FontWeight="SemiBold"/>
-                <Slider x:Name="LongBreakIntervalSlider" Value="{Binding LongBreakInterval, Mode=TwoWay}" 
-                        Minimum="2" Maximum="8" IsSnapToTickEnabled="True" TickFrequency="1"/>
-                <TextBlock Text="{Binding ElementName=LongBreakIntervalSlider, Path=Value, StringFormat={}{0} ポモドーロごと}" 
-                           FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
-            </StackPanel>
+                <!-- 長い休憩の間隔 -->
+                <StackPanel Grid.Row="4" Margin="0,0,0,15">
+                    <TextBlock Text="長い休憩の間隔 (ポモドーロ数):" Margin="0,0,0,5" FontWeight="SemiBold"/>
+                    <Slider x:Name="LongBreakIntervalSlider" Value="{Binding LongBreakInterval, Mode=TwoWay}" 
+                            Minimum="2" Maximum="8" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                    <TextBlock Text="{Binding ElementName=LongBreakIntervalSlider, Path=Value, StringFormat={}{0} ポモドーロごと}" 
+                               FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
 
-            <!-- 通知設定 -->
-            <StackPanel Grid.Row="5" Margin="0,0,0,15">
-                <CheckBox Content="セッション完了時に通知を表示" IsChecked="{Binding ShowNotifications, Mode=TwoWay}" 
-                          Margin="0,0,0,10"/>
-                <CheckBox Content="システムトレイに最小化" IsChecked="{Binding MinimizeToTray, Mode=TwoWay}" 
-                          Margin="0,0,0,10"/>
-                <CheckBox Content="自動的に次のセッションを開始" IsChecked="{Binding AutoStartNextSession, Mode=TwoWay}"/>
-            </StackPanel>
+                <!-- 通知設定 -->
+                <StackPanel Grid.Row="5" Margin="0,0,0,15">
+                    <CheckBox Content="セッション完了時に通知を表示" IsChecked="{Binding ShowNotifications, Mode=TwoWay}" 
+                              Margin="0,0,0,10"/>
+                    <CheckBox Content="システムトレイに最小化" IsChecked="{Binding MinimizeToTray, Mode=TwoWay}" 
+                              Margin="0,0,0,10"/>
+                    <CheckBox Content="自動的に次のセッションを開始" IsChecked="{Binding AutoStartNextSession, Mode=TwoWay}"/>
+                </StackPanel>
 
-            <!-- ボタン -->
-            <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="キャンセル" Click="Cancel_Click" Width="100" Margin="0,0,10,0" 
-                        Style="{StaticResource RoundButton}" Background="Gray"/>
-                <Button Content="OK" Click="OK_Click" Width="100" 
-                        Style="{StaticResource RoundButton}"/>
-            </StackPanel>
-        </Grid>
+                <!-- データ管理セクション -->
+                <GroupBox Grid.Row="6" Header="データ管理" Margin="0,0,0,15" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="アプリケーションのデータを管理します。" 
+                                   FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
+                        
+                        <!-- データ初期化ボタン -->
+                        <Button x:Name="ResetDataButton" Content="すべてのデータを初期化" 
+                                Click="ResetData_Click" 
+                                Background="{StaticResource ErrorBrush}"
+                                Style="{StaticResource RoundButton}"
+                                Margin="0,0,0,10"
+                                ToolTip="すべてのタスク、設定、統計データを削除して初期状態に戻します"/>
+                        
+                        <!-- バックアップ作成ボタン -->
+                        <Button x:Name="BackupDataButton" Content="データをバックアップ" 
+                                Click="BackupData_Click" 
+                                Background="{StaticResource AccentBrush}"
+                                Style="{StaticResource RoundButton}"
+                                Margin="0,0,0,10"
+                                ToolTip="現在のデータをファイルに保存します"/>
+                        
+                        <!-- データ復元ボタン -->
+                        <Button x:Name="RestoreDataButton" Content="データを復元" 
+                                Click="RestoreData_Click" 
+                                Background="{StaticResource WarningBrush}"
+                                Style="{StaticResource RoundButton}"
+                                ToolTip="バックアップファイルからデータを復元します"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- アプリ情報セクション -->
+                <GroupBox Grid.Row="7" Header="アプリケーション情報" Margin="0,0,0,15" Padding="15">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="アプリ名:" FontWeight="SemiBold" Margin="0,0,10,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="ポモドーロタイマー" Margin="0,0,0,5"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="バージョン:" FontWeight="SemiBold" Margin="0,0,10,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="1.0.0" Margin="0,0,0,5"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="データフォルダ:" FontWeight="SemiBold" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="DataFolderPath" Text="" TextWrapping="Wrap" 
+                                       FontSize="11" Foreground="Gray"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- ボタン -->
+                <StackPanel Grid.Row="9" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="キャンセル" Click="Cancel_Click" Width="100" Margin="0,0,10,0" 
+                            Style="{StaticResource RoundButton}" Background="Gray"/>
+                    <Button Content="OK" Click="OK_Click" Width="100" 
+                            Style="{StaticResource RoundButton}"/>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Border>
 </Window>

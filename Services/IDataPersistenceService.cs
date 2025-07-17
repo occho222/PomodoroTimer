@@ -36,5 +36,11 @@ namespace PomodoroTimer.Services
         /// <param name="fileName">ファイル名</param>
         /// <returns>削除完了タスク</returns>
         Task DeleteFileAsync(string fileName);
+
+        /// <summary>
+        /// すべてのデータを初期化する（削除する）
+        /// </summary>
+        /// <returns>初期化完了タスク</returns>
+        Task ResetDataAsync();
     }
 }
