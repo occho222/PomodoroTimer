@@ -278,6 +278,52 @@ namespace PomodoroTimer.Services
             }
         }
 
+        public async Task ImportTasksFromGraphAsync(List<PomodoroTask> tasks)
+        {
+            try
+            {
+                if (tasks == null || tasks.Count == 0)
+                {
+                    Console.WriteLine("インポートするタスクがありません。");
+                    return;
+                }
+
+                int importedCount = 0;
+                int duplicateCount = 0;
+
+                foreach (var task in tasks)
+                {
+                    // 既存のタスクと重複しないかチェック（タイトルとカテゴリで判断）
+                    var existingTask = _tasks.FirstOrDefault(t => 
+                        t.Title.Equals(task.Title, StringComparison.OrdinalIgnoreCase) && 
+                        t.Category.Equals(task.Category, StringComparison.OrdinalIgnoreCase));
+
+                    if (existingTask == null)
+                    {
+                        // 新しいIDを生成して追加
+                        task.Id = Guid.NewGuid();
+                        task.DisplayOrder = _tasks.Count;
+                        _tasks.Add(task);
+                        importedCount++;
+                    }
+                    else
+                    {
+                        duplicateCount++;
+                        Console.WriteLine($"重複タスクをスキップしました: {task.Title}");
+                    }
+                }
+
+                Console.WriteLine($"Microsoft Graphから {importedCount} 件のタスクをインポートしました。重複スキップ: {duplicateCount} 件");
+
+                // インポート後に自動保存
+                await SaveTasksAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Microsoft Graphからのタスクインポートに失敗しました: {ex.Message}", ex);
+            }
+        }
+
         public List<string> GetAllCategories()
         {
             return _tasks

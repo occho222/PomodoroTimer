@@ -2,6 +2,7 @@
 using System.IO;
 using PomodoroTimer.Models;
 using PomodoroTimer.Services;
+using System.Diagnostics;
 
 namespace PomodoroTimer.Views
 {
@@ -16,6 +17,7 @@ namespace PomodoroTimer.Views
         public AppSettings Settings { get; private set; }
 
         private readonly IDataPersistenceService _dataPersistenceService;
+        private GraphService? _graphService;
 
         public SettingsDialog(AppSettings currentSettings, IDataPersistenceService? dataPersistenceService = null)
         {
@@ -33,13 +35,29 @@ namespace PomodoroTimer.Views
                 LongBreakInterval = currentSettings.LongBreakInterval,
                 ShowNotifications = currentSettings.ShowNotifications,
                 MinimizeToTray = currentSettings.MinimizeToTray,
-                AutoStartNextSession = currentSettings.AutoStartNextSession
+                AutoStartNextSession = currentSettings.AutoStartNextSession,
+                GraphSettings = new GraphSettings
+                {
+                    ClientId = currentSettings.GraphSettings.ClientId,
+                    TenantId = currentSettings.GraphSettings.TenantId,
+                    EnableAutoLogin = currentSettings.GraphSettings.EnableAutoLogin,
+                    EnableMicrosoftToDoImport = currentSettings.GraphSettings.EnableMicrosoftToDoImport,
+                    EnablePlannerImport = currentSettings.GraphSettings.EnablePlannerImport,
+                    EnableOutlookImport = currentSettings.GraphSettings.EnableOutlookImport,
+                    LastAuthenticationTime = currentSettings.GraphSettings.LastAuthenticationTime
+                }
             };
             
             DataContext = Settings;
             
+            // GraphServiceを初期化
+            _graphService = new GraphService(Settings);
+            
             // データフォルダパスを表示
             DisplayDataFolderPath();
+            
+            // Microsoft Graph認証状態を更新
+            UpdateAuthenticationStatus();
         }
 
         /// <summary>
@@ -307,6 +325,111 @@ namespace PomodoroTimer.Views
                 // バックアップから復元
                 System.IO.Compression.ZipFile.ExtractToDirectory(backupPath, dataPath);
             });
+        }
+
+        /// <summary>
+        /// Microsoft Graph認証状態を更新する
+        /// </summary>
+        private void UpdateAuthenticationStatus()
+        {
+            try
+            {
+                var statusText = FindName("AuthenticationStatusText") as System.Windows.Controls.TextBlock;
+                var lastAuthText = FindName("LastAuthTimeText") as System.Windows.Controls.TextBlock;
+
+                if (statusText != null && lastAuthText != null)
+                {
+                    if (_graphService?.IsAuthenticated == true)
+                    {
+                        statusText.Text = "認証済み";
+                        statusText.Foreground = System.Windows.Media.Brushes.Green;
+                    }
+                    else
+                    {
+                        statusText.Text = "未認証";
+                        statusText.Foreground = System.Windows.Media.Brushes.Red;
+                    }
+
+                    if (Settings.GraphSettings.LastAuthenticationTime.HasValue)
+                    {
+                        lastAuthText.Text = $"最終認証: {Settings.GraphSettings.LastAuthenticationTime.Value:yyyy/MM/dd HH:mm}";
+                    }
+                    else
+                    {
+                        lastAuthText.Text = "認証履歴なし";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"認証状態の更新に失敗しました: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Microsoft Graph接続テストボタンクリック時の処理
+        /// </summary>
+        private async void TestConnection_Click(object sender, RoutedEventArgs e)
+        {
+            var testButton = FindName("TestConnectionButton") as System.Windows.Controls.Button;
+            if (testButton == null) return;
+
+            try
+            {
+                testButton.IsEnabled = false;
+                testButton.Content = "接続中...";
+
+                // 現在の設定でGraphServiceを再初期化
+                _graphService = new GraphService(Settings);
+
+                // 認証テスト
+                bool isAuthenticated = await _graphService.AuthenticateAsync();
+
+                if (isAuthenticated)
+                {
+                    Settings.GraphSettings.LastAuthenticationTime = DateTime.Now;
+                    System.Windows.MessageBox.Show("Microsoft Graphへの接続に成功しました。", "接続テスト", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    System.Windows.MessageBox.Show("Microsoft Graphへの接続に失敗しました。クライアントIDとテナントIDを確認してください。", "接続テスト", 
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                UpdateAuthenticationStatus();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"接続テストに失敗しました: {ex.Message}", "エラー", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                testButton.IsEnabled = true;
+                testButton.Content = "接続テスト";
+            }
+        }
+
+        /// <summary>
+        /// Azure ポータルを開くボタンクリック時の処理
+        /// </summary>
+        private void OpenAzurePortal_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var azurePortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade";
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = azurePortalUrl,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Azure ポータルを開けませんでした: {ex.Message}", "エラー", 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 }

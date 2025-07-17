@@ -21,6 +21,7 @@ namespace PomodoroTimer.ViewModels
         private readonly IStatisticsService _statisticsService;
         private readonly IDataPersistenceService _dataPersistenceService;
         private readonly ISystemTrayService _systemTrayService;
+        private readonly IGraphService _graphService;
         private AppSettings _settings;
 
         // タスク関連プロパティ
@@ -110,21 +111,31 @@ namespace PomodoroTimer.ViewModels
         /// </summary>
         public MainViewModel(IPomodoroService pomodoroService, ITimerService timerService, 
             IStatisticsService statisticsService, IDataPersistenceService dataPersistenceService,
-            ISystemTrayService systemTrayService)
+            ISystemTrayService systemTrayService, IGraphService graphService)
         {
             _pomodoroService = pomodoroService ?? throw new ArgumentNullException(nameof(pomodoroService));
             _timerService = timerService ?? throw new ArgumentNullException(nameof(timerService));
             _statisticsService = statisticsService ?? throw new ArgumentNullException(nameof(statisticsService));
             _dataPersistenceService = dataPersistenceService ?? throw new ArgumentNullException(nameof(dataPersistenceService));
             _systemTrayService = systemTrayService ?? throw new ArgumentNullException(nameof(systemTrayService));
+            _graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
             _settings = new AppSettings();
 
             try
             {
+                Console.WriteLine("MainViewModel の初期化を開始します...");
+
                 // 初期化処理を非同期で実行
                 _ = Task.Run(async () =>
                 {
-                    await InitializeDataAsync();
+                    try
+                    {
+                        await InitializeDataAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"非同期データ初期化でエラー: {ex.Message}");
+                    }
                 });
 
                 // サービスからタスクを取得
@@ -164,9 +175,40 @@ namespace PomodoroTimer.ViewModels
             catch (Exception ex)
             {
                 Console.WriteLine($"MainViewModel の初期化中にエラーが発生しました: {ex.Message}");
-                System.Windows.MessageBox.Show($"アプリケーションの初期化中にエラーが発生しました: {ex.Message}", "初期化エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.WriteLine($"スタックトレース: {ex.StackTrace}");
+                
+                // 最小限の初期化を試行
+                try
+                {
+                    InitializeMinimal();
+                    Console.WriteLine("最小限の初期化が完了しました");
+                }
+                catch (Exception minimalEx)
+                {
+                    Console.WriteLine($"最小限の初期化も失敗しました: {minimalEx.Message}");
+                    System.Windows.MessageBox.Show($"アプリケーションの初期化に失敗しました: {ex.Message}", "初期化エラー", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
+        }
+
+        /// <summary>
+        /// 最小限の初期化（エラー時のフォールバック）
+        /// </summary>
+        private void InitializeMinimal()
+        {
+            Tasks = new ObservableCollection<PomodoroTask>();
+            FilteredTasks = new ObservableCollection<PomodoroTask>();
+            TodoTasks = new ObservableCollection<PomodoroTask>();
+            InProgressTasks = new ObservableCollection<PomodoroTask>();
+            DoneTasksCollection = new ObservableCollection<PomodoroTask>();
+            AvailableCategories = new ObservableCollection<string> { "すべて" };
+            AvailableTags = new ObservableCollection<string> { "すべて" };
+            TodayStatistics = new DailyStatistics();
+            
+            // 基本的なタイマー表示を設定
+            UpdateSessionTypeText();
+            UpdateProgress();
         }
 
         /// <summary>
@@ -1027,6 +1069,97 @@ namespace PomodoroTimer.ViewModels
             
             // タスクデータを保存
             _ = Task.Run(_pomodoroService.SaveTasksAsync);
+        }
+
+        /// <summary>
+        /// Microsoft Graphからタスクをインポートするコマンド
+        /// </summary>
+        [RelayCommand]
+        private async System.Threading.Tasks.Task ImportFromMicrosoftGraph()
+        {
+            try
+            {
+                // 認証を行う
+                bool isAuthenticated = await _graphService.AuthenticateAsync();
+                if (!isAuthenticated)
+                {
+                    System.Windows.MessageBox.Show("Microsoft Graphの認証に失敗しました。", "認証エラー", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // インポート先選択ダイアログを表示
+                var importDialog = new Views.GraphImportDialog();
+                if (importDialog.ShowDialog() != true)
+                {
+                    return;
+                }
+
+                var importedTasks = new List<PomodoroTask>();
+
+                // 選択されたソースからタスクをインポート
+                if (importDialog.ImportFromMicrosoftToDo)
+                {
+                    var todoTasks = await _graphService.ImportTasksFromMicrosoftToDoAsync();
+                    importedTasks.AddRange(todoTasks);
+                }
+
+                if (importDialog.ImportFromPlanner)
+                {
+                    var plannerTasks = await _graphService.ImportTasksFromPlannerAsync();
+                    importedTasks.AddRange(plannerTasks);
+                }
+
+                if (importDialog.ImportFromOutlook)
+                {
+                    var outlookTasks = await _graphService.ImportTasksFromOutlookAsync();
+                    importedTasks.AddRange(outlookTasks);
+                }
+
+                if (importedTasks.Count > 0)
+                {
+                    // PomodoroServiceを通じてタスクをインポート
+                    await _pomodoroService.ImportTasksFromGraphAsync(importedTasks);
+                    
+                    // UI更新
+                    UpdateFilteringLists();
+                    ApplyFilters();
+                    UpdateKanbanColumns();
+
+                    System.Windows.MessageBox.Show($"{importedTasks.Count} 件のタスクをインポートしました。", "インポート完了", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    System.Windows.MessageBox.Show("インポートするタスクが見つかりませんでした。", "情報", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Microsoft Graphからのタスクインポートに失敗しました: {ex.Message}", "エラー", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.WriteLine($"Microsoft Graphインポートエラー: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Microsoft Graphからログアウトするコマンド
+        /// </summary>
+        [RelayCommand]
+        private async System.Threading.Tasks.Task LogoutFromMicrosoftGraph()
+        {
+            try
+            {
+                await _graphService.LogoutAsync();
+                System.Windows.MessageBox.Show("Microsoft Graphからログアウトしました。", "ログアウト", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"ログアウトに失敗しました: {ex.Message}", "エラー", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

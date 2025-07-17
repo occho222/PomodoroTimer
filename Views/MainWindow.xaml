@@ -58,6 +58,9 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <Button Content="+ タスク追加" Command="{Binding AddTaskCommand}"
                             Style="{StaticResource RoundButton}" Margin="0,0,8,0"/>
+                    <Button Content="Microsoft Graph インポート" Command="{Binding ImportFromMicrosoftGraphCommand}"
+                            Style="{StaticResource RoundButton}" Background="{StaticResource WarningBrush}" 
+                            FontSize="10" Margin="0,0,8,0"/>
                     <Button Content="統計画面" Command="{Binding OpenStatisticsCommand}"
                             Style="{StaticResource RoundButton}" Background="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
                     <Button Content="設定" Command="{Binding OpenSettingsCommand}"

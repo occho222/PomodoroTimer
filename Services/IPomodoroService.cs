@@ -94,6 +94,13 @@ namespace PomodoroTimer.Services
         Task ImportTasksFromCsvAsync(string filePath);
 
         /// <summary>
+        /// Microsoft Graph APIからタスクをインポートする
+        /// </summary>
+        /// <param name="tasks">インポートするタスクのリスト</param>
+        /// <returns>インポート完了タスク</returns>
+        Task ImportTasksFromGraphAsync(List<PomodoroTask> tasks);
+
+        /// <summary>
         /// 全てのカテゴリを取得する
         /// </summary>
         /// <returns>カテゴリのリスト</returns>

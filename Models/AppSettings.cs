@@ -129,6 +129,21 @@
         /// カスタムテーマの色設定
         /// </summary>
         public ThemeSettings ThemeSettings { get; set; } = new ThemeSettings();
+
+        /// <summary>
+        /// Microsoft Graph設定
+        /// </summary>
+        public GraphSettings GraphSettings { get; set; } = new GraphSettings();
+
+        /// <summary>
+        /// コンストラクタでGraphSettingsの初期化を確実にする
+        /// </summary>
+        public AppSettings()
+        {
+            // GraphSettingsが確実に初期化されるようにする
+            GraphSettings ??= new GraphSettings();
+            ThemeSettings ??= new ThemeSettings();
+        }
     }
 
     /// <summary>
@@ -170,5 +185,46 @@
         /// エラー色
         /// </summary>
         public string ErrorColor { get; set; } = "#EF4444";
+    }
+
+    /// <summary>
+    /// Microsoft Graph設定
+    /// </summary>
+    public class GraphSettings
+    {
+        /// <summary>
+        /// Azure ADアプリケーションのクライアントID
+        /// </summary>
+        public string ClientId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// テナントID（マルチテナントの場合は"common"）
+        /// </summary>
+        public string TenantId { get; set; } = "common";
+
+        /// <summary>
+        /// 自動ログインを有効にするかどうか
+        /// </summary>
+        public bool EnableAutoLogin { get; set; } = false;
+
+        /// <summary>
+        /// Microsoft To-Doからのインポートを有効にするかどうか
+        /// </summary>
+        public bool EnableMicrosoftToDoImport { get; set; } = true;
+
+        /// <summary>
+        /// Microsoft Plannerからのインポートを有効にするかどうか
+        /// </summary>
+        public bool EnablePlannerImport { get; set; } = true;
+
+        /// <summary>
+        /// Outlookタスクからのインポートを有効にするかどうか
+        /// </summary>
+        public bool EnableOutlookImport { get; set; } = true;
+
+        /// <summary>
+        /// 最後の認証日時
+        /// </summary>
+        public DateTime? LastAuthenticationTime { get; set; }
     }
 }
