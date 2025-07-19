@@ -21,20 +21,40 @@ namespace PomodoroTimer.Models
         private string title = string.Empty;
 
         /// <summary>
-        /// 予定ポモドーロ数
+        /// 詳細な説明（リッチテキスト対応）
         /// </summary>
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(ProgressPercentage))]
-        [NotifyPropertyChangedFor(nameof(RemainingPomodoros))]
-        private int estimatedPomodoros = 1;
+        private string detailedDescription = string.Empty;
 
         /// <summary>
-        /// 完了ポモドーロ数
+        /// 添付ファイルのパスリスト
         /// </summary>
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(ProgressPercentage))]
-        [NotifyPropertyChangedFor(nameof(RemainingPomodoros))]
-        private int completedPomodoros = 0;
+        private List<string> attachments = new();
+
+        /// <summary>
+        /// チェックリスト項目
+        /// </summary>
+        [ObservableProperty]
+        private List<ChecklistItem> checklist = new();
+
+        /// <summary>
+        /// 期限日時
+        /// </summary>
+        [ObservableProperty]
+        private DateTime? dueDate;
+
+        /// <summary>
+        /// 見積もり時間（分）
+        /// </summary>
+        [ObservableProperty]
+        private int estimatedMinutes = 25;
+
+        /// <summary>
+        /// 実際の作業時間（分）
+        /// </summary>
+        [ObservableProperty]
+        private int actualMinutes = 0;
 
         /// <summary>
         /// タスクが完了しているかどうか
@@ -151,6 +171,7 @@ namespace PomodoroTimer.Models
         {
             TaskStatus.Todo => "未開始",
             TaskStatus.InProgress => "進行中",
+            TaskStatus.Executing => "実行中",
             TaskStatus.Completed => "完了",
             _ => "未開始"
         };
@@ -162,6 +183,7 @@ namespace PomodoroTimer.Models
         {
             TaskStatus.Todo => "#94A3B8",      // グレー
             TaskStatus.InProgress => "#3B82F6", // ブルー
+            TaskStatus.Executing => "#F59E0B",  // オレンジ（実行中）
             TaskStatus.Completed => "#10B981",  // グリーン
             _ => "#94A3B8"
         };
@@ -174,18 +196,18 @@ namespace PomodoroTimer.Models
         }
 
         /// <summary>
-        /// タイトルと予定ポモドーロ数を指定するコンストラクタ
+        /// タイトルと見積もり時間を指定するコンストラクタ
         /// </summary>
         /// <param name="title">タスクのタイトル</param>
-        /// <param name="estimatedPomodoros">予定ポモドーロ数</param>
-        public PomodoroTask(string title, int estimatedPomodoros = 1)
+        /// <param name="estimatedMinutes">見積もり時間（分）</param>
+        public PomodoroTask(string title, int estimatedMinutes = 25)
         {
             Title = title ?? string.Empty;
-            EstimatedPomodoros = Math.Max(1, estimatedPomodoros);
+            EstimatedMinutes = Math.Max(1, estimatedMinutes);
         }
 
         /// <summary>
-        /// タスクの進捗率を取得する
+        /// タスクの進捗率を取得する（時間ベース）
         /// </summary>
         public double ProgressPercentage
         {
@@ -193,8 +215,8 @@ namespace PomodoroTimer.Models
             {
                 try
                 {
-                    if (EstimatedPomodoros <= 0) return 0;
-                    var progress = (double)CompletedPomodoros / EstimatedPomodoros * 100;
+                    if (EstimatedMinutes <= 0) return 0;
+                    var progress = (double)ActualMinutes / EstimatedMinutes * 100;
                     return Math.Min(100, Math.Max(0, progress));
                 }
                 catch
@@ -205,20 +227,70 @@ namespace PomodoroTimer.Models
         }
 
         /// <summary>
-        /// 残り予定ポモドーロ数を取得する
+        /// 残り見積もり時間を取得する
         /// </summary>
-        public int RemainingPomodoros
+        public int RemainingMinutes
         {
             get
             {
                 try
                 {
-                    return Math.Max(0, EstimatedPomodoros - CompletedPomodoros);
+                    return Math.Max(0, EstimatedMinutes - ActualMinutes);
                 }
                 catch
                 {
                     return 0;
                 }
+            }
+        }
+
+        /// <summary>
+        /// チェックリストの完了率を取得する
+        /// </summary>
+        public double ChecklistCompletionPercentage
+        {
+            get
+            {
+                try
+                {
+                    if (Checklist.Count == 0) return 0;
+                    var completedCount = Checklist.Count(item => item.IsChecked);
+                    return (double)completedCount / Checklist.Count * 100;
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 添付ファイル数を取得する
+        /// </summary>
+        public int AttachmentCount => Attachments?.Count ?? 0;
+
+        /// <summary>
+        /// 期限までの残り日数を取得する
+        /// </summary>
+        public int? DaysUntilDue
+        {
+            get
+            {
+                if (DueDate == null) return null;
+                var days = (DueDate.Value - DateTime.Now).Days;
+                return days;
+            }
+        }
+
+        /// <summary>
+        /// 期限が過ぎているかどうか
+        /// </summary>
+        public bool IsOverdue
+        {
+            get
+            {
+                if (DueDate == null || IsCompleted) return false;
+                return DateTime.Now > DueDate.Value;
             }
         }
 
@@ -231,6 +303,28 @@ namespace PomodoroTimer.Models
             {
                 Status = TaskStatus.InProgress;
                 StartedAt = DateTime.Now;
+            }
+        }
+
+        /// <summary>
+        /// タスクを実行中状態にする（25分セッション開始）
+        /// </summary>
+        public void StartExecution()
+        {
+            if (Status == TaskStatus.InProgress)
+            {
+                Status = TaskStatus.Executing;
+            }
+        }
+
+        /// <summary>
+        /// タスクを進行中状態に戻す（25分セッション終了）
+        /// </summary>
+        public void StopExecution()
+        {
+            if (Status == TaskStatus.Executing)
+            {
+                Status = TaskStatus.InProgress;
             }
         }
 
@@ -296,6 +390,11 @@ namespace PomodoroTimer.Models
         /// 進行中
         /// </summary>
         InProgress,
+        
+        /// <summary>
+        /// 実行中（25分セッション中）
+        /// </summary>
+        Executing,
         
         /// <summary>
         /// 完了

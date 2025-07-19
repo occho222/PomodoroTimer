@@ -3,6 +3,7 @@ using PomodoroTimer.ViewModels;
 using PomodoroTimer.Services;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Controls;
 using System.ComponentModel;
 using WpfMessageBox = System.Windows.MessageBox;
 using WpfApplication = System.Windows.Application;
@@ -51,9 +52,10 @@ namespace PomodoroTimer.Views
                 }
                 
                 var graphService = new GraphService(settings);
+                var taskTemplateService = new TaskTemplateService(dataPersistenceService);
                 
                 _viewModel = new MainViewModel(pomodoroService, timerService, statisticsService, 
-                    dataPersistenceService, _systemTrayService, graphService);
+                    dataPersistenceService, _systemTrayService, graphService, taskTemplateService);
                 
                 DataContext = _viewModel;
 
@@ -182,6 +184,109 @@ namespace PomodoroTimer.Views
             catch (Exception ex)
             {
                 Console.WriteLine($"ホットキーの登録でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// クイックタスク入力フィールドでのキー入力処理
+        /// </summary>
+        private void QuickTaskInput_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.Enter && _viewModel != null)
+                {
+                    AutoCompletePopup.IsOpen = false;
+                    _viewModel.AddQuickTaskCommand?.Execute(null);
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Escape)
+                {
+                    AutoCompletePopup.IsOpen = false;
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Down && AutoCompletePopup.IsOpen)
+                {
+                    if (AutoCompleteList.Items.Count > 0)
+                    {
+                        AutoCompleteList.Focus();
+                        AutoCompleteList.SelectedIndex = 0;
+                    }
+                    e.Handled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"クイックタスク入力でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// クイックタスク入力フィールドのテキスト変更処理
+        /// </summary>
+        private void QuickTaskInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                if (_viewModel != null && sender is System.Windows.Controls.TextBox textBox)
+                {
+                    _viewModel.UpdateFilteredTaskHistoryCommand?.Execute(textBox.Text);
+                    
+                    // オートコンプリート候補がある場合にポップアップを表示
+                    if (!string.IsNullOrWhiteSpace(textBox.Text) && 
+                        _viewModel.FilteredTaskHistory?.Count > 0)
+                    {
+                        AutoCompletePopup.IsOpen = true;
+                    }
+                    else
+                    {
+                        AutoCompletePopup.IsOpen = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"オートコンプリートでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// クイックタスク入力フィールドのフォーカス喪失処理
+        /// </summary>
+        private void QuickTaskInput_LostFocus(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 少し遅延させてポップアップを閉じる（アイテム選択の時間を確保）
+                Task.Delay(150).ContinueWith(_ =>
+                {
+                    Dispatcher.Invoke(() => AutoCompletePopup.IsOpen = false);
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"フォーカス喪失処理でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// オートコンプリートリストの選択変更処理
+        /// </summary>
+        private void AutoCompleteList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                if (sender is System.Windows.Controls.ListBox listBox && listBox.SelectedItem is string selectedText && _viewModel != null)
+                {
+                    _viewModel.QuickTaskText = selectedText;
+                    AutoCompletePopup.IsOpen = false;
+                    QuickTaskInput.Focus();
+                    QuickTaskInput.CaretIndex = selectedText.Length;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"オートコンプリート選択でエラー: {ex.Message}");
             }
         }
 

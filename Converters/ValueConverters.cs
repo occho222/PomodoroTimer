@@ -6,7 +6,7 @@ using PomodoroTimer.Models;
 namespace PomodoroTimer.Converters
 {
     /// <summary>
-    /// ƒ^ƒXƒN—Dæ“x‚ğF‚É•ÏŠ·‚·‚éƒRƒ“ƒo[ƒ^[
+    /// ï¿½^ï¿½Xï¿½Nï¿½Dï¿½ï¿½xï¿½ï¿½Fï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½oï¿½[ï¿½^ï¿½[
     /// </summary>
     public class PriorityToColorConverter : IValueConverter
     {
@@ -33,7 +33,7 @@ namespace PomodoroTimer.Converters
     }
 
     /// <summary>
-    /// ƒ^ƒXƒN—Dæ“x‚ğ“ú–{ŒêƒeƒLƒXƒg‚É•ÏŠ·‚·‚éƒRƒ“ƒo[ƒ^[
+    /// ï¿½^ï¿½Xï¿½Nï¿½Dï¿½ï¿½xï¿½ï¿½ï¿½ï¿½{ï¿½ï¿½eï¿½Lï¿½Xï¿½gï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½oï¿½[ï¿½^ï¿½[
     /// </summary>
     public class PriorityToTextConverter : IValueConverter
     {
@@ -43,14 +43,14 @@ namespace PomodoroTimer.Converters
             {
                 return priority switch
                 {
-                    TaskPriority.Low => "’á",
-                    TaskPriority.Medium => "’†",
-                    TaskPriority.High => "‚",
-                    TaskPriority.Urgent => "‹Ù‹}",
-                    _ => "•s–¾"
+                    TaskPriority.Low => "ä½",
+                    TaskPriority.Medium => "ä¸­",
+                    TaskPriority.High => "é«˜",
+                    TaskPriority.Urgent => "ç·Šæ€¥",
+                    _ => "ä¸æ˜"
                 };
             }
-            return "•s–¾";
+            return "ä¸æ˜";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -59,10 +59,10 @@ namespace PomodoroTimer.Converters
             {
                 return text switch
                 {
-                    "’á" => TaskPriority.Low,
-                    "’†" => TaskPriority.Medium,
-                    "‚" => TaskPriority.High,
-                    "‹Ù‹}" => TaskPriority.Urgent,
+                    "ä½" => TaskPriority.Low,
+                    "ä¸­" => TaskPriority.Medium,
+                    "é«˜" => TaskPriority.High,
+                    "ç·Šæ€¥" => TaskPriority.Urgent,
                     _ => TaskPriority.Medium
                 };
             }
@@ -71,7 +71,7 @@ namespace PomodoroTimer.Converters
     }
 
     /// <summary>
-    /// ƒ`ƒƒ[ƒg’l‚ğ•‚É•ÏŠ·‚·‚éƒRƒ“ƒo[ƒ^[
+    /// ï¿½`ï¿½ï¿½ï¿½[ï¿½gï¿½lï¿½ğ•‚É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½oï¿½[ï¿½^ï¿½[
     /// </summary>
     public class ValueToWidthConverter : IMultiValueConverter
     {
@@ -79,7 +79,7 @@ namespace PomodoroTimer.Converters
         {
             if (values.Length == 2 && values[0] is double value && values[1] is double maxWidth)
             {
-                // Å‘å’l‚ğ10‚Æ‚µ‚Ä³‹K‰»iƒ|ƒ‚ƒh[ƒ”‚Ìê‡j
+                // ï¿½Å‘ï¿½lï¿½ï¿½10ï¿½Æ‚ï¿½ï¿½Äï¿½ï¿½Kï¿½ï¿½ï¿½iï¿½|ï¿½ï¿½ï¿½hï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½Ìê‡ï¿½j
                 var normalizedValue = Math.Min(value / 10.0, 1.0);
                 return maxWidth * normalizedValue;
             }
@@ -93,25 +93,25 @@ namespace PomodoroTimer.Converters
     }
 
     /// <summary>
-    /// ƒu[ƒ‹’l‚ğ‰Â‹«‚É•ÏŠ·‚·‚éƒRƒ“ƒo[ƒ^[
+    /// ï¿½uï¿½[ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Âï¿½ï¿½ï¿½ï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½oï¿½[ï¿½^ï¿½[
     /// </summary>
     public class BooleanToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // •¶š—ñ‚Ìê‡‚Í‹ó‚Å‚È‚¢‚©ƒ`ƒFƒbƒN
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìê‡ï¿½Í‹ï¿½Å‚È‚ï¿½ï¿½ï¿½ï¿½`ï¿½Fï¿½bï¿½N
             if (value is string stringValue)
             {
                 return !string.IsNullOrEmpty(stringValue) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
             }
             
-            // ƒu[ƒ‹’l‚Ìê‡
+            // ï¿½uï¿½[ï¿½ï¿½ï¿½lï¿½Ìê‡
             if (value is bool boolValue)
             {
                 return boolValue ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
             }
             
-            // ‚»‚Ì‘¼‚ÌƒIƒuƒWƒFƒNƒg‚Ìê‡‚Ínullƒ`ƒFƒbƒN
+            // ï¿½ï¿½ï¿½Ì‘ï¿½ï¿½ÌƒIï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½Ìê‡ï¿½ï¿½nullï¿½`ï¿½Fï¿½bï¿½N
             return value != null ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         }
 
@@ -126,7 +126,7 @@ namespace PomodoroTimer.Converters
     }
 
     /// <summary>
-    /// ƒu[ƒ‹’l‚ğ”½“]‰Â‹«‚É•ÏŠ·‚·‚éƒRƒ“ƒo[ƒ^[
+    /// ï¿½uï¿½[ï¿½ï¿½ï¿½lï¿½ğ”½“]ï¿½Âï¿½ï¿½ï¿½ï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½oï¿½[ï¿½^ï¿½[
     /// </summary>
     public class InverseBooleanToVisibilityConverter : IValueConverter
     {
@@ -146,6 +146,26 @@ namespace PomodoroTimer.Converters
                 return visibility == System.Windows.Visibility.Collapsed;
             }
             return true;
+        }
+    }
+
+    /// <summary>
+    /// ãƒ–ãƒ¼ãƒ«å€¤ã‚’ãƒã‚§ãƒƒã‚¯ãƒãƒ¼ã‚¯ã«å¤‰æ›ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ã‚¿ãƒ¼
+    /// </summary>
+    public class BooleanToCheckConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return boolValue ? "âœ“" : "â–¡";
+            }
+            return "â–¡";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

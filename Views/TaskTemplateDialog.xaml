@@ -1,0 +1,197 @@
+<Window x:Class="PomodoroTimer.Views.TaskTemplateDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:PomodoroTimer.Models"
+        mc:Ignorable="d"
+        Title="タスクテンプレート管理" Height="700" Width="900"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+
+    <Window.Resources>
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,0,0,3"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="InputStyle" TargetType="Control">
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="MinWidth" Value="80"/>
+        </Style>
+
+        <DataTemplate x:Key="TemplateListItemTemplate" DataType="{x:Type models:TaskTemplate}">
+            <Border BorderBrush="LightGray" BorderThickness="1" Margin="2" Padding="8" Background="White" CornerRadius="3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                        <Border Background="{Binding PriorityColor}" CornerRadius="10" Padding="8,2" Margin="0,0,5,0">
+                            <TextBlock Text="{Binding PriorityText}" FontSize="10" Foreground="White"/>
+                        </Border>
+                        <TextBlock Text="{Binding UsageCount, StringFormat='{}使用回数: {0}'}" FontSize="10" Foreground="Gray" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding TaskTitle}" FontStyle="Italic" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}" FontSize="12" Foreground="Gray" Margin="0,2,0,0"/>
+                    
+                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,5,0,0">
+                        <TextBlock Text="{Binding Category, StringFormat='{}カテゴリ: {0}'}" FontSize="11" Foreground="DarkBlue" Margin="0,0,15,0"/>
+                        <TextBlock Text="{Binding EstimatedPomodoros, StringFormat='{}ポモドーロ: {0}'}" FontSize="11" Foreground="DarkGreen" Margin="0,0,15,0"/>
+                        <TextBlock Text="{Binding TagsText, StringFormat='{}タグ: {0}'}" FontSize="11" Foreground="DarkOrange"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- タイトル -->
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="タスクテンプレート管理" Style="{StaticResource HeaderTextStyle}" 
+                   FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+
+        <!-- 検索・フィルター -->
+        <GroupBox Grid.Row="1" Grid.ColumnSpan="2" Header="検索・フィルター" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="検索:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="SearchTextBox" Width="200" Margin="0,0,15,0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <TextBlock Text="カテゴリ:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <ComboBox x:Name="CategoryComboBox" Width="120" Margin="0,0,15,0" 
+                          ItemsSource="{Binding TemplateCategories}" SelectedItem="{Binding SelectedTemplateCategory}"/>
+                
+                <Button Content="クリア" Command="{Binding ClearFiltersCommand}" Style="{StaticResource ButtonStyle}"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- テンプレート一覧 -->
+        <GroupBox Grid.Row="2" Grid.Column="0" Header="テンプレート一覧" Margin="0,0,5,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
+                    <Button Content="新規作成" Command="{Binding CreateTemplateCommand}" Style="{StaticResource ButtonStyle}"/>
+                    <Button Content="インポート" Command="{Binding ImportTemplatesCommand}" Style="{StaticResource ButtonStyle}"/>
+                    <Button Content="エクスポート" Command="{Binding ExportTemplatesCommand}" Style="{StaticResource ButtonStyle}"/>
+                </StackPanel>
+
+                <ListBox Grid.Row="1" x:Name="TemplateListBox" 
+                         ItemsSource="{Binding FilteredTemplates}"
+                         SelectedItem="{Binding SelectedTemplate}"
+                         ItemTemplate="{StaticResource TemplateListItemTemplate}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
+                    <Button Content="編集" Command="{Binding EditTemplateCommand}" 
+                            CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"/>
+                    <Button Content="複製" Command="{Binding DuplicateTemplateCommand}" 
+                            CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"/>
+                    <Button Content="削除" Command="{Binding DeleteTemplateCommand}" 
+                            CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <!-- テンプレート詳細/編集 -->
+        <GroupBox Grid.Row="2" Grid.Column="1" Header="テンプレート詳細" Margin="5,0,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="10" IsEnabled="{Binding IsEditMode}">
+                    <TextBlock Text="テンプレート名:" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding TemplateEditName}" Style="{StaticResource InputStyle}"/>
+
+                    <TextBlock Text="説明:" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding TemplateEditDescription}" Style="{StaticResource InputStyle}" 
+                             Height="50" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+                    <TextBlock Text="タスクタイトル:" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding TemplateEditTaskTitle}" Style="{StaticResource InputStyle}"/>
+
+                    <TextBlock Text="タスク説明:" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding TemplateEditTaskDescription}" Style="{StaticResource InputStyle}" 
+                             Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                            <TextBlock Text="カテゴリ:" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="{Binding TemplateEditCategory}" Style="{StaticResource InputStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                            <TextBlock Text="予定ポモドーロ数:" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="{Binding TemplateEditEstimatedPomodoros}" Style="{StaticResource InputStyle}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="優先度:" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox SelectedItem="{Binding TemplateEditPriority}" Style="{StaticResource InputStyle}">
+                        <ComboBox.Items>
+                            <models:TaskPriority>Low</models:TaskPriority>
+                            <models:TaskPriority>Medium</models:TaskPriority>
+                            <models:TaskPriority>High</models:TaskPriority>
+                            <models:TaskPriority>Urgent</models:TaskPriority>
+                        </ComboBox.Items>
+                    </ComboBox>
+
+                    <TextBlock Text="タグ (カンマ区切り):" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding TemplateEditTagsText}" Style="{StaticResource InputStyle}"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Content="保存" Command="{Binding SaveTemplateCommand}" Style="{StaticResource ButtonStyle}"/>
+                        <Button Content="キャンセル" Command="{Binding CancelEditCommand}" Style="{StaticResource ButtonStyle}"/>
+                        <Button Content="タスク作成" Command="{Binding CreateTaskFromTemplateCommand}" 
+                                CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- ダイアログボタン -->
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="閉じる" IsCancel="True" Style="{StaticResource ButtonStyle}" 
+                    Click="CloseButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

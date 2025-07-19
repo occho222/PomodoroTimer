@@ -51,6 +51,16 @@
         public bool AutoStartNextSession { get; set; } = false;
 
         /// <summary>
+        /// タスク完了時にセッションを継続するかどうか
+        /// </summary>
+        public bool ContinueSessionOnTaskComplete { get; set; } = true;
+
+        /// <summary>
+        /// セッション継続時に自動でタスク選択ダイアログを表示するかどうか
+        /// </summary>
+        public bool ShowTaskSelectionDialog { get; set; } = true;
+
+        /// <summary>
         /// ダークテーマを使用するかどうか
         /// </summary>
         public bool UseDarkTheme { get; set; } = false;

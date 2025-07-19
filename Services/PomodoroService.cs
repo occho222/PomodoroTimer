@@ -163,10 +163,10 @@ namespace PomodoroTimer.Services
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            task.CompletedPomodoros++;
+            task.ActualMinutes += 25; // 25分セッション完了時に実際の作業時間を追加
             
-            // 予定ポモドーロ数に達した場合は自動完了
-            if (task.CompletedPomodoros >= task.EstimatedPomodoros)
+            // 見積もり時間に達した場合は自動完了
+            if (task.ActualMinutes >= task.EstimatedMinutes)
             {
                 CompleteTask(task);
             }
@@ -217,8 +217,8 @@ namespace PomodoroTimer.Services
                                  $"\"{EscapeCsvField(task.Category)}\"," +
                                  $"\"{EscapeCsvField(task.TagsText)}\"," +
                                  $"{task.Priority}," +
-                                 $"{task.EstimatedPomodoros}," +
-                                 $"{task.CompletedPomodoros}," +
+                                 $"{task.EstimatedMinutes}," +
+                                 $"{task.ActualMinutes}," +
                                  $"{(task.IsCompleted ? "完了" : "未完了")}," +
                                  $"{task.CreatedAt:yyyy-MM-dd HH:mm:ss}," +
                                  $"{(task.CompletedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "")}");
@@ -257,8 +257,8 @@ namespace PomodoroTimer.Services
                             Category = fields[3],
                             TagsText = fields[4],
                             Priority = Enum.TryParse<TaskPriority>(fields[5], out var priority) ? priority : TaskPriority.Medium,
-                            EstimatedPomodoros = int.TryParse(fields[6], out var estimated) ? estimated : 1,
-                            CompletedPomodoros = int.TryParse(fields[7], out var completed) ? completed : 0,
+                            EstimatedMinutes = int.TryParse(fields[6], out var estimated) ? estimated : 25,
+                            ActualMinutes = int.TryParse(fields[7], out var completed) ? completed : 0,
                             IsCompleted = fields[8] == "完了",
                             CreatedAt = DateTime.TryParse(fields[9], out var created) ? created : DateTime.Now,
                             CompletedAt = DateTime.TryParse(fields[10], out var completedAt) ? completedAt : null
@@ -326,22 +326,41 @@ namespace PomodoroTimer.Services
 
         public List<string> GetAllCategories()
         {
-            return _tasks
-                .Where(t => !string.IsNullOrEmpty(t.Category))
-                .Select(t => t.Category)
-                .Distinct()
-                .OrderBy(c => c)
-                .ToList();
+            try
+            {
+                var tasksCopy = _tasks.ToList();
+                return tasksCopy
+                    .Where(t => t != null && !string.IsNullOrEmpty(t.Category))
+                    .Select(t => t.Category)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetAllCategoriesでエラーが発生しました: {ex.Message}");
+                return new List<string>();
+            }
         }
 
         public List<string> GetAllTags()
         {
-            return _tasks
-                .SelectMany(t => t.Tags)
-                .Where(tag => !string.IsNullOrEmpty(tag))
-                .Distinct()
-                .OrderBy(tag => tag)
-                .ToList();
+            try
+            {
+                var tasksCopy = _tasks.ToList();
+                return tasksCopy
+                    .Where(t => t != null && t.Tags != null)
+                    .SelectMany(t => t.Tags)
+                    .Where(tag => !string.IsNullOrEmpty(tag))
+                    .Distinct()
+                    .OrderBy(tag => tag)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetAllTagsでエラーが発生しました: {ex.Message}");
+                return new List<string>();
+            }
         }
 
         public async Task SaveTasksAsync()
@@ -365,7 +384,8 @@ namespace PomodoroTimer.Services
                 if (tasks != null && tasks.Count > 0)
                 {
                     _tasks.Clear();
-                    foreach (var task in tasks.OrderBy(t => t.DisplayOrder))
+                    // null値をフィルタリングして有効なタスクのみを追加
+                    foreach (var task in tasks.Where(t => t != null).OrderBy(t => t.DisplayOrder))
                     {
                         _tasks.Add(task);
                     }

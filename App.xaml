@@ -11,6 +11,7 @@
             <converters:ValueToWidthConverter x:Key="ValueToWidthConverter"/>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+            <converters:BooleanToCheckConverter x:Key="BooleanToCheckConverter"/>
 
             <!-- カラーパレット -->
             <Color x:Key="PrimaryColor">#6366F1</Color>

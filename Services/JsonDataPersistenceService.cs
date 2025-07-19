@@ -166,11 +166,23 @@ namespace PomodoroTimer.Services
                 if (string.IsNullOrWhiteSpace(json))
                     return default(T);
 
+                // タスクリストの場合はnull値をフィルタリング
+                if (typeof(T) == typeof(List<PomodoroTask>))
+                {
+                    var tasksList = JsonSerializer.Deserialize<List<PomodoroTask?>>(json, _jsonOptions);
+                    if (tasksList != null)
+                    {
+                        var filteredTasks = tasksList.Where(t => t != null).Cast<PomodoroTask>().ToList();
+                        return (T)(object)filteredTasks;
+                    }
+                }
+
                 return JsonSerializer.Deserialize<T>(json, _jsonOptions);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"データの読み込みに失敗しました: {ex.Message}");
+                Console.WriteLine($"スタックトレース: {ex.StackTrace}");
                 return default(T);
             }
         }

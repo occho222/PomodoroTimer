@@ -59,7 +59,7 @@ namespace PomodoroTimer.Views
             _viewModel = new TaskDialogViewModel
             {
                 TaskTitle = task.Title,
-                EstimatedPomodoros = task.EstimatedPomodoros,
+                EstimatedPomodoros = (int)Math.Ceiling((double)task.EstimatedMinutes / 25),
                 TaskDescription = task.Description,
                 Category = task.Category,
                 TagsText = task.TagsText,

@@ -1,0 +1,136 @@
+<Window x:Class="PomodoroTimer.Views.TaskSelectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="次のタスクを選択" 
+        Height="450" Width="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="{StaticResource BackgroundLight}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ヘッダー -->
+        <Border Grid.Row="0" Background="White" Margin="10,10,10,5" CornerRadius="12" Padding="20">
+            <StackPanel>
+                <TextBlock Text="セッション継続" FontSize="20" FontWeight="Bold" 
+                           Foreground="{StaticResource TextLight}" HorizontalAlignment="Center"/>
+                <TextBlock Text="現在のタスクが完了しました。セッションを継続して次のタスクを選択してください。" 
+                           FontSize="12" Foreground="Gray" HorizontalAlignment="Center" Margin="0,5,0,0"
+                           TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <TextBlock Text="残り時間: " FontSize="14" Foreground="Gray" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding RemainingTime}" FontSize="16" FontWeight="Bold" 
+                               Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- タスクリスト -->
+        <Border Grid.Row="1" Background="White" Margin="10,5,10,5" CornerRadius="12" Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 検索・フィルター -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource SearchTextBox}" Width="200"
+                             ToolTip="タスク名で検索" Margin="0,0,10,0"/>
+                    <ComboBox ItemsSource="{Binding AvailableCategories}"
+                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                              Style="{StaticResource FilterComboBox}" Width="120" Margin="0,0,10,0"/>
+                    <Button Content="フィルタークリア" Command="{Binding ClearFiltersCommand}"
+                            Style="{StaticResource RoundButton}" Background="Gray" FontSize="11" Padding="8,4"/>
+                </StackPanel>
+
+                <!-- タスクリスト -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding FilteredTasks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8"
+                                        MouseLeftButtonDown="TaskItem_MouseLeftButtonDown"
+                                        Cursor="Hand">
+                                    <Border.Triggers>
+                                        <EventTrigger RoutedEvent="MouseEnter">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    To="#F0F9FF" Duration="0:0:0.2"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                        <EventTrigger RoutedEvent="MouseLeave">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    To="White" Duration="0:0:0.2"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Border.Triggers>
+                                    
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Style="{StaticResource PriorityIndicator}"
+                                                         Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                                                           VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            
+                                            <TextBlock Text="{Binding Description}" FontSize="11" 
+                                                       Foreground="Gray" TextWrapping="Wrap" Margin="0,4,0,0"
+                                                       Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            
+                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                <Border Background="{StaticResource SecondaryBrush}" CornerRadius="3" Margin="0,0,4,0"
+                                                        Visibility="{Binding Category, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <TextBlock Text="{Binding Category}" FontSize="9" 
+                                                               Foreground="White" Padding="3,1"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding StatusText}" FontSize="10" 
+                                                           Foreground="{Binding StatusColor}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding CompletedPomodoros, StringFormat={}🍅 {0}}" 
+                                                       FontSize="11" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding EstimatedPomodoros, StringFormat={}/ {0}}" 
+                                                       FontSize="11" Foreground="Gray" HorizontalAlignment="Right"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- ボタン -->
+        <Border Grid.Row="2" Background="White" Margin="10,5,10,10" CornerRadius="12" Padding="15">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="セッション停止" Command="{Binding StopSessionCommand}"
+                        Style="{StaticResource RoundButton}" Background="Gray" Margin="0,0,10,0"/>
+                <Button Content="休憩に移行" Command="{Binding StartBreakCommand}"
+                        Style="{StaticResource RoundButton}" Background="{StaticResource WarningBrush}" Margin="0,0,10,0"/>
+                <Button Content="選択したタスクで継続" Command="{Binding ContinueWithSelectedTaskCommand}"
+                        Style="{StaticResource RoundButton}" Background="{StaticResource AccentBrush}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
