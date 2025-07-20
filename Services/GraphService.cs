@@ -7,7 +7,7 @@ using System.Diagnostics;
 namespace PomodoroTimer.Services
 {
     /// <summary>
-    /// Microsoft Graph APIÀ‘•ƒT[ƒrƒX
+    /// Microsoft Graph APIï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½[ï¿½rï¿½X
     /// </summary>
     public class GraphService : IGraphService
     {
@@ -19,27 +19,27 @@ namespace PomodoroTimer.Services
         public bool IsAuthenticated => _graphServiceClient != null;
 
         /// <summary>
-        /// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        /// ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
         /// </summary>
-        /// <param name="settings">ƒAƒvƒŠƒP[ƒVƒ‡ƒ“İ’è</param>
+        /// <param name="settings">ï¿½Aï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½İ’ï¿½</param>
         public GraphService(AppSettings? settings = null)
         {
             _settings = settings ?? new AppSettings();
-            // GraphSettings‚ªŠmÀ‚É‰Šú‰»‚³‚ê‚é‚æ‚¤‚ÉŠm”F
+            // GraphSettingsï¿½ï¿½ï¿½mï¿½ï¿½ï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ‚¤ï¿½ÉŠmï¿½F
             _settings.GraphSettings ??= new GraphSettings();
         }
 
         /// <summary>
-        /// Microsoft Graph‚©‚ç”FØ‚ğs‚¤
+        /// Microsoft Graphï¿½ï¿½ï¿½ï¿½Fï¿½Ø‚ï¿½ï¿½sï¿½ï¿½
         /// </summary>
         public async Task<bool> AuthenticateAsync()
         {
             try
             {
-                // ƒNƒ‰ƒCƒAƒ“ƒgID‚ªİ’è‚³‚ê‚Ä‚¢‚È‚¢ê‡
+                // ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gIDï¿½ï¿½ï¿½İ’è‚³ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ê‡
                 if (string.IsNullOrWhiteSpace(_settings.GraphSettings.ClientId))
                 {
-                    Console.WriteLine("Microsoft Graph API ‚ÌƒNƒ‰ƒCƒAƒ“ƒgID‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+                    Console.WriteLine("Microsoft Graph API ï¿½ÌƒNï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gIDï¿½ï¿½ï¿½İ’è‚³ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B");
                     return false;
                 }
 
@@ -55,12 +55,12 @@ namespace PomodoroTimer.Services
                 
                 _graphServiceClient = new GraphServiceClient(interactiveCredential, _scopes);
 
-                // ”FØ‚ğƒeƒXƒg‚·‚é‚½‚ßAƒ†[ƒU[î•ñ‚ğæ“¾
+                // ï¿½Fï¿½Ø‚ï¿½ï¿½eï¿½Xï¿½gï¿½ï¿½ï¿½é‚½ï¿½ßAï¿½ï¿½ï¿½[ï¿½Uï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½æ“¾
                 var user = await _graphServiceClient.Me.GetAsync();
                 
                 if (user != null)
                 {
-                    Console.WriteLine($"Microsoft Graph‚É³í‚É”FØ‚³‚ê‚Ü‚µ‚½Bƒ†[ƒU[: {user.DisplayName}");
+                    Console.WriteLine($"Microsoft Graphï¿½Éï¿½ï¿½ï¿½É”Fï¿½Ø‚ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½Bï¿½ï¿½ï¿½[ï¿½Uï¿½[: {user.DisplayName}");
                     _settings.GraphSettings.LastAuthenticationTime = DateTime.Now;
                     return true;
                 }
@@ -69,13 +69,13 @@ namespace PomodoroTimer.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Microsoft Graph”FØƒGƒ‰[: {ex.Message}");
+                Console.WriteLine($"Microsoft Graphï¿½Fï¿½ØƒGï¿½ï¿½ï¿½[: {ex.Message}");
                 return false;
             }
         }
 
         /// <summary>
-        /// Microsoft To Do ‚©‚çƒ^ƒXƒN‚ğƒCƒ“ƒ|[ƒg‚·‚é
+        /// Microsoft To Do ï¿½ï¿½ï¿½ï¿½^ï¿½Xï¿½Nï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public async Task<List<PomodoroTask>> ImportTasksFromMicrosoftToDoAsync()
         {
@@ -83,12 +83,12 @@ namespace PomodoroTimer.Services
 
             if (!IsAuthenticated)
             {
-                throw new InvalidOperationException("”FØ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñBÅ‰‚ÉAuthenticateAsync()‚ğŒÄ‚Ño‚µ‚Ä‚­‚¾‚³‚¢B");
+                throw new InvalidOperationException("ï¿½Fï¿½Ø‚ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½Bï¿½Åï¿½ï¿½ï¿½AuthenticateAsync()ï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B");
             }
 
             try
             {
-                // Microsoft To-Do‚Ìƒ^ƒXƒNƒŠƒXƒg‚ğæ“¾
+                // Microsoft To-Doï¿½Ìƒ^ï¿½Xï¿½Nï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½æ“¾
                 var taskLists = await _graphServiceClient!.Me.Todo.Lists.GetAsync();
 
                 if (taskLists?.Value != null)
@@ -97,7 +97,7 @@ namespace PomodoroTimer.Services
                     {
                         if (taskList?.Id != null)
                         {
-                            // ŠeƒŠƒXƒg‚Ìƒ^ƒXƒN‚ğæ“¾
+                            // ï¿½eï¿½ï¿½ï¿½Xï¿½gï¿½Ìƒ^ï¿½Xï¿½Nï¿½ï¿½ï¿½æ“¾
                             var tasks = await _graphServiceClient.Me.Todo.Lists[taskList.Id].Tasks.GetAsync();
 
                             if (tasks?.Value != null)
@@ -106,7 +106,7 @@ namespace PomodoroTimer.Services
                                 {
                                     if (task != null)
                                     {
-                                        var pomodoroTask = ConvertToDoTaskToPomodoroTask(task, taskList.DisplayName ?? "–¢•ª—Ş");
+                                        var pomodoroTask = ConvertToDoTaskToPomodoroTask(task, taskList.DisplayName ?? "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                                         importedTasks.Add(pomodoroTask);
                                     }
                                 }
@@ -115,18 +115,18 @@ namespace PomodoroTimer.Services
                     }
                 }
 
-                Console.WriteLine($"Microsoft To-Do‚©‚ç {importedTasks.Count} Œ‚Ìƒ^ƒXƒN‚ğƒCƒ“ƒ|[ƒg‚µ‚Ü‚µ‚½B");
+                Console.WriteLine($"Microsoft To-Doï¿½ï¿½ï¿½ï¿½ {importedTasks.Count} ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½Nï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B");
                 return importedTasks;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Microsoft To-Doƒ^ƒXƒN‚ÌƒCƒ“ƒ|[ƒgƒGƒ‰[: {ex.Message}");
-                throw new InvalidOperationException($"Microsoft To-Do‚©‚ç‚Ìƒ^ƒXƒNƒCƒ“ƒ|[ƒg‚É¸”s‚µ‚Ü‚µ‚½: {ex.Message}", ex);
+                Console.WriteLine($"Microsoft To-Doï¿½^ï¿½Xï¿½Nï¿½ÌƒCï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½Gï¿½ï¿½ï¿½[: {ex.Message}");
+                throw new InvalidOperationException($"Microsoft To-Doï¿½ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½Nï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½Éï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½: {ex.Message}", ex);
             }
         }
 
         /// <summary>
-        /// Microsoft Planner‚©‚çƒ^ƒXƒN‚ğƒCƒ“ƒ|[ƒg‚·‚é
+        /// Microsoft Plannerï¿½ï¿½ï¿½ï¿½^ï¿½Xï¿½Nï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public async Task<List<PomodoroTask>> ImportTasksFromPlannerAsync()
         {
@@ -134,12 +134,12 @@ namespace PomodoroTimer.Services
 
             if (!IsAuthenticated)
             {
-                throw new InvalidOperationException("”FØ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñBÅ‰‚ÉAuthenticateAsync()‚ğŒÄ‚Ño‚µ‚Ä‚­‚¾‚³‚¢B");
+                throw new InvalidOperationException("ï¿½Fï¿½Ø‚ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½Bï¿½Åï¿½ï¿½ï¿½AuthenticateAsync()ï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B");
             }
 
             try
             {
-                // ƒ†[ƒU[‚Ìƒvƒ‰ƒ“‚ğæ“¾
+                // ï¿½ï¿½ï¿½[ï¿½Uï¿½[ï¿½Ìƒvï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ“¾
                 var plans = await _graphServiceClient!.Me.Planner.Plans.GetAsync();
 
                 if (plans?.Value != null)
@@ -148,7 +148,7 @@ namespace PomodoroTimer.Services
                     {
                         if (plan?.Id != null)
                         {
-                            // Šeƒvƒ‰ƒ“‚Ìƒ^ƒXƒN‚ğæ“¾
+                            // ï¿½eï¿½vï¿½ï¿½ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½Nï¿½ï¿½ï¿½æ“¾
                             var tasks = await _graphServiceClient.Planner.Plans[plan.Id].Tasks.GetAsync();
 
                             if (tasks?.Value != null)
@@ -157,7 +157,7 @@ namespace PomodoroTimer.Services
                                 {
                                     if (task != null)
                                     {
-                                        var pomodoroTask = ConvertPlannerTaskToPomodoroTask(task, plan.Title ?? "–¢•ª—Ş");
+                                        var pomodoroTask = ConvertPlannerTaskToPomodoroTask(task, plan.Title ?? "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                                         importedTasks.Add(pomodoroTask);
                                     }
                                 }
@@ -166,18 +166,18 @@ namespace PomodoroTimer.Services
                     }
                 }
 
-                Console.WriteLine($"Microsoft Planner‚©‚ç {importedTasks.Count} Œ‚Ìƒ^ƒXƒN‚ğƒCƒ“ƒ|[ƒg‚µ‚Ü‚µ‚½B");
+                Console.WriteLine($"Microsoft Plannerï¿½ï¿½ï¿½ï¿½ {importedTasks.Count} ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½Nï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B");
                 return importedTasks;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Microsoft Plannerƒ^ƒXƒN‚ÌƒCƒ“ƒ|[ƒgƒGƒ‰[: {ex.Message}");
-                throw new InvalidOperationException($"Microsoft Planner‚©‚ç‚Ìƒ^ƒXƒNƒCƒ“ƒ|[ƒg‚É¸”s‚µ‚Ü‚µ‚½: {ex.Message}", ex);
+                Console.WriteLine($"Microsoft Plannerï¿½^ï¿½Xï¿½Nï¿½ÌƒCï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½Gï¿½ï¿½ï¿½[: {ex.Message}");
+                throw new InvalidOperationException($"Microsoft Plannerï¿½ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½Nï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½Éï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½: {ex.Message}", ex);
             }
         }
 
         /// <summary>
-        /// Outlookƒ^ƒXƒN‚©‚çƒ^ƒXƒN‚ğƒCƒ“ƒ|[ƒg‚·‚é
+        /// Outlookï¿½^ï¿½Xï¿½Nï¿½ï¿½ï¿½ï¿½^ï¿½Xï¿½Nï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public async Task<List<PomodoroTask>> ImportTasksFromOutlookAsync()
         {
@@ -185,19 +185,19 @@ namespace PomodoroTimer.Services
 
             if (!IsAuthenticated)
             {
-                throw new InvalidOperationException("”FØ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñBÅ‰‚ÉAuthenticateAsync()‚ğŒÄ‚Ño‚µ‚Ä‚­‚¾‚³‚¢B");
+                throw new InvalidOperationException("ï¿½Fï¿½Ø‚ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½Bï¿½Åï¿½ï¿½ï¿½AuthenticateAsync()ï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B");
             }
 
             try
             {
-                // ’ˆÓ: Outlookƒ^ƒXƒN‚ÍŒ»İ‚ÌMicrosoft Graph API‚Å‚ÍƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚È‚¢‰Â”\«‚ª‚ ‚è‚Ü‚·
-                // «—ˆ“I‚ÉƒTƒ|[ƒg‚³‚ê‚éê‡‚É”õ‚¦‚Äƒƒ\ƒbƒh‚Íc‚µ‚Ä‚¨‚«‚Ü‚·
+                // ï¿½ï¿½ï¿½ï¿½: Outlookï¿½^ï¿½Xï¿½Nï¿½ÍŒï¿½ï¿½İ‚ï¿½Microsoft Graph APIï¿½Å‚ÍƒTï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½Â”\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½
+                // ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ÉƒTï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½É”ï¿½ï¿½ï¿½ï¿½Äƒï¿½ï¿½\ï¿½bï¿½hï¿½Ícï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½
                 
-                Console.WriteLine("Outlookƒ^ƒXƒN‚ÌƒCƒ“ƒ|[ƒg‚ÍŒ»İƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+                Console.WriteLine("Outlookï¿½^ï¿½Xï¿½Nï¿½ÌƒCï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ÍŒï¿½ï¿½İƒTï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B");
                 return importedTasks;
 
                 /*
-                // Outlookƒ^ƒXƒN‚ğæ“¾
+                // Outlookï¿½^ï¿½Xï¿½Nï¿½ï¿½ï¿½æ“¾
                 var tasks = await _graphServiceClient!.Me.Outlook.Tasks.GetAsync();
 
                 if (tasks?.Value != null)
@@ -212,36 +212,36 @@ namespace PomodoroTimer.Services
                     }
                 }
 
-                Console.WriteLine($"Outlook‚©‚ç {importedTasks.Count} Œ‚Ìƒ^ƒXƒN‚ğƒCƒ“ƒ|[ƒg‚µ‚Ü‚µ‚½B");
+                Console.WriteLine($"Outlookï¿½ï¿½ï¿½ï¿½ {importedTasks.Count} ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½Nï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B");
                 return importedTasks;
                 */
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Outlookƒ^ƒXƒN‚ÌƒCƒ“ƒ|[ƒgƒGƒ‰[: {ex.Message}");
-                throw new InvalidOperationException($"Outlook‚©‚ç‚Ìƒ^ƒXƒNƒCƒ“ƒ|[ƒg‚É¸”s‚µ‚Ü‚µ‚½: {ex.Message}", ex);
+                Console.WriteLine($"Outlookï¿½^ï¿½Xï¿½Nï¿½ÌƒCï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½Gï¿½ï¿½ï¿½[: {ex.Message}");
+                throw new InvalidOperationException($"Outlookï¿½ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½Nï¿½Cï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½Éï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½: {ex.Message}", ex);
             }
         }
 
         /// <summary>
-        /// ƒƒOƒAƒEƒg‚·‚é
+        /// ï¿½ï¿½ï¿½Oï¿½Aï¿½Eï¿½gï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public async Task LogoutAsync()
         {
             try
             {
                 _graphServiceClient = null;
-                Console.WriteLine("Microsoft Graph‚©‚çƒƒOƒAƒEƒg‚µ‚Ü‚µ‚½B");
+                Console.WriteLine("Microsoft Graphï¿½ï¿½ï¿½çƒï¿½Oï¿½Aï¿½Eï¿½gï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B");
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ƒƒOƒAƒEƒgƒGƒ‰[: {ex.Message}");
+                Console.WriteLine($"ï¿½ï¿½ï¿½Oï¿½Aï¿½Eï¿½gï¿½Gï¿½ï¿½ï¿½[: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Microsoft To-Doƒ^ƒXƒN‚ğPomodoroTask‚É•ÏŠ·‚·‚é
+        /// Microsoft To-Doï¿½^ï¿½Xï¿½Nï¿½ï¿½PomodoroTaskï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private PomodoroTask ConvertToDoTaskToPomodoroTask(TodoTask todoTask, string category)
         {
@@ -256,12 +256,12 @@ namespace PomodoroTimer.Services
             var status = todoTask.Status switch
             {
                 Microsoft.Graph.Models.TaskStatus.NotStarted => Models.TaskStatus.Todo,
-                Microsoft.Graph.Models.TaskStatus.InProgress => Models.TaskStatus.InProgress,
+                Microsoft.Graph.Models.TaskStatus.InProgress => Models.TaskStatus.Waiting,
                 Microsoft.Graph.Models.TaskStatus.Completed => Models.TaskStatus.Completed,
                 _ => Models.TaskStatus.Todo
             };
 
-            var task = new PomodoroTask(todoTask.Title ?? "–³‘è‚Ìƒ^ƒXƒN", 1)
+            var task = new PomodoroTask(todoTask.Title ?? "ï¿½ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½N", 1)
             {
                 Description = todoTask.Body?.Content ?? string.Empty,
                 Category = category,
@@ -288,7 +288,7 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// Microsoft Plannerƒ^ƒXƒN‚ğPomodoroTask‚É•ÏŠ·‚·‚é
+        /// Microsoft Plannerï¿½^ï¿½Xï¿½Nï¿½ï¿½PomodoroTaskï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private PomodoroTask ConvertPlannerTaskToPomodoroTask(PlannerTask plannerTask, string category)
         {
@@ -303,10 +303,10 @@ namespace PomodoroTimer.Services
             {
                 0 => Models.TaskStatus.Todo,
                 100 => Models.TaskStatus.Completed,
-                _ => Models.TaskStatus.InProgress
+                _ => Models.TaskStatus.Waiting
             };
 
-            var task = new PomodoroTask(plannerTask.Title ?? "–³‘è‚Ìƒ^ƒXƒN", 1)
+            var task = new PomodoroTask(plannerTask.Title ?? "ï¿½ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½N", 1)
             {
                 Description = string.Empty,
                 Category = category,
@@ -330,24 +330,24 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// Outlookƒ^ƒXƒN‚ğPomodoroTask‚É•ÏŠ·‚·‚é
+        /// Outlookï¿½^ï¿½Xï¿½Nï¿½ï¿½PomodoroTaskï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private PomodoroTask ConvertOutlookTaskToPomodoroTask(object outlookTask)
         {
-            // Œ»İOutlookTask‚ÍƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚È‚¢‚½‚ßAƒ_ƒ~[À‘•
-            var task = new PomodoroTask("Outlookƒ^ƒXƒNi–¢ƒTƒ|[ƒgj", 1)
+            // ï¿½ï¿½ï¿½ï¿½OutlookTaskï¿½ÍƒTï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ßAï¿½_ï¿½~ï¿½[ï¿½ï¿½ï¿½ï¿½
+            var task = new PomodoroTask("Outlookï¿½^ï¿½Xï¿½Nï¿½iï¿½ï¿½ï¿½Tï¿½|ï¿½[ï¿½gï¿½j", 1)
             {
-                Description = "Outlookƒ^ƒXƒN‚ÌƒCƒ“ƒ|[ƒg‚ÍŒ»İƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB",
+                Description = "Outlookï¿½^ï¿½Xï¿½Nï¿½ÌƒCï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ÍŒï¿½ï¿½İƒTï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B",
                 Category = "Outlook",
                 Priority = TaskPriority.Medium,
                 Status = Models.TaskStatus.Todo,
-                TagsText = "Outlook, –¢ƒTƒ|[ƒg"
+                TagsText = "Outlook, ï¿½ï¿½ï¿½Tï¿½|ï¿½[ï¿½g"
             };
 
             return task;
 
             /*
-            // «—ˆ‚ÌÀ‘•—p
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½p
             var priority = outlookTask.Importance switch
             {
                 Importance.High => TaskPriority.High,
@@ -359,12 +359,12 @@ namespace PomodoroTimer.Services
             var status = outlookTask.Status switch
             {
                 Microsoft.Graph.Models.TaskStatus.NotStarted => Models.TaskStatus.Todo,
-                Microsoft.Graph.Models.TaskStatus.InProgress => Models.TaskStatus.InProgress,
+                Microsoft.Graph.Models.TaskStatus.InProgress => Models.TaskStatus.Waiting,
                 Microsoft.Graph.Models.TaskStatus.Completed => Models.TaskStatus.Completed,
                 _ => Models.TaskStatus.Todo
             };
 
-            var task = new PomodoroTask(outlookTask.Subject ?? "–³‘è‚Ìƒ^ƒXƒN", 1)
+            var task = new PomodoroTask(outlookTask.Subject ?? "ï¿½ï¿½ï¿½ï¿½Ìƒ^ï¿½Xï¿½N", 1)
             {
                 Description = outlookTask.Body?.Content ?? string.Empty,
                 Category = "Outlook",

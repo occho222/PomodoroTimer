@@ -38,16 +38,12 @@ namespace PomodoroTimer.Views
                 var settings = new AppSettings();
                 try
                 {
-                    var loadedSettings = Task.Run(async () => 
-                        await dataPersistenceService.LoadDataAsync<AppSettings>("settings.json")).Result;
-                    if (loadedSettings != null)
-                    {
-                        settings = loadedSettings;
-                    }
+                    // 同期的な初期化のため、デフォルト設定を使用し、後で非同期で読み込む
+                    Console.WriteLine("デフォルト設定を使用して初期化します");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"設定の読み込みに失敗しました: {ex.Message}");
+                    Console.WriteLine($"設定の初期化に失敗しました: {ex.Message}");
                     // デフォルト設定を使用
                 }
                 

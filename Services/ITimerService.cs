@@ -111,5 +111,11 @@
         /// </summary>
         /// <param name="settings">アプリケーション設定</param>
         void UpdateSettings(Models.AppSettings settings);
+
+        /// <summary>
+        /// タイマーに時間を追加する
+        /// </summary>
+        /// <param name="timeToAdd">追加する時間</param>
+        void AddTime(TimeSpan timeToAdd);
     }
 }

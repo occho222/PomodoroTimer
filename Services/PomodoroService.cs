@@ -18,18 +18,6 @@ namespace PomodoroTimer.Services
         {
             _dataPersistenceService = dataPersistenceService ?? throw new ArgumentNullException(nameof(dataPersistenceService));
             _tasks = new ObservableCollection<PomodoroTask>();
-            
-            // 起動時にタスクデータを読み込み
-            _ = Task.Run(async () =>
-            {
-                await LoadTasksAsync();
-                
-                // データが存在しない場合のみサンプルタスクを追加
-                if (_tasks.Count == 0)
-                {
-                    InitializeSampleTasks();
-                }
-            });
         }
 
         /// <summary>
@@ -151,8 +139,7 @@ namespace PomodoroTimer.Services
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            task.IsCompleted = true;
-            task.CompletedAt = DateTime.Now;
+            task.CompleteTask(); // タスクの CompleteTask メソッドを使用してステータスも正しく設定
             
             // タスク完了時に自動保存
             _ = Task.Run(SaveTasksAsync);
@@ -381,19 +368,32 @@ namespace PomodoroTimer.Services
             {
                 var tasks = await _dataPersistenceService.LoadDataAsync<List<PomodoroTask>>("tasks.json");
                 
+                _tasks.Clear(); // 既存のタスクをクリア
+                
                 if (tasks != null && tasks.Count > 0)
                 {
-                    _tasks.Clear();
                     // null値をフィルタリングして有効なタスクのみを追加
                     foreach (var task in tasks.Where(t => t != null).OrderBy(t => t.DisplayOrder))
                     {
                         _tasks.Add(task);
                     }
+                    Console.WriteLine($"タスクデータを読み込みました: {_tasks.Count}件");
+                }
+                else
+                {
+                    // データが存在しない場合のみサンプルタスクを追加
+                    Console.WriteLine("保存されたタスクが見つからないため、サンプルタスクを作成します");
+                    InitializeSampleTasks();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"タスクデータの読み込みに失敗しました: {ex.Message}");
+                // エラーの場合もサンプルタスクを初期化
+                if (_tasks.Count == 0)
+                {
+                    InitializeSampleTasks();
+                }
             }
         }
 

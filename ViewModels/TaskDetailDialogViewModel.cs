@@ -68,10 +68,45 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private DateTime? startedAt;
 
+        [RelayCommand]
+        private void SetToday()
+        {
+            DueDate = DateTime.Today;
+        }
+
+        [RelayCommand]
+        private void SetTomorrow()
+        {
+            DueDate = DateTime.Today.AddDays(1);
+        }
+
+        [RelayCommand]
+        private void SetDayAfterTomorrow()
+        {
+            DueDate = DateTime.Today.AddDays(2);
+        }
+
+        [RelayCommand]
+        private void AddTag(string tag)
+        {
+            if (string.IsNullOrEmpty(tag)) return;
+
+            var currentTags = TaskTags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .ToList();
+
+            if (!currentTags.Contains(tag, StringComparer.OrdinalIgnoreCase))
+            {
+                currentTags.Add(tag);
+                TaskTags = string.Join(", ", currentTags);
+            }
+        }
+
         public ObservableCollection<TaskStatus> AvailableStatuses { get; } = new()
         {
             TaskStatus.Todo,
-            TaskStatus.InProgress,
+            TaskStatus.Waiting,
             TaskStatus.Executing,
             TaskStatus.Completed
         };
@@ -83,6 +118,12 @@ namespace PomodoroTimer.ViewModels
             TaskPriority.High,
             TaskPriority.Urgent
         };
+
+        [ObservableProperty]
+        private ObservableCollection<string> availableProjects = new();
+
+        [ObservableProperty]
+        private ObservableCollection<string> popularTags = new();
 
         public event Action<bool?>? DialogResultChanged;
 
@@ -126,6 +167,41 @@ namespace PomodoroTimer.ViewModels
             }
 
             UpdateProgress();
+            LoadProjectsAndTags();
+        }
+
+        private void LoadProjectsAndTags()
+        {
+            // 既存のタスクからプロジェクト（カテゴリ）を取得
+            var allTasks = _pomodoroService.GetTasks();
+            var projects = allTasks
+                .Where(t => !string.IsNullOrEmpty(t.Category))
+                .Select(t => t.Category)
+                .Distinct()
+                .OrderBy(p => p)
+                .ToList();
+
+            AvailableProjects.Clear();
+            foreach (var project in projects)
+            {
+                AvailableProjects.Add(project);
+            }
+
+            // よく使うタグを取得（出現頻度上位10個）
+            var allTags = allTasks
+                .SelectMany(t => t.Tags)
+                .Where(tag => !string.IsNullOrEmpty(tag))
+                .GroupBy(tag => tag, StringComparer.OrdinalIgnoreCase)
+                .OrderByDescending(g => g.Count())
+                .Take(10)
+                .Select(g => g.Key)
+                .ToList();
+
+            PopularTags.Clear();
+            foreach (var tag in allTags)
+            {
+                PopularTags.Add(tag);
+            }
         }
 
         private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

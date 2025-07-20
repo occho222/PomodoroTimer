@@ -40,7 +40,7 @@ namespace PomodoroTimer.ViewModels
         private ObservableCollection<PomodoroTask> todoTasks = new();
 
         [ObservableProperty]
-        private ObservableCollection<PomodoroTask> inProgressTasks = new();
+        private ObservableCollection<PomodoroTask> waitingTasks = new();
 
         [ObservableProperty]
         private ObservableCollection<PomodoroTask> executingTasks = new();
@@ -153,9 +153,9 @@ namespace PomodoroTimer.ViewModels
                     }
                 });
 
-                // サービスからタスクを取得
-                Tasks = _pomodoroService.GetTasks() ?? new ObservableCollection<PomodoroTask>();
-                FilteredTasks = new ObservableCollection<PomodoroTask>(Tasks);
+                // 初期化時は空のコレクションを設定（データ読み込み後に更新される）
+                Tasks = new ObservableCollection<PomodoroTask>();
+                FilteredTasks = new ObservableCollection<PomodoroTask>();
 
                 // タイマーイベントを購読
                 SubscribeToTimerEvents();
@@ -215,7 +215,7 @@ namespace PomodoroTimer.ViewModels
             Tasks = new ObservableCollection<PomodoroTask>();
             FilteredTasks = new ObservableCollection<PomodoroTask>();
             TodoTasks = new ObservableCollection<PomodoroTask>();
-            InProgressTasks = new ObservableCollection<PomodoroTask>();
+            WaitingTasks = new ObservableCollection<PomodoroTask>();
             DoneTasksCollection = new ObservableCollection<PomodoroTask>();
             AvailableCategories = new ObservableCollection<string> { "すべて" };
             AvailableTags = new ObservableCollection<string> { "すべて" };
@@ -400,20 +400,53 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// タイマーに1分追加コマンド
+        /// </summary>
+        [RelayCommand]
+        private void AddOneMinute()
+        {
+            _timerService.AddTime(TimeSpan.FromMinutes(1));
+        }
+
+        /// <summary>
+        /// タイマーに10秒追加コマンド
+        /// </summary>
+        [RelayCommand]
+        private void AddTenSeconds()
+        {
+            _timerService.AddTime(TimeSpan.FromSeconds(10));
+        }
+
+        /// <summary>
+        /// タイマーから1分減らすコマンド
+        /// </summary>
+        [RelayCommand]
+        private void SubtractOneMinute()
+        {
+            _timerService.AddTime(TimeSpan.FromMinutes(-1));
+        }
+
+        /// <summary>
+        /// タイマーから10秒減らすコマンド
+        /// </summary>
+        [RelayCommand]
+        private void SubtractTenSeconds()
+        {
+            _timerService.AddTime(TimeSpan.FromSeconds(-10));
+        }
+
+        /// <summary>
         /// タスク開始コマンド
         /// </summary>
         /// <param name="task">開始するタスク</param>
         [RelayCommand]
         private void StartTask(PomodoroTask task)
         {
-            CurrentTask = task;
-            task.StartTask(); // タスクを進行中状態にする
+            task.StartTask(); // タスクを待機中状態にする
             UpdateKanbanColumns(); // カンバンボードを更新
             
             // タスクデータを保存
             _ = Task.Run(_pomodoroService.SaveTasksAsync);
-            
-            Stop(); // 現在のタイマーを停止してリセット
         }
 
         /// <summary>
@@ -446,7 +479,8 @@ namespace PomodoroTimer.ViewModels
                     Description = string.Empty,
                     Category = "クイック登録",
                     Priority = TaskPriority.Medium,
-                    DisplayOrder = Tasks.Count
+                    DisplayOrder = Tasks.Count,
+                    DueDate = DateTime.Today
                 };
                 
                 // サービスにタスクを追加
@@ -495,25 +529,57 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                var dialog = new Views.TaskDialog();
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService);
+                var dialog = new Views.TaskDetailDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+                
                 if (dialog.ShowDialog() == true)
                 {
                     // ダイアログからデータを取得して検証
-                    var title = dialog.TaskTitle;
-                    if (string.IsNullOrWhiteSpace(title))
+                    if (string.IsNullOrWhiteSpace(viewModel.TaskTitle))
                     {
                         System.Windows.MessageBox.Show("タスク名が正しく設定されていません。", "エラー", 
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
-                    var newTask = new PomodoroTask(title, dialog.EstimatedPomodoros * 25) // ポモドーロ数を分に変換
+                    var newTask = new PomodoroTask(viewModel.TaskTitle, viewModel.EstimatedMinutes)
                     {
-                        Description = dialog.TaskDescription ?? string.Empty,
-                        Category = dialog.Category ?? string.Empty,
-                        TagsText = dialog.TagsText ?? string.Empty,
-                        Priority = dialog.Priority
+                        Description = viewModel.BasicDescription ?? string.Empty,
+                        DetailedDescription = viewModel.DetailedDescription ?? string.Empty,
+                        Category = viewModel.TaskCategory ?? string.Empty,
+                        TagsText = viewModel.TaskTags ?? string.Empty,
+                        Priority = viewModel.SelectedPriority,
+                        Status = viewModel.SelectedStatus,
+                        DueDate = viewModel.DueDate,
+                        DisplayOrder = Tasks.Count
                     };
+                    
+                    // チェックリストをコピー
+                    if (viewModel.ChecklistItems?.Count > 0)
+                    {
+                        newTask.Checklist.Clear();
+                        foreach (var item in viewModel.ChecklistItems)
+                        {
+                            newTask.Checklist.Add(new ChecklistItem 
+                            { 
+                                Text = item.Text, 
+                                IsChecked = item.IsChecked 
+                            });
+                        }
+                    }
+                    
+                    // 添付ファイルをコピー
+                    if (viewModel.AttachmentItems?.Count > 0)
+                    {
+                        newTask.Attachments.Clear();
+                        foreach (var item in viewModel.AttachmentItems)
+                        {
+                            newTask.Attachments.Add(item.FilePath);
+                        }
+                    }
                     
                     // サービスにタスクを追加
                     _pomodoroService?.AddTask(newTask);
@@ -628,6 +694,21 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private async Task CompleteTask(PomodoroTask task)
         {
+            // 既に完了済みの場合は処理しない
+            if (task.Status == TaskStatus.Completed)
+            {
+                return;
+            }
+
+            // セッション継続が必要かチェック（CurrentTaskをクリアする前に）
+            bool shouldContinueSession = task == CurrentTask && IsRunning && _settings.ContinueSessionOnTaskComplete;
+
+            // 実行中タスクの場合は、実行中画面をクリア
+            if (task.Status == TaskStatus.Executing && CurrentTask == task)
+            {
+                CurrentTask = null;
+            }
+
             task.CompleteTask(); // タスクを完了状態にする
             _pomodoroService.CompleteTask(task);
             
@@ -644,7 +725,7 @@ namespace PomodoroTimer.ViewModels
             _ = Task.Run(_pomodoroService.SaveTasksAsync);
 
             // セッション継続機能
-            if (task == CurrentTask && IsRunning && _settings.ContinueSessionOnTaskComplete)
+            if (shouldContinueSession)
             {
                 await HandleTaskCompletionDuringSession();
             }
@@ -686,7 +767,7 @@ namespace PomodoroTimer.ViewModels
                         task.CompletedAt = null;
                         task.IsCompleted = false;
                         break;
-                    case TaskStatus.InProgress:
+                    case TaskStatus.Waiting:
                         if (task.StartedAt == null)
                             task.StartedAt = DateTime.Now;
                         task.CompletedAt = null;
@@ -832,7 +913,11 @@ namespace PomodoroTimer.ViewModels
             }
 
             FilteredTasks.Clear();
-            foreach (var task in filteredTasks.OrderBy(t => t.DisplayOrder))
+            // 期限の早い順、期限なしのものは最後、同じ期限内では優先度順、最後にDisplayOrder順でソート
+            var sortedTasks = filteredTasks.OrderBy(t => t.DueDate ?? DateTime.MaxValue)
+                                          .ThenByDescending(t => t.Priority)
+                                          .ThenBy(t => t.DisplayOrder);
+            foreach (var task in sortedTasks)
             {
                 FilteredTasks.Add(task);
             }
@@ -1085,13 +1170,18 @@ namespace PomodoroTimer.ViewModels
 
                 // 各状態別にタスクを分類
                 TodoTasks?.Clear();
-                InProgressTasks?.Clear();
+                WaitingTasks?.Clear();
                 ExecutingTasks?.Clear();
                 DoneTasksCollection?.Clear();
 
                 if (filteredTasks != null)
                 {
-                    foreach (var task in filteredTasks.OrderBy(t => t.DisplayOrder))
+                    // 期限の早い順、期限なしのものは最後、同じ期限内では優先度順、最後にDisplayOrder順でソート
+                    var sortedTasks = filteredTasks.OrderBy(t => t.DueDate ?? DateTime.MaxValue)
+                                                  .ThenByDescending(t => t.Priority)
+                                                  .ThenBy(t => t.DisplayOrder);
+
+                    foreach (var task in sortedTasks)
                     {
                         if (task == null) continue;
 
@@ -1100,8 +1190,8 @@ namespace PomodoroTimer.ViewModels
                             case TaskStatus.Todo:
                                 TodoTasks?.Add(task);
                                 break;
-                            case TaskStatus.InProgress:
-                                InProgressTasks?.Add(task);
+                            case TaskStatus.Waiting:
+                                WaitingTasks?.Add(task);
                                 break;
                             case TaskStatus.Executing:
                                 ExecutingTasks?.Add(task);
@@ -1113,7 +1203,7 @@ namespace PomodoroTimer.ViewModels
                     }
                 }
 
-                Console.WriteLine($"カンバンボード更新: 未開始={TodoTasks?.Count ?? 0}, 進行中={InProgressTasks?.Count ?? 0}, 実行中={ExecutingTasks?.Count ?? 0}, 完了={DoneTasksCollection?.Count ?? 0}");
+                Console.WriteLine($"カンバンボード更新: 未開始={TodoTasks?.Count ?? 0}, 待機中={WaitingTasks?.Count ?? 0}, 実行中={ExecutingTasks?.Count ?? 0}, 完了={DoneTasksCollection?.Count ?? 0}");
             }
             catch (Exception ex)
             {
@@ -1282,7 +1372,7 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void ExecuteTask(PomodoroTask task)
         {
-            if (task.Status == TaskStatus.InProgress)
+            if (task.Status == TaskStatus.Waiting)
             {
                 // 既に実行中のタスクがある場合は停止
                 var currentExecutingTask = ExecutingTasks.FirstOrDefault();
@@ -1328,6 +1418,9 @@ namespace PomodoroTimer.ViewModels
                     Stop();
                 }
 
+                // 実行中画面をクリア
+                CurrentTask = null;
+                
                 UpdateKanbanColumns();
                 
                 // タスクデータを保存
@@ -1453,6 +1546,37 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void OpenProjectTagManager()
+        {
+            try
+            {
+                var viewModel = new ProjectTagManagerViewModel(_pomodoroService);
+                var dialog = new Views.ProjectTagManagerDialog
+                {
+                    DataContext = viewModel
+                };
+                
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+                if (mainWindow != null)
+                {
+                    dialog.Owner = mainWindow;
+                }
+
+                viewModel.DialogClosing += () => dialog.Close();
+                dialog.ShowDialog();
+
+                // ダイアログ閉じた後にフィルタリング用のリストを更新
+                UpdateFilteringLists();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"プロジェクト・タグ管理画面の表示でエラー: {ex.Message}");
+                System.Windows.MessageBox.Show($"プロジェクト・タグ管理画面の表示に失敗しました: {ex.Message}",
+                    "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
         /// <summary>
         /// テンプレートからタスクを作成するコマンド
         /// </summary>
@@ -1547,7 +1671,7 @@ namespace PomodoroTimer.ViewModels
                 }
                 else
                 {
-                    // 設定で無効化されている場合は、次の進行中タスクを自動選択
+                    // 設定で無効化されている場合は、次の待機中タスクを自動選択
                     await AutoSelectNextTask();
                 }
             }
@@ -1583,7 +1707,7 @@ namespace PomodoroTimer.ViewModels
                                 {
                                     // 選択されたタスクを実行中に移行
                                     var selectedTask = viewModel.SelectedTaskResult;
-                                    if (selectedTask.Status == TaskStatus.InProgress)
+                                    if (selectedTask.Status == TaskStatus.Waiting)
                                     {
                                         selectedTask.StartExecution();
                                     }
@@ -1635,10 +1759,10 @@ namespace PomodoroTimer.ViewModels
             {
                 var tasks = _pomodoroService.GetTasks();
                 
-                // 進行中のタスクを優先して選択
-                var nextTask = tasks.FirstOrDefault(t => t.Status == TaskStatus.InProgress);
+                // 待機中のタスクを優先して選択
+                var nextTask = tasks.FirstOrDefault(t => t.Status == TaskStatus.Waiting);
                 
-                // 進行中のタスクがない場合は、未開始のタスクを選択
+                // 待機中のタスクがない場合は、未開始のタスクを選択
                 if (nextTask == null)
                 {
                     nextTask = tasks.FirstOrDefault(t => t.Status == TaskStatus.Todo);
@@ -1650,6 +1774,12 @@ namespace PomodoroTimer.ViewModels
 
                 if (nextTask != null)
                 {
+                    // 未開始タスクの場合は待機中を経由してから実行中に移行
+                    if (nextTask.Status == TaskStatus.Todo)
+                    {
+                        // 既に StartTask() は上で呼ばれているので、ここでは StartExecution() のみ
+                    }
+                    
                     nextTask.StartExecution();
                     
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>

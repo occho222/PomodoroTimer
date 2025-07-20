@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using PomodoroTimer.Models;
 
 namespace PomodoroTimer.Views
@@ -39,6 +40,11 @@ namespace PomodoroTimer.Views
         /// </summary>
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
 
+        /// <summary>
+        /// タスクの期限
+        /// </summary>
+        public DateTime? DueDate { get; set; } = DateTime.Today;
+
         private TaskDialogViewModel _viewModel;
 
         public TaskDialog()
@@ -63,7 +69,8 @@ namespace PomodoroTimer.Views
                 TaskDescription = task.Description,
                 Category = task.Category,
                 TagsText = task.TagsText,
-                Priority = task.Priority
+                Priority = task.Priority,
+                DueDate = task.DueDate ?? DateTime.Today
             };
             
             DataContext = _viewModel;
@@ -107,6 +114,7 @@ namespace PomodoroTimer.Views
                 Category = _viewModel.Category ?? string.Empty;
                 TagsText = _viewModel.TagsText ?? string.Empty;
                 Priority = _viewModel.Priority;
+                DueDate = _viewModel.DueDate;
 
                 DialogResult = true;
                 Close();
@@ -150,5 +158,26 @@ namespace PomodoroTimer.Views
 
         [ObservableProperty]
         private TaskPriority priority = TaskPriority.Medium;
+
+        [ObservableProperty]
+        private DateTime? dueDate = DateTime.Today;
+
+        [RelayCommand]
+        private void SetToday()
+        {
+            DueDate = DateTime.Today;
+        }
+
+        [RelayCommand]
+        private void SetTomorrow()
+        {
+            DueDate = DateTime.Today.AddDays(1);
+        }
+
+        [RelayCommand]
+        private void SetDayAfterTomorrow()
+        {
+            DueDate = DateTime.Today.AddDays(2);
+        }
     }
 }

@@ -24,7 +24,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- タイトルとフィルター -->
@@ -91,97 +90,79 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- 現在のタスク表示 -->
-                <Border Grid.Column="1" Margin="20,0" Background="White" CornerRadius="8" Padding="15" MaxWidth="300">
-                    <StackPanel>
-                        <TextBlock Text="現在のタスク" FontSize="14" Foreground="Gray" Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding CurrentTask.Title, FallbackValue=未選択}" 
-                                   FontSize="16" FontWeight="Bold" TextWrapping="Wrap" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding SessionTypeText}" FontSize="12" Foreground="Gray" Margin="0,0,0,8"/>
-                        
-                        <!-- 実行中タスクの詳細情報 -->
-                        <StackPanel Visibility="{Binding CurrentTask, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            
-                            <!-- 基本説明 -->
-                            <TextBlock Text="{Binding CurrentTask.Description}" 
-                                       FontSize="11" Foreground="#555" TextWrapping="Wrap" Margin="0,0,0,6"
-                                       Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            
-                            <!-- 詳細説明 -->
-                            <TextBlock Text="{Binding CurrentTask.DetailedDescription}" 
-                                       FontSize="11" Foreground="#666" TextWrapping="Wrap" Margin="0,0,0,6"
-                                       Visibility="{Binding CurrentTask.DetailedDescription, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                       MaxHeight="60" TextTrimming="CharacterEllipsis"/>
-                            
-                            <!-- チェックリスト -->
-                            <StackPanel Visibility="{Binding CurrentTask.Checklist.Count, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                        Margin="0,0,0,6">
-                                <TextBlock Text="やることリスト:" FontSize="11" FontWeight="Bold" Foreground="#444" Margin="0,0,0,2"/>
-                                <ItemsControl ItemsSource="{Binding CurrentTask.Checklist}" MaxHeight="80">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" Margin="0,1">
-                                                <TextBlock Text="{Binding IsChecked, Converter={StaticResource BooleanToCheckConverter}}" 
-                                                           FontSize="10" Margin="0,0,4,0"/>
-                                                <TextBlock Text="{Binding Text}" FontSize="10" TextWrapping="Wrap">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
-                                                                    <Setter Property="TextDecorations" Value="Strikethrough"/>
-                                                                    <Setter Property="Foreground" Value="Gray"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                            
-                            <!-- 添付ファイル -->
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
-                                        Visibility="{Binding CurrentTask.AttachmentCount, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                                <TextBlock Text="📎" FontSize="12"/>
-                                <TextBlock Text="{Binding CurrentTask.AttachmentCount, StringFormat={}{0}個の添付ファイル, Mode=OneWay}" 
-                                           FontSize="10" Foreground="#666" Margin="4,0,0,0"/>
-                            </StackPanel>
-                            
-                            <!-- 進捗情報 -->
-                            <StackPanel Margin="0,0,0,4">
-                                <TextBlock Text="{Binding CurrentTask.ProgressPercentage, StringFormat={}進捗: {0:F0}%, Mode=OneWay}" 
-                                           FontSize="10" Foreground="#666"/>
-                                <ProgressBar Value="{Binding CurrentTask.ProgressPercentage, Mode=OneWay}" Maximum="100" 
-                                             Height="4" Margin="0,2,0,0"/>
-                            </StackPanel>
-                            
-                            <!-- 期限情報 -->
-                            <TextBlock Text="{Binding CurrentTask.DueDate, StringFormat={}期限: {0:MM/dd HH:mm}, Mode=OneWay}" 
-                                       FontSize="10" Foreground="Red" 
-                                       Visibility="{Binding CurrentTask.DueDate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
 
                 <!-- アクションボタン -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Button Content="+ タスク追加" Command="{Binding AddTaskCommand}"
-                            Style="{StaticResource RoundButton}" Margin="0,0,8,0"/>
-                    <Button Content="📋 テンプレート" Command="{Binding CreateTaskFromTemplateCommand}"
-                            Style="{StaticResource RoundButton}" Background="{StaticResource AccentBrush}" Margin="0,0,8,0"
-                            ToolTip="テンプレートからタスクを作成"/>
-                    <Button Content="⚙️ テンプレート管理" Command="{Binding OpenTemplateManagerCommand}"
-                            Style="{StaticResource RoundButton}" Background="{StaticResource SecondaryBrush}" Margin="0,0,8,0"
-                            ToolTip="テンプレートの管理"/>
-                    <Button Content="Microsoft Graph インポート" Command="{Binding ImportFromMicrosoftGraphCommand}"
-                            Style="{StaticResource RoundButton}" Background="{StaticResource WarningBrush}" 
-                            FontSize="10" Margin="0,0,8,0"/>
-                    <Button Content="統計画面" Command="{Binding OpenStatisticsCommand}"
-                            Style="{StaticResource RoundButton}" Background="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
-                    <Button Content="設定" Command="{Binding OpenSettingsCommand}"
-                            Style="{StaticResource RoundButton}" Background="Gray"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    
+                    <!-- タスク追加ボタン -->
+                    <Button Command="{Binding AddTaskCommand}" Margin="0,0,12,0"
+                            Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
+                            Height="40" Padding="16,8" ToolTip="新しいタスクを追加">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="➕" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="タスク追加" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <!-- テンプレートボタン -->
+                    <Button Command="{Binding CreateTaskFromTemplateCommand}" Margin="0,0,12,0"
+                            Style="{StaticResource RoundButton}" Background="#6366F1" Foreground="White"
+                            Height="40" Padding="16,8" ToolTip="テンプレートからタスクを作成">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="テンプレート" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <!-- テンプレート管理ボタン -->
+                    <Button Command="{Binding OpenTemplateManagerCommand}" Margin="0,0,12,0"
+                            Style="{StaticResource RoundButton}" Background="#8B5CF6" Foreground="White"
+                            Height="40" Padding="16,8" ToolTip="テンプレートの管理">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="管理" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <!-- Microsoft Graph インポートボタン -->
+                    <Button Command="{Binding ImportFromMicrosoftGraphCommand}" Margin="0,0,12,0"
+                            Style="{StaticResource RoundButton}" Background="#F59E0B" Foreground="White"
+                            Height="40" Padding="16,8" ToolTip="Microsoft Graphからタスクをインポート">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="インポート" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <!-- 統計画面ボタン -->
+                    <Button Command="{Binding OpenStatisticsCommand}" Margin="0,0,12,0"
+                            Style="{StaticResource RoundButton}" Background="#3B82F6" Foreground="White"
+                            Height="40" Padding="16,8" ToolTip="統計とレポートを表示">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📈" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="統計" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <!-- プロジェクト・タグ管理ボタン -->
+                    <Button Command="{Binding OpenProjectTagManagerCommand}" Margin="0,0,12,0"
+                            Style="{StaticResource RoundButton}" Background="#EC4899" Foreground="White"
+                            Height="40" Padding="16,8" ToolTip="プロジェクトとタグの管理">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🏷️" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="管理" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <!-- 設定ボタン -->
+                    <Button Command="{Binding OpenSettingsCommand}"
+                            Style="{StaticResource RoundButton}" Background="#6B7280" Foreground="White"
+                            Height="40" Padding="16,8" ToolTip="アプリの設定">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="設定" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -232,7 +213,21 @@
                             Style="{StaticResource RoundButton}" Background="Gray" Width="80" Height="40" FontSize="14" Margin="0,0,8,0"/>
                     <Button Content="スキップ" Command="{Binding SkipCommand}"
                             Style="{StaticResource RoundButton}" Background="{StaticResource SecondaryBrush}" 
-                            Width="80" Height="40" FontSize="14"/>
+                            Width="80" Height="40" FontSize="14" Margin="0,0,8,0"/>
+                    
+                    <!-- 時間調整ボタン -->
+                    <Button Content="+1分" Command="{Binding AddOneMinuteCommand}" ToolTip="タイマーに1分追加"
+                            Style="{StaticResource RoundButton}" Background="#10B981" 
+                            Width="50" Height="40" FontSize="12" Margin="0,0,4,0"/>
+                    <Button Content="-1分" Command="{Binding SubtractOneMinuteCommand}" ToolTip="タイマーから1分減らす"
+                            Style="{StaticResource RoundButton}" Background="#EF4444" 
+                            Width="50" Height="40" FontSize="12" Margin="0,0,4,0"/>
+                    <Button Content="+10秒" Command="{Binding AddTenSecondsCommand}" ToolTip="タイマーに10秒追加"
+                            Style="{StaticResource RoundButton}" Background="#3B82F6" 
+                            Width="50" Height="40" FontSize="12" Margin="0,0,4,0"/>
+                    <Button Content="-10秒" Command="{Binding SubtractTenSecondsCommand}" ToolTip="タイマーから10秒減らす"
+                            Style="{StaticResource RoundButton}" Background="#F59E0B" 
+                            Width="50" Height="40" FontSize="12"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -288,11 +283,17 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                                    <Ellipse Style="{StaticResource PriorityIndicator}"
-                                                             Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
-                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                                               VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                <StackPanel Grid.Column="0">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Ellipse Style="{StaticResource PriorityIndicator}"
+                                                                 Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
+                                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                                                                   VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                    <!-- 期限表示 -->
+                                                    <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
+                                                               Foreground="{Binding DueDateColor}" Margin="20,2,0,0"
+                                                               Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
                                                 </StackPanel>
                                                 
                                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -311,6 +312,11 @@
                                                             CommandParameter="{Binding}"
                                                             Style="{StaticResource KanbanActionButton}"
                                                             Background="{StaticResource SecondaryBrush}" Margin="2,0"/>
+                                                    <Button Content="🗑" ToolTip="削除"
+                                                            Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource KanbanActionButton}"
+                                                            Background="{StaticResource ErrorBrush}" Margin="2,0"/>
                                                     <Button Content="📝" ToolTip="詳細"
                                                             Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
@@ -359,7 +365,7 @@
                 </Grid>
             </Border>
 
-            <!-- 進行中タスク列 -->
+            <!-- 待機中タスク列 -->
             <Border Grid.Column="1" Background="White" Margin="3,0" CornerRadius="12">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -372,17 +378,17 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Ellipse Width="12" Height="12" Fill="#3B82F6" VerticalAlignment="Center"/>
-                                <TextBlock Text="進行中" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
+                                <TextBlock Text="待機中" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
                                            Foreground="{StaticResource TextLight}"/>
                             </StackPanel>
-                            <TextBlock Text="{Binding InProgressTasks.Count, StringFormat={}タスク数: {0}}" 
+                            <TextBlock Text="{Binding WaitingTasks.Count, StringFormat={}タスク数: {0}}" 
                                        FontSize="12" Foreground="Gray" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
 
                     <!-- タスクリスト -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
-                        <ItemsControl ItemsSource="{Binding InProgressTasks}">
+                        <ItemsControl ItemsSource="{Binding WaitingTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,10" BorderBrush="#3B82F6">
@@ -401,11 +407,17 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                                    <Ellipse Style="{StaticResource PriorityIndicator}"
-                                                             Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
-                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                                               VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                <StackPanel Grid.Column="0">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Ellipse Style="{StaticResource PriorityIndicator}"
+                                                                 Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
+                                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                                                                   VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                    <!-- 期限表示 -->
+                                                    <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
+                                                               Foreground="{Binding DueDateColor}" Margin="20,2,0,0"
+                                                               Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
                                                 </StackPanel>
                                                 
                                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -429,6 +441,11 @@
                                                             CommandParameter="{Binding}"
                                                             Style="{StaticResource KanbanActionButton}"
                                                             Background="{StaticResource SecondaryBrush}" Margin="2,0"/>
+                                                    <Button Content="🗑" ToolTip="削除"
+                                                            Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource KanbanActionButton}"
+                                                            Background="{StaticResource ErrorBrush}" Margin="2,0"/>
                                                     <Button Content="📝" ToolTip="詳細"
                                                             Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
@@ -675,7 +692,7 @@
                                     <TextBlock Text="⏰" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,16" Foreground="#D1D5DB"/>
                                     <TextBlock Text="実行中のタスクはありません" FontSize="16" FontWeight="SemiBold" 
                                                HorizontalAlignment="Center" Foreground="#6B7280" Margin="0,0,0,8"/>
-                                    <TextBlock Text="進行中タスクから「▶」ボタンで" FontSize="12" 
+                                    <TextBlock Text="待機中タスクから「▶」ボタンで" FontSize="12" 
                                                HorizontalAlignment="Center" Foreground="#9CA3AF" Margin="0,0,0,4"/>
                                     <TextBlock Text="25分セッションを開始してください" FontSize="12" 
                                                HorizontalAlignment="Center" Foreground="#9CA3AF"/>

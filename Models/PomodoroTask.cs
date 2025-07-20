@@ -170,7 +170,7 @@ namespace PomodoroTimer.Models
         public string StatusText => Status switch
         {
             TaskStatus.Todo => "未開始",
-            TaskStatus.InProgress => "進行中",
+            TaskStatus.Waiting => "待機中",
             TaskStatus.Executing => "実行中",
             TaskStatus.Completed => "完了",
             _ => "未開始"
@@ -182,7 +182,7 @@ namespace PomodoroTimer.Models
         public string StatusColor => Status switch
         {
             TaskStatus.Todo => "#94A3B8",      // グレー
-            TaskStatus.InProgress => "#3B82F6", // ブルー
+            TaskStatus.Waiting => "#3B82F6", // ブルー
             TaskStatus.Executing => "#F59E0B",  // オレンジ（実行中）
             TaskStatus.Completed => "#10B981",  // グリーン
             _ => "#94A3B8"
@@ -295,13 +295,57 @@ namespace PomodoroTimer.Models
         }
 
         /// <summary>
+        /// 期限の表示テキスト
+        /// </summary>
+        public string DueDateText
+        {
+            get
+            {
+                if (DueDate == null) return string.Empty;
+                
+                var today = DateTime.Today;
+                var dueDate = DueDate.Value.Date;
+                
+                if (dueDate == today) return "今日";
+                if (dueDate == today.AddDays(1)) return "明日";
+                if (dueDate == today.AddDays(-1)) return "昨日";
+                
+                var daysDiff = (dueDate - today).Days;
+                if (daysDiff > 0 && daysDiff <= 7) return $"{daysDiff}日後";
+                if (daysDiff < 0 && daysDiff >= -7) return $"{Math.Abs(daysDiff)}日前";
+                
+                return dueDate.ToString("M/d");
+            }
+        }
+
+        /// <summary>
+        /// 期限の色
+        /// </summary>
+        public string DueDateColor
+        {
+            get
+            {
+                if (DueDate == null) return "Gray";
+                
+                var today = DateTime.Today;
+                var dueDate = DueDate.Value.Date;
+                
+                if (dueDate < today) return "#EF4444"; // 赤色（過ぎた）
+                if (dueDate == today) return "#F59E0B"; // オレンジ色（今日）
+                if (dueDate == today.AddDays(1)) return "#10B981"; // 緑色（明日）
+                
+                return "#6B7280"; // グレー（それ以外）
+            }
+        }
+
+        /// <summary>
         /// タスクを開始状態にする
         /// </summary>
         public void StartTask()
         {
             if (Status == TaskStatus.Todo)
             {
-                Status = TaskStatus.InProgress;
+                Status = TaskStatus.Waiting;
                 StartedAt = DateTime.Now;
             }
         }
@@ -311,7 +355,7 @@ namespace PomodoroTimer.Models
         /// </summary>
         public void StartExecution()
         {
-            if (Status == TaskStatus.InProgress)
+            if (Status == TaskStatus.Waiting)
             {
                 Status = TaskStatus.Executing;
             }
@@ -324,7 +368,7 @@ namespace PomodoroTimer.Models
         {
             if (Status == TaskStatus.Executing)
             {
-                Status = TaskStatus.InProgress;
+                Status = TaskStatus.Waiting;
             }
         }
 
@@ -387,9 +431,9 @@ namespace PomodoroTimer.Models
         Todo,
         
         /// <summary>
-        /// 進行中
+        /// 待機中
         /// </summary>
-        InProgress,
+        Waiting,
         
         /// <summary>
         /// 実行中（25分セッション中）

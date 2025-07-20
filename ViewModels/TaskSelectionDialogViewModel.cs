@@ -59,10 +59,10 @@ namespace PomodoroTimer.ViewModels
         {
             var tasks = _pomodoroService.GetTasks();
             
-            // 進行中または未開始のタスクのみを表示
+            // 待機中または未開始のタスクのみを表示
             var availableTasksList = tasks
-                .Where(t => t.Status == TaskStatus.InProgress || t.Status == TaskStatus.Todo)
-                .OrderByDescending(t => t.Status == TaskStatus.InProgress) // 進行中を優先
+                .Where(t => t.Status == TaskStatus.Waiting || t.Status == TaskStatus.Todo)
+                .OrderByDescending(t => t.Status == TaskStatus.Waiting) // 待機中を優先
                 .ThenBy(t => t.DisplayOrder)
                 .ToList();
 
@@ -76,10 +76,10 @@ namespace PomodoroTimer.ViewModels
             ApplyFilters();
             
             // 最初の進行中タスクを自動選択
-            var firstInProgressTask = AvailableTasks.FirstOrDefault(t => t.Status == TaskStatus.InProgress);
-            if (firstInProgressTask != null)
+            var firstWaitingTask = AvailableTasks.FirstOrDefault(t => t.Status == TaskStatus.Waiting);
+            if (firstWaitingTask != null)
             {
-                SelectedTask = firstInProgressTask;
+                SelectedTask = firstWaitingTask;
             }
         }
 
@@ -118,7 +118,7 @@ namespace PomodoroTimer.ViewModels
             }
 
             FilteredTasks.Clear();
-            foreach (var task in filtered.OrderByDescending(t => t.Status == TaskStatus.InProgress).ThenBy(t => t.DisplayOrder))
+            foreach (var task in filtered.OrderByDescending(t => t.Status == TaskStatus.Waiting).ThenBy(t => t.DisplayOrder))
             {
                 FilteredTasks.Add(task);
             }

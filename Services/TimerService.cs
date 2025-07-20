@@ -154,5 +154,25 @@ namespace PomodoroTimer.Services
             SessionTypeChanged?.Invoke(_currentSessionType);
             TimeUpdated?.Invoke(_remainingTime);
         }
+
+        public void AddTime(TimeSpan timeToAdd)
+        {
+            _remainingTime = _remainingTime.Add(timeToAdd);
+            
+            // 残り時間が負の値にならないようにする
+            if (_remainingTime < TimeSpan.Zero)
+            {
+                _remainingTime = TimeSpan.Zero;
+            }
+            
+            // セッション合計時間も更新
+            _sessionDuration = _sessionDuration.Add(timeToAdd);
+            if (_sessionDuration < TimeSpan.Zero)
+            {
+                _sessionDuration = TimeSpan.Zero;
+            }
+            
+            TimeUpdated?.Invoke(_remainingTime);
+        }
     }
 }
