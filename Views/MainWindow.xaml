@@ -107,13 +107,13 @@
                         </StackPanel>
                     </Button>
                     
-                    <!-- テンプレートボタン -->
-                    <Button Command="{Binding CreateTaskFromTemplateCommand}" Margin="0,0,12,0"
+                    <!-- テンプレート選択ボタン -->
+                    <Button Command="{Binding CreateTaskFromTaskTemplateCommand}" Margin="0,0,12,0"
                             Style="{StaticResource RoundButton}" Background="#6366F1" Foreground="White"
-                            Height="40" Padding="16,8" ToolTip="テンプレートからタスクを作成">
+                            Height="40" Padding="16,8" ToolTip="テンプレート選択ダイアログからタスクを作成">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📋" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="テンプレート" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text="テンプレート選択" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
@@ -185,8 +185,9 @@
                         <TextBlock Text="クイックアクション:" FontSize="12" FontWeight="Bold" 
                                    VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#374151"/>
                         
+                        
                         <!-- テンプレートボタン群 -->
-                        <ItemsControl ItemsSource="{Binding QuickTemplates}">
+                        <ItemsControl ItemsSource="{Binding QuickTemplates}" x:Name="QuickTemplatesItemsControl">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal"/>
@@ -195,8 +196,9 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button Content="{Binding DisplayName}" 
-                                            Command="{Binding DataContext.CreateTaskFromQuickTemplateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.CreateTaskFromTemplateCommand}"
                                             CommandParameter="{Binding}"
+                                            Click="QuickTemplateButton_Click"
                                             Style="{StaticResource RoundButton}" 
                                             Background="{Binding BackgroundBrush}" Foreground="White"
                                             FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32"
@@ -204,20 +206,6 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        
-                        <!-- カスタムボタン -->
-                        <Button Content="📝 会議" Command="{Binding CreateQuickMeetingTaskCommand}"
-                                Style="{StaticResource RoundButton}" Background="#8B5CF6" Foreground="White"
-                                FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32" ToolTip="30分の会議タスクを作成"/>
-                        <Button Content="📞 電話" Command="{Binding CreateQuickCallTaskCommand}"
-                                Style="{StaticResource RoundButton}" Background="#EC4899" Foreground="White"
-                                FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32" ToolTip="15分の電話タスクを作成"/>
-                        <Button Content="📧 メール" Command="{Binding CreateQuickEmailTaskCommand}"
-                                Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
-                                FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32" ToolTip="メール処理タスクを作成"/>
-                        <Button Content="🔍 調査" Command="{Binding CreateQuickResearchTaskCommand}"
-                                Style="{StaticResource RoundButton}" Background="#F59E0B" Foreground="White"
-                                FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32" ToolTip="調査・リサーチタスクを作成"/>
                     </StackPanel>
                 </ScrollViewer>
 

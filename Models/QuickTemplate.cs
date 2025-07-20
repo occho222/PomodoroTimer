@@ -1,23 +1,53 @@
 using System.Windows.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace PomodoroTimer.Models
 {
     /// <summary>
     /// クイックテンプレート
     /// </summary>
-    public class QuickTemplate
+    public partial class QuickTemplate : ObservableObject
     {
-        public string Id { get; set; } = string.Empty;
-        public string DisplayName { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string TaskTitle { get; set; } = string.Empty;
-        public string TaskDescription { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
-        public List<string> Tags { get; set; } = new();
-        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
-        public int EstimatedMinutes { get; set; } = 25;
-        public string BackgroundColor { get; set; } = "#3B82F6";
+        [ObservableProperty]
+        private string id = string.Empty;
+
+        [ObservableProperty]
+        private string displayName = string.Empty;
+
+        [ObservableProperty]
+        private string description = string.Empty;
+
+        [ObservableProperty]
+        private string taskTitle = string.Empty;
+
+        [ObservableProperty]
+        private string taskDescription = string.Empty;
+
+        [ObservableProperty]
+        private string category = string.Empty;
+
+        [ObservableProperty]
+        private List<string> tags = new();
+
+        [ObservableProperty]
+        private TaskPriority priority = TaskPriority.Medium;
+
+        [ObservableProperty]
+        private int estimatedMinutes = 25;
+
+        [ObservableProperty]
+        private string backgroundColor = "#3B82F6";
+
+        [JsonIgnore]
         public SolidColorBrush BackgroundBrush => new((System.Windows.Media.Color)(System.Windows.Media.ColorConverter.ConvertFromString(BackgroundColor) ?? System.Windows.Media.Colors.Blue));
-        public List<ChecklistItem> DefaultChecklist { get; set; } = new();
+
+        [ObservableProperty]
+        private List<ChecklistItem> defaultChecklist = new();
+
+        public QuickTemplate()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
     }
 }

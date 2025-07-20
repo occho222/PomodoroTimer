@@ -189,8 +189,39 @@ namespace PomodoroTimer.ViewModels
                 // 統計情報を読み込み
                 LoadTodayStatistics();
 
-                // クイックテンプレートを初期化
-                LoadQuickTemplates();
+                // クイックテンプレートを初期化（同期的に実行）
+                Console.WriteLine("InitializeQuickTemplatesSync を呼び出します...");
+                InitializeQuickTemplatesSync();
+                Console.WriteLine($"InitializeQuickTemplatesSync 完了後のQuickTemplatesの数: {QuickTemplates?.Count ?? 0}");
+                
+                // デバッグ用：QuickTemplatesの状態を確認
+                Console.WriteLine($"初期化時のQuickTemplatesの数: {QuickTemplates?.Count ?? 0}");
+                
+                // 初期化完了後、少し遅延してからもう一度確認
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(2000); // 2秒待機
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        Console.WriteLine($"初期化2秒後のQuickTemplatesの数: {QuickTemplates?.Count ?? 0}");
+                        if (QuickTemplates != null && QuickTemplates.Count > 0)
+                        {
+                            Console.WriteLine("=== 現在のクイックテンプレート一覧 ===");
+                            for (int i = 0; i < QuickTemplates.Count; i++)
+                            {
+                                Console.WriteLine($"  {i+1}. DisplayName: '{QuickTemplates[i].DisplayName}'");
+                                Console.WriteLine($"     TaskTitle: '{QuickTemplates[i].TaskTitle}'");
+                                Console.WriteLine($"     Description: '{QuickTemplates[i].Description}'");
+                                Console.WriteLine($"     Category: '{QuickTemplates[i].Category}'");
+                                Console.WriteLine();
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("警告: QuickTemplatesが空またはnullです");
+                        }
+                    });
+                });
 
                 // 初期表示更新
                 UpdateProgress();
@@ -516,7 +547,10 @@ namespace PomodoroTimer.ViewModels
                 {
                     try
                     {
-                        await _pomodoroService.SaveTasksAsync();
+                        if (_pomodoroService != null)
+                        {
+                            await _pomodoroService.SaveTasksAsync();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -608,7 +642,10 @@ namespace PomodoroTimer.ViewModels
                     {
                         try
                         {
+                            if (_pomodoroService != null)
+                        {
                             await _pomodoroService.SaveTasksAsync();
+                        }
                         }
                         catch (Exception ex)
                         {
@@ -946,6 +983,237 @@ namespace PomodoroTimer.ViewModels
             CompletedPomodoros = TodayStatistics.CompletedPomodoros;
             CompletedTasks = TodayStatistics.CompletedTasks;
             UpdateTotalFocusTime();
+        }
+
+        /// <summary>
+        /// クイックテンプレートを同期的に初期化
+        /// </summary>
+        private void InitializeQuickTemplatesSync()
+        {
+            try
+            {
+                Console.WriteLine("同期的クイックテンプレート初期化を開始");
+                
+                // QuickTemplatesが確実に初期化されていることを確認
+                if (QuickTemplates == null)
+                {
+                    Console.WriteLine("QuickTemplatesがnullのため、新しいObservableCollectionを作成");
+                    QuickTemplates = new ObservableCollection<QuickTemplate>();
+                }
+                
+                Console.WriteLine($"初期化前のQuickTemplatesの数: {QuickTemplates.Count}");
+                
+                // 初期化時はデフォルトテンプレートを即座に作成
+                CreateDefaultQuickTemplates();
+                
+                // 非同期でファイルからの読み込みを試行
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var templates = await _dataPersistenceService.LoadDataAsync<List<QuickTemplate>>("quick_templates.json");
+                        if (templates != null && templates.Count > 0)
+                        {
+                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                Console.WriteLine($"ファイルから {templates.Count} 個のテンプレートを読み込み、既存のデフォルトを置き換え");
+                                QuickTemplates.Clear();
+                                foreach (var template in templates)
+                                {
+                                    QuickTemplates.Add(template);
+                                    Console.WriteLine($"読み込み済みテンプレート: DisplayName='{template.DisplayName}', TaskTitle='{template.TaskTitle}'");
+                                }
+                                Console.WriteLine($"ファイルからの読み込み完了。QuickTemplatesの数: {QuickTemplates.Count}");
+                                OnPropertyChanged(nameof(QuickTemplates));
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"ファイルからの読み込みに失敗（デフォルトを維持）: {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"同期的初期化に失敗: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// クイックテンプレートを読み込む
+        /// </summary>
+        private async void LoadQuickTemplates()
+        {
+            try
+            {
+                Console.WriteLine("クイックテンプレートの読み込みを開始");
+                var templates = await _dataPersistenceService.LoadDataAsync<List<QuickTemplate>>("quick_templates.json");
+                
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    QuickTemplates.Clear();
+                    if (templates != null && templates.Count > 0)
+                    {
+                        Console.WriteLine($"ファイルから {templates.Count} 個のテンプレートを読み込み");
+                        foreach (var template in templates)
+                        {
+                            QuickTemplates.Add(template);
+                            Console.WriteLine($"LoadQuickTemplates - 読み込み済みテンプレート: DisplayName='{template.DisplayName}', TaskTitle='{template.TaskTitle}'");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("テンプレートファイルが見つからないか空のため、デフォルトテンプレートを作成");
+                        // デフォルトのクイックテンプレートを作成
+                        CreateDefaultQuickTemplates();
+                    }
+                    Console.WriteLine($"QuickTemplatesに追加後の数: {QuickTemplates.Count}");
+                    OnPropertyChanged(nameof(QuickTemplates));
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"クイックテンプレートの読み込みに失敗しました: {ex.Message}");
+                // エラー時もデフォルトテンプレートを作成
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    CreateDefaultQuickTemplates();
+                    Console.WriteLine($"エラー時のQuickTemplatesの数: {QuickTemplates.Count}");
+                    OnPropertyChanged(nameof(QuickTemplates));
+                });
+            }
+        }
+
+        /// <summary>
+        /// デフォルトのクイックテンプレートを作成
+        /// </summary>
+        private void CreateDefaultQuickTemplates()
+        {
+            try
+            {
+                Console.WriteLine("デフォルトクイックテンプレートの作成を開始");
+                
+                // QuickTemplatesが確実に存在することを確認
+                if (QuickTemplates == null)
+                {
+                    Console.WriteLine("CreateDefaultQuickTemplates: QuickTemplatesがnullです。新しく作成します。");
+                    QuickTemplates = new ObservableCollection<QuickTemplate>();
+                }
+                
+                QuickTemplates.Clear();
+                Console.WriteLine("QuickTemplatesをクリアしました");
+                
+                var defaultTemplates = new List<QuickTemplate>
+                {
+                    new QuickTemplate
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        DisplayName = "📧 メール確認",
+                        Description = "メールをチェックして返信",
+                        TaskTitle = "メール確認・返信",
+                        TaskDescription = "重要なメールをチェックして必要に応じて返信する",
+                        Category = "コミュニケーション",
+                        Tags = new List<string> { "メール", "連絡" },
+                        Priority = TaskPriority.Medium,
+                        EstimatedMinutes = 25,
+                        BackgroundColor = "#3B82F6"
+                    },
+                    new QuickTemplate
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        DisplayName = "📝 文書作成",
+                        Description = "文書やレポートの作成",
+                        TaskTitle = "文書作成",
+                        TaskDescription = "必要な文書やレポートを作成する",
+                        Category = "文書作業",
+                        Tags = new List<string> { "文書", "作成" },
+                        Priority = TaskPriority.Medium,
+                        EstimatedMinutes = 50,
+                        BackgroundColor = "#10B981"
+                    },
+                    new QuickTemplate
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        DisplayName = "💡 アイデア整理",
+                        Description = "アイデアや思考の整理",
+                        TaskTitle = "アイデア・思考整理",
+                        TaskDescription = "散らかった考えやアイデアを整理してまとめる",
+                        Category = "企画・思考",
+                        Tags = new List<string> { "アイデア", "整理" },
+                        Priority = TaskPriority.Low,
+                        EstimatedMinutes = 25,
+                        BackgroundColor = "#8B5CF6"
+                    },
+                    new QuickTemplate
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        DisplayName = "🔍 調査・リサーチ",
+                        Description = "情報収集と調査",
+                        TaskTitle = "調査・リサーチ",
+                        TaskDescription = "必要な情報を調査・収集する",
+                        Category = "調査",
+                        Tags = new List<string> { "調査", "リサーチ" },
+                        Priority = TaskPriority.Medium,
+                        EstimatedMinutes = 25,
+                        BackgroundColor = "#F59E0B"
+                    },
+                    new QuickTemplate
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        DisplayName = "⚡ 緊急対応",
+                        Description = "緊急性の高いタスク",
+                        TaskTitle = "緊急対応",
+                        TaskDescription = "緊急に対応が必要なタスク",
+                        Category = "緊急",
+                        Tags = new List<string> { "緊急", "対応" },
+                        Priority = TaskPriority.High,
+                        EstimatedMinutes = 25,
+                        BackgroundColor = "#EF4444"
+                    }
+                };
+
+                foreach (var template in defaultTemplates)
+                {
+                    QuickTemplates.Add(template);
+                }
+                
+                Console.WriteLine($"デフォルトテンプレート作成完了。QuickTemplatesの数: {QuickTemplates.Count}");
+                
+                // 作成されたテンプレートの詳細を出力
+                for (int i = 0; i < QuickTemplates.Count; i++)
+                {
+                    Console.WriteLine($"テンプレート{i}: DisplayName='{QuickTemplates[i].DisplayName}', TaskTitle='{QuickTemplates[i].TaskTitle}'");
+                }
+                
+                // プロパティ変更通知を明示的に発行
+                OnPropertyChanged(nameof(QuickTemplates));
+                
+                // さらに強制的に更新を試行
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    OnPropertyChanged(nameof(QuickTemplates));
+                    Console.WriteLine("Dispatcher経由でプロパティ変更通知を再送信しました");
+                });
+
+                // デフォルトテンプレートを保存
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _dataPersistenceService.SaveDataAsync("quick_templates.json", defaultTemplates);
+                        Console.WriteLine("デフォルトのクイックテンプレートを作成・保存しました");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"デフォルトテンプレートの保存に失敗: {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"デフォルトテンプレートの作成に失敗: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -1607,195 +1875,7 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
-        /// <summary>
-        /// クイックテンプレートを読み込む
-        /// </summary>
-        private void LoadQuickTemplates()
-        {
-            try
-            {
-                QuickTemplates.Clear();
-                
-                // デフォルトのクイックテンプレートを追加
-                var defaultTemplates = new List<QuickTemplate>
-                {
-                    new QuickTemplate
-                    {
-                        Id = "coding",
-                        DisplayName = "💻 コーディング",
-                        Description = "プログラミング・開発作業",
-                        TaskTitle = "コーディング作業",
-                        TaskDescription = "開発作業を実施します",
-                        Category = "開発",
-                        Tags = new List<string> { "開発", "プログラミング" },
-                        Priority = TaskPriority.High,
-                        EstimatedMinutes = 50,
-                        BackgroundColor = "#3B82F6"
-                    },
-                    new QuickTemplate
-                    {
-                        Id = "review",
-                        DisplayName = "👀 レビュー",
-                        Description = "コードレビュー・設計レビュー",
-                        TaskTitle = "レビュー作業",
-                        TaskDescription = "レビューを実施します",
-                        Category = "レビュー",
-                        Tags = new List<string> { "レビュー", "品質管理" },
-                        Priority = TaskPriority.Medium,
-                        EstimatedMinutes = 25,
-                        BackgroundColor = "#10B981"
-                    },
-                    new QuickTemplate
-                    {
-                        Id = "document",
-                        DisplayName = "📄 ドキュメント",
-                        Description = "仕様書・ドキュメント作成",
-                        TaskTitle = "ドキュメント作成",
-                        TaskDescription = "ドキュメントの作成・更新を行います",
-                        Category = "ドキュメント",
-                        Tags = new List<string> { "ドキュメント", "仕様書" },
-                        Priority = TaskPriority.Medium,
-                        EstimatedMinutes = 25,
-                        BackgroundColor = "#F59E0B"
-                    },
-                    new QuickTemplate
-                    {
-                        Id = "learning",
-                        DisplayName = "📚 学習",
-                        Description = "技術学習・研修",
-                        TaskTitle = "学習・研修",
-                        TaskDescription = "技術習得や学習を行います",
-                        Category = "学習",
-                        Tags = new List<string> { "学習", "スキルアップ" },
-                        Priority = TaskPriority.Low,
-                        EstimatedMinutes = 25,
-                        BackgroundColor = "#8B5CF6"
-                    }
-                };
 
-                foreach (var template in defaultTemplates)
-                {
-                    QuickTemplates.Add(template);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"クイックテンプレートの読み込みに失敗しました: {ex.Message}");
-            }
-        }
-
-        [RelayCommand]
-        private void CreateTaskFromQuickTemplate(QuickTemplate template)
-        {
-            if (template == null) return;
-
-            try
-            {
-                var task = new PomodoroTask
-                {
-                    Title = template.TaskTitle,
-                    Description = template.TaskDescription,
-                    Category = template.Category,
-                    Tags = template.Tags,
-                    Priority = template.Priority,
-                    EstimatedMinutes = template.EstimatedMinutes,
-                    Status = TaskStatus.Todo,
-                    CreatedAt = DateTime.Now
-                };
-
-                // デフォルトチェックリストがあれば追加
-                foreach (var checklistItem in template.DefaultChecklist)
-                {
-                    task.Checklist.Add(new ChecklistItem
-                    {
-                        Text = checklistItem.Text,
-                        IsChecked = false
-                    });
-                }
-
-                _pomodoroService.AddTask(task);
-                UpdateFilteringLists();
-                ApplyFilters();
-                UpdateKanbanColumns();
-
-                Console.WriteLine($"クイックテンプレート '{template.DisplayName}' からタスクを作成しました");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"クイックテンプレートからのタスク作成に失敗しました: {ex.Message}");
-                System.Windows.MessageBox.Show($"タスクの作成に失敗しました: {ex.Message}",
-                    "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            }
-        }
-
-        [RelayCommand]
-        private void CreateQuickMeetingTask()
-        {
-            CreateQuickTask("📝 会議", "会議への参加", "会議", new[] { "会議", "ミーティング" }, 30);
-        }
-
-        [RelayCommand]
-        private void CreateQuickCallTask()
-        {
-            CreateQuickTask("📞 電話対応", "電話での対応・相談", "コミュニケーション", new[] { "電話", "対応" }, 15);
-        }
-
-        [RelayCommand]
-        private void CreateQuickEmailTask()
-        {
-            CreateQuickTask("📧 メール処理", "メールの確認・返信", "コミュニケーション", new[] { "メール", "連絡" }, 25);
-        }
-
-        [RelayCommand]
-        private void CreateQuickResearchTask()
-        {
-            CreateQuickTask("🔍 調査・リサーチ", "情報収集・調査作業", "調査", new[] { "調査", "リサーチ" }, 25);
-        }
-
-        [RelayCommand]
-        private void CreateQuickCodingTask()
-        {
-            var codingTemplate = QuickTemplates.FirstOrDefault(t => t.Id == "coding");
-            if (codingTemplate != null)
-            {
-                CreateTaskFromQuickTemplate(codingTemplate);
-            }
-            else
-            {
-                CreateQuickTask("💻 コーディング", "プログラミング・開発作業", "開発", new[] { "開発", "プログラミング" }, 50);
-            }
-        }
-
-        private void CreateQuickTask(string title, string description, string category, string[] tags, int minutes)
-        {
-            try
-            {
-                var task = new PomodoroTask
-                {
-                    Title = title,
-                    Description = description,
-                    Category = category,
-                    Tags = tags.ToList(),
-                    Priority = TaskPriority.Medium,
-                    EstimatedMinutes = minutes,
-                    Status = TaskStatus.Todo,
-                    CreatedAt = DateTime.Now
-                };
-
-                _pomodoroService.AddTask(task);
-                UpdateFilteringLists();
-                ApplyFilters();
-                UpdateKanbanColumns();
-
-                Console.WriteLine($"クイックタスク '{title}' を作成しました");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"クイックタスクの作成に失敗しました: {ex.Message}");
-                System.Windows.MessageBox.Show($"タスクの作成に失敗しました: {ex.Message}",
-                    "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            }
-        }
 
         [RelayCommand]
         private void RefreshAll()
@@ -1806,6 +1886,17 @@ namespace PomodoroTimer.ViewModels
                 ApplyFilters();
                 UpdateKanbanColumns();
                 LoadTodayStatistics();
+                
+                // QuickTemplatesの状態も出力
+                Console.WriteLine($"RefreshAll実行時のQuickTemplatesの数: {QuickTemplates?.Count ?? 0}");
+                if (QuickTemplates != null)
+                {
+                    for (int i = 0; i < QuickTemplates.Count; i++)
+                    {
+                        Console.WriteLine($"RefreshAll - テンプレート{i}: DisplayName='{QuickTemplates[i].DisplayName}'");
+                    }
+                }
+                
                 Console.WriteLine("データを更新しました");
             }
             catch (Exception ex)
@@ -1837,6 +1928,76 @@ namespace PomodoroTimer.ViewModels
             {
                 System.Windows.MessageBox.Show($"クイックテンプレート管理画面の表示に失敗しました: {ex.Message}",
                     "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// クイックテンプレートからタスクを作成するコマンド
+        /// </summary>
+        /// <param name="template">使用するテンプレート</param>
+        [RelayCommand]
+        private void CreateTaskFromTemplate(QuickTemplate template)
+        {
+            Console.WriteLine($"CreateTaskFromTemplate が呼び出されました。テンプレート: {template?.DisplayName ?? "null"}");
+            
+            if (template == null) 
+            {
+                Console.WriteLine("テンプレートがnullのため処理を中断");
+                return;
+            }
+
+            try
+            {
+                var newTask = new PomodoroTask
+                {
+                    Id = Guid.NewGuid(),
+                    Title = template.TaskTitle,
+                    Description = template.TaskDescription,
+                    Category = template.Category,
+                    TagsText = string.Join(", ", template.Tags),
+                    Priority = template.Priority,
+                    EstimatedMinutes = template.EstimatedMinutes,
+                    Status = TaskStatus.Todo,
+                    CreatedAt = DateTime.Now,
+                    IsCompleted = false
+                };
+
+                _pomodoroService.AddTask(newTask);
+                
+                // UI更新
+                UpdateFilteringLists();
+                ApplyFilters();
+                UpdateKanbanColumns();
+                
+                // タスクデータを保存
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        if (_pomodoroService != null)
+                        {
+                            await _pomodoroService.SaveTasksAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            System.Windows.MessageBox.Show($"タスクの保存に失敗しました: {ex.Message}", "保存エラー", 
+                                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                        });
+                    }
+                });
+
+                Console.WriteLine($"テンプレート「{template.DisplayName}」からタスク「{newTask.Title}」を作成しました");
+                
+                // 作成成功を通知
+                ShowQuickTaskFeedback($"テンプレート「{template.DisplayName}」からタスクを作成しました");
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"テンプレートからタスクの作成に失敗しました: {ex.Message}", "エラー",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
@@ -1974,7 +2135,7 @@ namespace PomodoroTimer.ViewModels
         /// テンプレートからタスクを作成するコマンド
         /// </summary>
         [RelayCommand]
-        private void CreateTaskFromTemplate()
+        private void CreateTaskFromTaskTemplate()
         {
             try
             {

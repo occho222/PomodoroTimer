@@ -63,6 +63,7 @@ namespace PomodoroTimer.Views
                 Closing += OnWindowClosing;
                 
                 Console.WriteLine("MainWindow が正常に初期化されました");
+                
             }
             catch (Exception ex)
             {
@@ -195,20 +196,6 @@ namespace PomodoroTimer.Views
                 bulkSelectCommand.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
                 CommandBindings.Add(new CommandBinding(bulkSelectCommand, (s, e) => _viewModel.ToggleBulkSelectionCommand?.Execute(null)));
 
-                // Ctrl+M: 会議タスク作成
-                var meetingCommand = new RoutedCommand();
-                meetingCommand.InputGestures.Add(new KeyGesture(Key.M, ModifierKeys.Control));
-                CommandBindings.Add(new CommandBinding(meetingCommand, (s, e) => _viewModel.CreateQuickMeetingTaskCommand?.Execute(null)));
-
-                // Ctrl+E: メールタスク作成
-                var emailCommand = new RoutedCommand();
-                emailCommand.InputGestures.Add(new KeyGesture(Key.E, ModifierKeys.Control));
-                CommandBindings.Add(new CommandBinding(emailCommand, (s, e) => _viewModel.CreateQuickEmailTaskCommand?.Execute(null)));
-
-                // Ctrl+Shift+C: コーディングタスク作成
-                var codingCommand = new RoutedCommand();
-                codingCommand.InputGestures.Add(new KeyGesture(Key.C, ModifierKeys.Control | ModifierKeys.Shift));
-                CommandBindings.Add(new CommandBinding(codingCommand, (s, e) => _viewModel.CreateQuickCodingTaskCommand?.Execute(null)));
 
                 // Escape: フィルタークリア
                 var clearFiltersCommand = new RoutedCommand();
@@ -337,6 +324,33 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
+        /// クイックテンプレートボタンのクリック処理
+        /// </summary>
+        private void QuickTemplateButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Console.WriteLine("QuickTemplateButton_Click が呼び出されました");
+                
+                if (sender is System.Windows.Controls.Button button && button.DataContext is QuickTemplate template)
+                {
+                    Console.WriteLine($"クリックされたテンプレート: DisplayName='{template.DisplayName}', TaskTitle='{template.TaskTitle}', Description='{template.Description}'");
+                    
+                    // ViewModelのメソッドを直接呼び出し
+                    _viewModel?.CreateTaskFromTemplateCommand?.Execute(template);
+                }
+                else
+                {
+                    Console.WriteLine($"Button.DataContext: {(sender as System.Windows.Controls.Button)?.DataContext?.GetType().Name ?? "null"}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"QuickTemplateButton_Click でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// カンバン列にフォーカスを移動
         /// </summary>
         private void FocusKanbanColumn(int columnIndex)
@@ -356,6 +370,7 @@ namespace PomodoroTimer.Views
                 Console.WriteLine($"カンバン列フォーカス移動でエラー: {ex.Message}");
             }
         }
+
 
         /// <summary>
         /// ウィンドウが閉じられる時の処理
