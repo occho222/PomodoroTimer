@@ -77,6 +77,17 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private ObservableCollection<string> availableTags = new();
 
+        // クイックテンプレート関連プロパティ
+        [ObservableProperty]
+        private ObservableCollection<QuickTemplate> quickTemplates = new();
+
+        // 一括選択関連プロパティ
+        [ObservableProperty]
+        private bool isBulkSelectionMode = false;
+
+        [ObservableProperty]
+        private ObservableCollection<PomodoroTask> selectedTasks = new();
+
         // タイマー関連プロパティ
         [ObservableProperty]
         private string timeRemaining = "25:00";
@@ -177,6 +188,9 @@ namespace PomodoroTimer.ViewModels
 
                 // 統計情報を読み込み
                 LoadTodayStatistics();
+
+                // クイックテンプレートを初期化
+                LoadQuickTemplates();
 
                 // 初期表示更新
                 UpdateProgress();
@@ -985,6 +999,73 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// タスクを保存する（公開メソッド）
+        /// </summary>
+        public async Task SaveTasksAsync()
+        {
+            try
+            {
+                await _pomodoroService.SaveTasksAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"タスクの保存に失敗しました: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// カンバンボードを更新する（公開メソッド）
+        /// </summary>
+        public void UpdateKanbanColumns()
+        {
+            try
+            {
+                var filteredTasks = GetFilteredTasks();
+
+                // 各状態別にタスクを分類
+                TodoTasks?.Clear();
+                WaitingTasks?.Clear();
+                ExecutingTasks?.Clear();
+                DoneTasksCollection?.Clear();
+
+                if (filteredTasks != null)
+                {
+                    // 期限の早い順、期限なしのものは最後、同じ期限内では優先度順、最後にDisplayOrder順でソート
+                    var sortedTasks = filteredTasks.OrderBy(t => t.DueDate ?? DateTime.MaxValue)
+                                                  .ThenByDescending(t => t.Priority)
+                                                  .ThenBy(t => t.DisplayOrder);
+
+                    foreach (var task in sortedTasks)
+                    {
+                        if (task == null) continue;
+
+                        switch (task.Status)
+                        {
+                            case TaskStatus.Todo:
+                                TodoTasks?.Add(task);
+                                break;
+                            case TaskStatus.Waiting:
+                                WaitingTasks?.Add(task);
+                                break;
+                            case TaskStatus.Executing:
+                                ExecutingTasks?.Add(task);
+                                break;
+                            case TaskStatus.Completed:
+                                DoneTasksCollection?.Add(task);
+                                break;
+                        }
+                    }
+                }
+
+                Console.WriteLine($"カンバンボード更新: 未開始={TodoTasks?.Count ?? 0}, 待機中={WaitingTasks?.Count ?? 0}, 実行中={ExecutingTasks?.Count ?? 0}, 完了={DoneTasksCollection?.Count ?? 0}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"カンバンボードの更新中にエラーが発生しました: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// 設定を更新する
         /// </summary>
         /// <param name="settings">新しい設定</param>
@@ -1159,57 +1240,6 @@ namespace PomodoroTimer.ViewModels
             TotalFocusTime = $"{hours}h {minutes}m";
         }
 
-        /// <summary>
-        /// カンバンボードの列を更新する
-        /// </summary>
-        private void UpdateKanbanColumns()
-        {
-            try
-            {
-                var filteredTasks = GetFilteredTasks();
-
-                // 各状態別にタスクを分類
-                TodoTasks?.Clear();
-                WaitingTasks?.Clear();
-                ExecutingTasks?.Clear();
-                DoneTasksCollection?.Clear();
-
-                if (filteredTasks != null)
-                {
-                    // 期限の早い順、期限なしのものは最後、同じ期限内では優先度順、最後にDisplayOrder順でソート
-                    var sortedTasks = filteredTasks.OrderBy(t => t.DueDate ?? DateTime.MaxValue)
-                                                  .ThenByDescending(t => t.Priority)
-                                                  .ThenBy(t => t.DisplayOrder);
-
-                    foreach (var task in sortedTasks)
-                    {
-                        if (task == null) continue;
-
-                        switch (task.Status)
-                        {
-                            case TaskStatus.Todo:
-                                TodoTasks?.Add(task);
-                                break;
-                            case TaskStatus.Waiting:
-                                WaitingTasks?.Add(task);
-                                break;
-                            case TaskStatus.Executing:
-                                ExecutingTasks?.Add(task);
-                                break;
-                            case TaskStatus.Completed:
-                                DoneTasksCollection?.Add(task);
-                                break;
-                        }
-                    }
-                }
-
-                Console.WriteLine($"カンバンボード更新: 未開始={TodoTasks?.Count ?? 0}, 待機中={WaitingTasks?.Count ?? 0}, 実行中={ExecutingTasks?.Count ?? 0}, 完了={DoneTasksCollection?.Count ?? 0}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"カンバンボードの更新中にエラーが発生しました: {ex.Message}");
-            }
-        }
 
         /// <summary>
         /// フィルタ済みのタスクを取得する
@@ -1574,6 +1604,369 @@ namespace PomodoroTimer.ViewModels
                 Console.WriteLine($"プロジェクト・タグ管理画面の表示でエラー: {ex.Message}");
                 System.Windows.MessageBox.Show($"プロジェクト・タグ管理画面の表示に失敗しました: {ex.Message}",
                     "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// クイックテンプレートを読み込む
+        /// </summary>
+        private void LoadQuickTemplates()
+        {
+            try
+            {
+                QuickTemplates.Clear();
+                
+                // デフォルトのクイックテンプレートを追加
+                var defaultTemplates = new List<QuickTemplate>
+                {
+                    new QuickTemplate
+                    {
+                        Id = "coding",
+                        DisplayName = "💻 コーディング",
+                        Description = "プログラミング・開発作業",
+                        TaskTitle = "コーディング作業",
+                        TaskDescription = "開発作業を実施します",
+                        Category = "開発",
+                        Tags = new List<string> { "開発", "プログラミング" },
+                        Priority = TaskPriority.High,
+                        EstimatedMinutes = 50,
+                        BackgroundColor = "#3B82F6"
+                    },
+                    new QuickTemplate
+                    {
+                        Id = "review",
+                        DisplayName = "👀 レビュー",
+                        Description = "コードレビュー・設計レビュー",
+                        TaskTitle = "レビュー作業",
+                        TaskDescription = "レビューを実施します",
+                        Category = "レビュー",
+                        Tags = new List<string> { "レビュー", "品質管理" },
+                        Priority = TaskPriority.Medium,
+                        EstimatedMinutes = 25,
+                        BackgroundColor = "#10B981"
+                    },
+                    new QuickTemplate
+                    {
+                        Id = "document",
+                        DisplayName = "📄 ドキュメント",
+                        Description = "仕様書・ドキュメント作成",
+                        TaskTitle = "ドキュメント作成",
+                        TaskDescription = "ドキュメントの作成・更新を行います",
+                        Category = "ドキュメント",
+                        Tags = new List<string> { "ドキュメント", "仕様書" },
+                        Priority = TaskPriority.Medium,
+                        EstimatedMinutes = 25,
+                        BackgroundColor = "#F59E0B"
+                    },
+                    new QuickTemplate
+                    {
+                        Id = "learning",
+                        DisplayName = "📚 学習",
+                        Description = "技術学習・研修",
+                        TaskTitle = "学習・研修",
+                        TaskDescription = "技術習得や学習を行います",
+                        Category = "学習",
+                        Tags = new List<string> { "学習", "スキルアップ" },
+                        Priority = TaskPriority.Low,
+                        EstimatedMinutes = 25,
+                        BackgroundColor = "#8B5CF6"
+                    }
+                };
+
+                foreach (var template in defaultTemplates)
+                {
+                    QuickTemplates.Add(template);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"クイックテンプレートの読み込みに失敗しました: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private void CreateTaskFromQuickTemplate(QuickTemplate template)
+        {
+            if (template == null) return;
+
+            try
+            {
+                var task = new PomodoroTask
+                {
+                    Title = template.TaskTitle,
+                    Description = template.TaskDescription,
+                    Category = template.Category,
+                    Tags = template.Tags,
+                    Priority = template.Priority,
+                    EstimatedMinutes = template.EstimatedMinutes,
+                    Status = TaskStatus.Todo,
+                    CreatedAt = DateTime.Now
+                };
+
+                // デフォルトチェックリストがあれば追加
+                foreach (var checklistItem in template.DefaultChecklist)
+                {
+                    task.Checklist.Add(new ChecklistItem
+                    {
+                        Text = checklistItem.Text,
+                        IsChecked = false
+                    });
+                }
+
+                _pomodoroService.AddTask(task);
+                UpdateFilteringLists();
+                ApplyFilters();
+                UpdateKanbanColumns();
+
+                Console.WriteLine($"クイックテンプレート '{template.DisplayName}' からタスクを作成しました");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"クイックテンプレートからのタスク作成に失敗しました: {ex.Message}");
+                System.Windows.MessageBox.Show($"タスクの作成に失敗しました: {ex.Message}",
+                    "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void CreateQuickMeetingTask()
+        {
+            CreateQuickTask("📝 会議", "会議への参加", "会議", new[] { "会議", "ミーティング" }, 30);
+        }
+
+        [RelayCommand]
+        private void CreateQuickCallTask()
+        {
+            CreateQuickTask("📞 電話対応", "電話での対応・相談", "コミュニケーション", new[] { "電話", "対応" }, 15);
+        }
+
+        [RelayCommand]
+        private void CreateQuickEmailTask()
+        {
+            CreateQuickTask("📧 メール処理", "メールの確認・返信", "コミュニケーション", new[] { "メール", "連絡" }, 25);
+        }
+
+        [RelayCommand]
+        private void CreateQuickResearchTask()
+        {
+            CreateQuickTask("🔍 調査・リサーチ", "情報収集・調査作業", "調査", new[] { "調査", "リサーチ" }, 25);
+        }
+
+        [RelayCommand]
+        private void CreateQuickCodingTask()
+        {
+            var codingTemplate = QuickTemplates.FirstOrDefault(t => t.Id == "coding");
+            if (codingTemplate != null)
+            {
+                CreateTaskFromQuickTemplate(codingTemplate);
+            }
+            else
+            {
+                CreateQuickTask("💻 コーディング", "プログラミング・開発作業", "開発", new[] { "開発", "プログラミング" }, 50);
+            }
+        }
+
+        private void CreateQuickTask(string title, string description, string category, string[] tags, int minutes)
+        {
+            try
+            {
+                var task = new PomodoroTask
+                {
+                    Title = title,
+                    Description = description,
+                    Category = category,
+                    Tags = tags.ToList(),
+                    Priority = TaskPriority.Medium,
+                    EstimatedMinutes = minutes,
+                    Status = TaskStatus.Todo,
+                    CreatedAt = DateTime.Now
+                };
+
+                _pomodoroService.AddTask(task);
+                UpdateFilteringLists();
+                ApplyFilters();
+                UpdateKanbanColumns();
+
+                Console.WriteLine($"クイックタスク '{title}' を作成しました");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"クイックタスクの作成に失敗しました: {ex.Message}");
+                System.Windows.MessageBox.Show($"タスクの作成に失敗しました: {ex.Message}",
+                    "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void RefreshAll()
+        {
+            try
+            {
+                UpdateFilteringLists();
+                ApplyFilters();
+                UpdateKanbanColumns();
+                LoadTodayStatistics();
+                Console.WriteLine("データを更新しました");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"データの更新に失敗しました: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// クイックテンプレート管理ダイアログを開くコマンド
+        /// </summary>
+        [RelayCommand]
+        private void OpenQuickTemplateManager()
+        {
+            try
+            {
+                var viewModel = new QuickTemplateManagerViewModel(_dataPersistenceService);
+                var dialog = new Views.QuickTemplateManagerDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+                
+                dialog.ShowDialog();
+                
+                // ダイアログ閉じた後にクイックテンプレートを再読み込み
+                LoadQuickTemplates();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"クイックテンプレート管理画面の表示に失敗しました: {ex.Message}",
+                    "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ToggleBulkSelection()
+        {
+            IsBulkSelectionMode = !IsBulkSelectionMode;
+            if (!IsBulkSelectionMode)
+            {
+                SelectedTasks.Clear();
+            }
+            Console.WriteLine($"一括選択モード: {(IsBulkSelectionMode ? "ON" : "OFF")}");
+        }
+
+        /// <summary>
+        /// 一括操作ダイアログを開くコマンド
+        /// </summary>
+        [RelayCommand]
+        private void OpenBulkOperation()
+        {
+            try
+            {
+                var viewModel = new BulkOperationViewModel(_pomodoroService);
+                var dialog = new Views.BulkOperationDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+
+                // タスク更新イベントの設定
+                viewModel.TasksUpdated += () =>
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        UpdateFilteringLists();
+                        ApplyFilters();
+                        UpdateKanbanColumns();
+                        LoadTodayStatistics();
+                    });
+                };
+
+                dialog.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"一括操作画面の表示に失敗しました: {ex.Message}",
+                    "エラー", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private async Task OpenSortOptions()
+        {
+            try
+            {
+                // TODO: SortOptionsDialogを実装する
+                throw new NotImplementedException("SortOptionsDialogは未実装です");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ソートオプションダイアログの表示に失敗しました: {ex.Message}");
+                // ソートダイアログが存在しない場合は簡易ソートを実行
+                await ApplySimpleSort();
+            }
+        }
+
+        private async Task ApplySort(string criteria, string direction)
+        {
+            try
+            {
+                var allTasks = _pomodoroService.GetTasks().ToList();
+                
+                switch (criteria?.ToLower())
+                {
+                    case "priority":
+                        allTasks = direction == "desc" 
+                            ? allTasks.OrderByDescending(t => t.Priority).ToList()
+                            : allTasks.OrderBy(t => t.Priority).ToList();
+                        break;
+                    case "duedate":
+                        allTasks = direction == "desc"
+                            ? allTasks.OrderByDescending(t => t.DueDate ?? DateTime.MaxValue).ToList()
+                            : allTasks.OrderBy(t => t.DueDate ?? DateTime.MaxValue).ToList();
+                        break;
+                    case "created":
+                        allTasks = direction == "desc"
+                            ? allTasks.OrderByDescending(t => t.CreatedAt).ToList()
+                            : allTasks.OrderBy(t => t.CreatedAt).ToList();
+                        break;
+                    default:
+                        allTasks = allTasks.OrderBy(t => t.Title).ToList();
+                        break;
+                }
+
+                // タスクの順序を更新（表示順序を更新）
+                for (int i = 0; i < allTasks.Count; i++)
+                {
+                    allTasks[i].DisplayOrder = i;
+                }
+                await _pomodoroService.SaveTasksAsync();
+                UpdateKanbanColumns();
+                Console.WriteLine($"タスクを '{criteria}' でソートしました");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ソート処理に失敗しました: {ex.Message}");
+            }
+        }
+
+        private async Task ApplySimpleSort()
+        {
+            try
+            {
+                var allTasks = _pomodoroService.GetTasks()
+                    .OrderByDescending(t => t.Priority)
+                    .ThenBy(t => t.DueDate ?? DateTime.MaxValue)
+                    .ThenBy(t => t.CreatedAt)
+                    .ToList();
+
+                // タスクの表示順序を更新
+                for (int i = 0; i < allTasks.Count; i++)
+                {
+                    allTasks[i].DisplayOrder = i;
+                }
+                await _pomodoroService.SaveTasksAsync();
+                UpdateKanbanColumns();
+                Console.WriteLine("タスクを優先度・期限順でソートしました");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"簡易ソート処理に失敗しました: {ex.Message}");
             }
         }
 

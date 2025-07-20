@@ -13,6 +13,10 @@
             <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
             <converters:BooleanToCheckConverter x:Key="BooleanToCheckConverter"/>
             <converters:BooleanToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <converters:NotNullToBooleanConverter x:Key="NotNullToBooleanConverter"/>
+            <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
 
             <!-- カラーパレット -->
             <Color x:Key="PrimaryColor">#6366F1</Color>

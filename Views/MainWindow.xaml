@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:models="clr-namespace:PomodoroTimer.Models"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:behaviors="clr-namespace:PomodoroTimer.Behaviors"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         Title="ポモドーロタイマー - カンバンボード" 
         Height="800" Width="1400"
         MinHeight="700" MinWidth="1200"
@@ -13,6 +15,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -167,8 +170,73 @@
             </Grid>
         </Border>
 
+        <!-- クイックアクセスバー -->
+        <Border Grid.Row="1" Background="White" Margin="10,5,10,5" CornerRadius="12" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- クイックテンプレートボタン -->
+                <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🚀" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="クイックアクション:" FontSize="12" FontWeight="Bold" 
+                                   VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#374151"/>
+                        
+                        <!-- テンプレートボタン群 -->
+                        <ItemsControl ItemsSource="{Binding QuickTemplates}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding DisplayName}" 
+                                            Command="{Binding DataContext.CreateTaskFromQuickTemplateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource RoundButton}" 
+                                            Background="{Binding BackgroundBrush}" Foreground="White"
+                                            FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32"
+                                            ToolTip="{Binding Description}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        
+                        <!-- カスタムボタン -->
+                        <Button Content="📝 会議" Command="{Binding CreateQuickMeetingTaskCommand}"
+                                Style="{StaticResource RoundButton}" Background="#8B5CF6" Foreground="White"
+                                FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32" ToolTip="30分の会議タスクを作成"/>
+                        <Button Content="📞 電話" Command="{Binding CreateQuickCallTaskCommand}"
+                                Style="{StaticResource RoundButton}" Background="#EC4899" Foreground="White"
+                                FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32" ToolTip="15分の電話タスクを作成"/>
+                        <Button Content="📧 メール" Command="{Binding CreateQuickEmailTaskCommand}"
+                                Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
+                                FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32" ToolTip="メール処理タスクを作成"/>
+                        <Button Content="🔍 調査" Command="{Binding CreateQuickResearchTaskCommand}"
+                                Style="{StaticResource RoundButton}" Background="#F59E0B" Foreground="White"
+                                FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32" ToolTip="調査・リサーチタスクを作成"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 一括操作ボタン -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="🔄" ToolTip="全て更新" Command="{Binding RefreshAllCommand}"
+                            Style="{StaticResource KanbanActionButton}" Background="#6B7280" Margin="5,0"/>
+                    <Button Content="📋" ToolTip="一括操作" Command="{Binding OpenBulkOperationCommand}"
+                            Style="{StaticResource KanbanActionButton}" Background="#3B82F6" Margin="5,0"/>
+                    <Button Content="⚙️" ToolTip="クイックアクション管理" Command="{Binding OpenQuickTemplateManagerCommand}"
+                            Style="{StaticResource KanbanActionButton}" Background="#EC4899" Margin="5,0"/>
+                    <Button Content="🗂️" ToolTip="並び替え" Command="{Binding OpenSortOptionsCommand}"
+                            Style="{StaticResource KanbanActionButton}" Background="#8B5CF6" Margin="5,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- タイマーコントロール -->
-        <Border Grid.Row="1" Background="White" Margin="10,5,10,5" CornerRadius="12" Padding="20">
+        <Border Grid.Row="2" Background="White" Margin="10,5,10,5" CornerRadius="12" Padding="20">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -233,7 +301,7 @@
         </Border>
 
         <!-- カンバンボード -->
-        <Grid Grid.Row="2" Margin="10,5,10,10">
+        <Grid Grid.Row="3" Margin="10,5,10,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -243,6 +311,9 @@
 
             <!-- 未開始タスク列 -->
             <Border Grid.Column="0" Background="White" Margin="0,0,3,0" CornerRadius="12">
+                <i:Interaction.Behaviors>
+                    <behaviors:KanbanDragDropBehavior TargetStatus="Todo"/>
+                </i:Interaction.Behaviors>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -367,6 +438,9 @@
 
             <!-- 待機中タスク列 -->
             <Border Grid.Column="1" Background="White" Margin="3,0" CornerRadius="12">
+                <i:Interaction.Behaviors>
+                    <behaviors:KanbanDragDropBehavior TargetStatus="Waiting"/>
+                </i:Interaction.Behaviors>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -500,6 +574,9 @@
 
             <!-- 実行中タスク列 -->
             <Border Grid.Column="2" Background="White" Margin="3,0" CornerRadius="12">
+                <i:Interaction.Behaviors>
+                    <behaviors:KanbanDragDropBehavior TargetStatus="Executing"/>
+                </i:Interaction.Behaviors>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -705,6 +782,9 @@
 
             <!-- 完了タスク列 -->
             <Border Grid.Column="3" Background="White" Margin="3,0,0,0" CornerRadius="12">
+                <i:Interaction.Behaviors>
+                    <behaviors:KanbanDragDropBehavior TargetStatus="Completed"/>
+                </i:Interaction.Behaviors>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

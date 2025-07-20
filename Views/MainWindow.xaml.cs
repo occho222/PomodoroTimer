@@ -174,6 +174,56 @@ namespace PomodoroTimer.Views
                 var settingsCommand = new RoutedCommand();
                 settingsCommand.InputGestures.Add(new KeyGesture(Key.F1));
                 CommandBindings.Add(new CommandBinding(settingsCommand, (s, e) => _viewModel.OpenSettingsCommand?.Execute(null)));
+
+                // F2: 統計画面
+                var statisticsCommand = new RoutedCommand();
+                statisticsCommand.InputGestures.Add(new KeyGesture(Key.F2));
+                CommandBindings.Add(new CommandBinding(statisticsCommand, (s, e) => _viewModel.OpenStatisticsCommand?.Execute(null)));
+
+                // F3: プロジェクト・タグ管理
+                var projectTagCommand = new RoutedCommand();
+                projectTagCommand.InputGestures.Add(new KeyGesture(Key.F3));
+                CommandBindings.Add(new CommandBinding(projectTagCommand, (s, e) => _viewModel.OpenProjectTagManagerCommand?.Execute(null)));
+
+                // Ctrl+R: 全て更新
+                var refreshCommand = new RoutedCommand();
+                refreshCommand.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
+                CommandBindings.Add(new CommandBinding(refreshCommand, (s, e) => _viewModel.RefreshAllCommand?.Execute(null)));
+
+                // Ctrl+B: 一括選択モード切り替え
+                var bulkSelectCommand = new RoutedCommand();
+                bulkSelectCommand.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
+                CommandBindings.Add(new CommandBinding(bulkSelectCommand, (s, e) => _viewModel.ToggleBulkSelectionCommand?.Execute(null)));
+
+                // Ctrl+M: 会議タスク作成
+                var meetingCommand = new RoutedCommand();
+                meetingCommand.InputGestures.Add(new KeyGesture(Key.M, ModifierKeys.Control));
+                CommandBindings.Add(new CommandBinding(meetingCommand, (s, e) => _viewModel.CreateQuickMeetingTaskCommand?.Execute(null)));
+
+                // Ctrl+E: メールタスク作成
+                var emailCommand = new RoutedCommand();
+                emailCommand.InputGestures.Add(new KeyGesture(Key.E, ModifierKeys.Control));
+                CommandBindings.Add(new CommandBinding(emailCommand, (s, e) => _viewModel.CreateQuickEmailTaskCommand?.Execute(null)));
+
+                // Ctrl+Shift+C: コーディングタスク作成
+                var codingCommand = new RoutedCommand();
+                codingCommand.InputGestures.Add(new KeyGesture(Key.C, ModifierKeys.Control | ModifierKeys.Shift));
+                CommandBindings.Add(new CommandBinding(codingCommand, (s, e) => _viewModel.CreateQuickCodingTaskCommand?.Execute(null)));
+
+                // Escape: フィルタークリア
+                var clearFiltersCommand = new RoutedCommand();
+                clearFiltersCommand.InputGestures.Add(new KeyGesture(Key.Escape));
+                CommandBindings.Add(new CommandBinding(clearFiltersCommand, (s, e) => _viewModel.ClearFiltersCommand?.Execute(null)));
+
+                // Ctrl+1-4: カンバン列フォーカス移動
+                for (int i = 1; i <= 4; i++)
+                {
+                    var columnFocusCommand = new RoutedCommand();
+                    var key = (Key)Enum.Parse(typeof(Key), $"D{i}");
+                    columnFocusCommand.InputGestures.Add(new KeyGesture(key, ModifierKeys.Control));
+                    var columnIndex = i - 1;
+                    CommandBindings.Add(new CommandBinding(columnFocusCommand, (s, e) => FocusKanbanColumn(columnIndex)));
+                }
                 
                 Console.WriteLine("ホットキーが正常に登録されました");
             }
@@ -283,6 +333,27 @@ namespace PomodoroTimer.Views
             catch (Exception ex)
             {
                 Console.WriteLine($"オートコンプリート選択でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// カンバン列にフォーカスを移動
+        /// </summary>
+        private void FocusKanbanColumn(int columnIndex)
+        {
+            try
+            {
+                var kanbanGrid = FindName("KanbanGrid") as Grid;
+                if (kanbanGrid?.Children.Count > columnIndex)
+                {
+                    var column = kanbanGrid.Children[columnIndex] as FrameworkElement;
+                    column?.Focus();
+                    Console.WriteLine($"カンバン列 {columnIndex + 1} にフォーカスを移動しました");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"カンバン列フォーカス移動でエラー: {ex.Message}");
             }
         }
 
