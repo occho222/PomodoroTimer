@@ -165,26 +165,27 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                // 一時的に簡単なテンプレートを追加
-                var newTemplate = new QuickTemplate
+                var editDialog = new Views.QuickTemplateEditDialog();
+                if (editDialog.ShowDialog() == true)
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    DisplayName = $"新しいテンプレート {Templates.Count + 1}",
-                    Description = "説明を入力してください",
-                    TaskTitle = "タスクタイトル",
-                    TaskDescription = "タスク説明",
-                    Category = "一般",
-                    Tags = new List<string> { "新規" },
-                    Priority = TaskPriority.Medium,
-                    EstimatedMinutes = 25,
-                    BackgroundColor = "#3B82F6"
-                };
+                    var newTemplate = new QuickTemplate
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        DisplayName = editDialog.DisplayName,
+                        Description = editDialog.Description,
+                        TaskTitle = editDialog.TaskTitle,
+                        TaskDescription = editDialog.TaskDescription,
+                        Category = editDialog.Category,
+                        Tags = editDialog.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(t => t.Trim()).ToList(),
+                        Priority = editDialog.Priority,
+                        EstimatedMinutes = editDialog.EstimatedMinutes,
+                        BackgroundColor = editDialog.BackgroundColor
+                    };
 
-                Templates.Add(newTemplate);
-                SaveTemplates();
-                
-                MessageBox.Show("新しいテンプレートが追加されました。編集ボタンで詳細を設定してください。", "情報",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                    Templates.Add(newTemplate);
+                    SaveTemplates();
+                }
             }
             catch (Exception ex)
             {
@@ -203,8 +204,23 @@ namespace PomodoroTimer.ViewModels
 
             try
             {
-                MessageBox.Show("テンプレート編集機能は開発中です。現在はプロパティの直接編集のみ対応しています。", "情報",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                var editDialog = new Views.QuickTemplateEditDialog(SelectedTemplate);
+                if (editDialog.ShowDialog() == true)
+                {
+                    // 選択されたテンプレートを更新
+                    SelectedTemplate.DisplayName = editDialog.DisplayName;
+                    SelectedTemplate.Description = editDialog.Description;
+                    SelectedTemplate.TaskTitle = editDialog.TaskTitle;
+                    SelectedTemplate.TaskDescription = editDialog.TaskDescription;
+                    SelectedTemplate.Category = editDialog.Category;
+                    SelectedTemplate.Tags = editDialog.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()).ToList();
+                    SelectedTemplate.Priority = editDialog.Priority;
+                    SelectedTemplate.EstimatedMinutes = editDialog.EstimatedMinutes;
+                    SelectedTemplate.BackgroundColor = editDialog.BackgroundColor;
+
+                    SaveTemplates();
+                }
             }
             catch (Exception ex)
             {

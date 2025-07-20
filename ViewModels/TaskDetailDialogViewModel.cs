@@ -286,7 +286,7 @@ namespace PomodoroTimer.ViewModels
         }
 
         [RelayCommand]
-        private async Task PasteImage()
+        private void PasteImage()
         {
             try
             {

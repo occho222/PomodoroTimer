@@ -179,7 +179,7 @@ namespace PomodoroTimer.Services
         /// <summary>
         /// Outlook�^�X�N����^�X�N���C���|�[�g����
         /// </summary>
-        public async Task<List<PomodoroTask>> ImportTasksFromOutlookAsync()
+        public Task<List<PomodoroTask>> ImportTasksFromOutlookAsync()
         {
             var importedTasks = new List<PomodoroTask>();
 
@@ -194,7 +194,7 @@ namespace PomodoroTimer.Services
                 // �����I�ɃT�|�[�g�����ꍇ�ɔ����ă��\�b�h�͎c���Ă����܂�
                 
                 Console.WriteLine("Outlook�^�X�N�̃C���|�[�g�͌��݃T�|�[�g����Ă��܂���B");
-                return importedTasks;
+                return Task.FromResult(importedTasks);
 
                 /*
                 // Outlook�^�X�N���擾
