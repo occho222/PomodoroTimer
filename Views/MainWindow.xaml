@@ -6,8 +6,8 @@
         xmlns:behaviors="clr-namespace:PomodoroTimer.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         Title="ポモドーロタイマー - カンバンボード" 
-        Height="800" Width="1400"
-        MinHeight="700" MinWidth="1200"
+        Height="900" Width="1600"
+        MinHeight="800" MinWidth="1400"
         WindowStartupLocation="CenterScreen"
         WindowState="Normal"
         Visibility="Visible"
@@ -16,25 +16,27 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280" MinWidth="250" MaxWidth="500"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <!-- ヘッダー部分 -->
-        <Border Grid.Row="0" Background="White" Margin="10,10,10,5" CornerRadius="12" Padding="20">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- タイトルとフィルター -->
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="ポモドーロタイマー - カンバンボード" FontSize="24" FontWeight="Bold" 
-                               Foreground="{StaticResource TextLight}"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Grid Width="250" Margin="0,0,10,0">
+        <!-- サイドパネル（フィルター・検索のみ） -->
+        <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="White" Margin="10,10,0,10" CornerRadius="12" Padding="15">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- サイドバータイトル -->
+                    <TextBlock Text="🔍 検索・フィルター" FontSize="16" FontWeight="Bold" 
+                               Foreground="#1F2937" Margin="0,0,0,16"/>
+                    
+                    <!-- クイックタスク追加エリア -->
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="🚀 クイック追加" FontSize="12" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,6"/>
+                        <Grid HorizontalAlignment="Stretch">
                             <TextBox x:Name="QuickTaskInput" 
                                      Text="{Binding QuickTaskText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                      Style="{StaticResource SearchTextBox}"
@@ -42,7 +44,7 @@
                                      FontWeight="SemiBold" Background="#F0F9FF" BorderBrush="#3B82F6"
                                      KeyDown="QuickTaskInput_KeyDown"
                                      TextChanged="QuickTaskInput_TextChanged"
-                                     LostFocus="QuickTaskInput_LostFocus"/>
+                                     LostFocus="QuickTaskInput_LostFocus" Height="32"/>
                             <!-- オートコンプリート候補リスト -->
                             <Popup x:Name="AutoCompletePopup" 
                                    Placement="Bottom" 
@@ -79,217 +81,302 @@
                                 </Border>
                             </Popup>
                         </Grid>
-                        <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource SearchTextBox}" Width="180"
-                                 ToolTip="タスク名や説明で検索" Margin="0,0,10,0"/>
-                        <ComboBox ItemsSource="{Binding AvailableCategories}"
-                                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-                                  Style="{StaticResource FilterComboBox}" Width="120" Margin="0,0,10,0"/>
-                        <ComboBox ItemsSource="{Binding AvailableTags}"
-                                  SelectedItem="{Binding SelectedTag, Mode=TwoWay}"
-                                  Style="{StaticResource FilterComboBox}" Width="120" Margin="0,0,10,0"/>
-                        <Button Content="フィルタークリア" Command="{Binding ClearFiltersCommand}"
-                                Style="{StaticResource RoundButton}" Background="Gray" FontSize="11" Padding="8,4"/>
+                    </StackPanel>
+                    
+                    <!-- 検索・フィルターエリア -->
+                    <StackPanel Margin="0,16,0,16">
+                        <TextBlock Text="🔍 検索・絞り込み" FontSize="12" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
+                        
+                        <!-- 検索ボックス -->
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="キーワード" FontSize="10" Foreground="#6B7280" Margin="0,0,0,2"/>
+                            <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource SearchTextBox}"
+                                     ToolTip="タスク名や説明で検索"/>
+                        </StackPanel>
+                        
+                        <!-- カテゴリフィルター -->
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="カテゴリ" FontSize="10" Foreground="#6B7280" Margin="0,0,0,2"/>
+                            <ComboBox ItemsSource="{Binding AvailableCategories}"
+                                      SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                                      Style="{StaticResource FilterComboBox}"
+                                      ToolTip="カテゴリで絞り込み"/>
+                        </StackPanel>
+                        
+                        <!-- タグフィルター -->
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="タグ" FontSize="10" Foreground="#6B7280" Margin="0,0,0,2"/>
+                            <ComboBox ItemsSource="{Binding AvailableTags}"
+                                      SelectedItem="{Binding SelectedTag, Mode=TwoWay}"
+                                      Style="{StaticResource FilterComboBox}"
+                                      ToolTip="タグで絞り込み"/>
+                        </StackPanel>
+                        
+                        <!-- 期限フィルター -->
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="期限" FontSize="10" Foreground="#6B7280" Margin="0,0,0,2"/>
+                            <ComboBox SelectedItem="{Binding SelectedDueDateFilter, Mode=TwoWay}"
+                                      Style="{StaticResource FilterComboBox}"
+                                      ToolTip="期限で絞り込み">
+                                <ComboBoxItem Content="すべて" Tag="All"/>
+                                <ComboBoxItem Content="期限なし" Tag="None"/>
+                                <ComboBoxItem Content="今日まで" Tag="Today"/>
+                                <ComboBoxItem Content="明日まで" Tag="Tomorrow"/>
+                                <ComboBoxItem Content="1週間以内" Tag="ThisWeek"/>
+                                <ComboBoxItem Content="期限切れ" Tag="Overdue"/>
+                            </ComboBox>
+                        </StackPanel>
+                        
+                        <!-- 優先度フィルター -->
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="優先度" FontSize="10" Foreground="#6B7280" Margin="0,0,0,2"/>
+                            <ComboBox ItemsSource="{Binding AvailablePriorities}"
+                                      SelectedItem="{Binding SelectedPriority, Mode=TwoWay}"
+                                      Style="{StaticResource FilterComboBox}"
+                                      ToolTip="優先度で絞り込み">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource PriorityToStringConverter}}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                        
+                        <!-- クリアボタン -->
+                        <Button Content="🗑️ クリア" Command="{Binding ClearFiltersCommand}"
+                                Style="{StaticResource RoundButton}" Background="#EF4444" Foreground="White"
+                                FontSize="11" Padding="8,6" ToolTip="全ての検索・フィルター条件をクリア"
+                                HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                    
+                    <!-- 管理機能 -->
+                    <StackPanel>
+                        <TextBlock Text="⚙️ 管理・操作" FontSize="12" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
+                        
+                        <!-- タスク操作 -->
+                        <TextBlock Text="タスク操作" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
+                        <Button Command="{Binding AddTaskCommand}" Margin="0,0,0,4"
+                                Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="新しいタスクを追加" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="➕" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="タスク追加" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding CreateTaskFromTaskTemplateCommand}" Margin="0,0,0,4"
+                                Style="{StaticResource RoundButton}" Background="#6366F1" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="テンプレート選択" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="📋" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="通常テンプレート" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding OpenStatisticsCommand}" Margin="0,0,0,8"
+                                Style="{StaticResource RoundButton}" Background="#3B82F6" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="統計とレポート" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="📈" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="統計" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- クイックテンプレート -->
+                        <TextBlock Text="クイックテンプレート" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
+                        <ScrollViewer MaxHeight="120" VerticalScrollBarVisibility="Auto" Margin="0,0,0,8">
+                            <ItemsControl ItemsSource="{Binding QuickTemplates}" x:Name="QuickTemplatesItemsControl">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding DisplayName}" 
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.CreateTaskFromTemplateCommand}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource RoundButton}" 
+                                                Background="{Binding BackgroundBrush}" Foreground="White"
+                                                FontSize="10" Padding="8,4" Margin="0,0,0,2" Height="28"
+                                                ToolTip="{Binding Description}" HorizontalAlignment="Stretch"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        
+                        <!-- カンバン操作 -->
+                        <TextBlock Text="カンバン操作" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
+                        <Button Command="{Binding RefreshAllCommand}" Margin="0,0,0,4"
+                                Style="{StaticResource RoundButton}" Background="#6B7280" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="全て更新" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="🔄" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="全て更新" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding OpenBulkOperationCommand}" Margin="0,0,0,4"
+                                Style="{StaticResource RoundButton}" Background="#3B82F6" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="一括操作" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="📋" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="一括操作" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding OpenSortOptionsCommand}" Margin="0,0,0,8"
+                                Style="{StaticResource RoundButton}" Background="#8B5CF6" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="並び替え" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="🗂️" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="並び替え" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- テンプレート管理 -->
+                        <TextBlock Text="テンプレート管理" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
+                        <Button Command="{Binding OpenTemplateManagerCommand}" Margin="0,0,0,4"
+                                Style="{StaticResource RoundButton}" Background="#EC4899" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="通常テンプレートの管理" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="📋" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="通常テンプレート管理" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding OpenQuickTemplateManagerCommand}" Margin="0,0,0,8"
+                                Style="{StaticResource RoundButton}" Background="#8B5CF6" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="クイックテンプレート管理" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="⚡" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="クイックテンプレート管理" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- データ管理 -->
+                        <TextBlock Text="データ管理" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
+                        <Button Command="{Binding ImportFromMicrosoftGraphCommand}" Margin="0,0,0,4"
+                                Style="{StaticResource RoundButton}" Background="#F59E0B" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="Microsoft Graphからタスクをインポート" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="📊" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="インポート" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding OpenProjectTagManagerCommand}" Margin="0,0,0,8"
+                                Style="{StaticResource RoundButton}" Background="#EC4899" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="プロジェクトとタグの管理" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="🏷️" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="プロジェクト・タグ" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- システム設定 -->
+                        <TextBlock Text="システム設定" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
+                        <Button Command="{Binding OpenSettingsCommand}"
+                                Style="{StaticResource RoundButton}" Background="#6B7280" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="アプリの設定" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="⚙️" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="設定" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </StackPanel>
-
-
-                <!-- アクションボタン -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    
-                    <!-- タスク追加ボタン -->
-                    <Button Command="{Binding AddTaskCommand}" Margin="0,0,12,0"
-                            Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
-                            Height="40" Padding="16,8" ToolTip="新しいタスクを追加">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="➕" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="タスク追加" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <!-- テンプレート選択ボタン -->
-                    <Button Command="{Binding CreateTaskFromTaskTemplateCommand}" Margin="0,0,12,0"
-                            Style="{StaticResource RoundButton}" Background="#6366F1" Foreground="White"
-                            Height="40" Padding="16,8" ToolTip="テンプレート選択ダイアログからタスクを作成">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📋" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="テンプレート選択" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <!-- テンプレート管理ボタン -->
-                    <Button Command="{Binding OpenTemplateManagerCommand}" Margin="0,0,12,0"
-                            Style="{StaticResource RoundButton}" Background="#8B5CF6" Foreground="White"
-                            Height="40" Padding="16,8" ToolTip="テンプレートの管理">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚙️" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="管理" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <!-- Microsoft Graph インポートボタン -->
-                    <Button Command="{Binding ImportFromMicrosoftGraphCommand}" Margin="0,0,12,0"
-                            Style="{StaticResource RoundButton}" Background="#F59E0B" Foreground="White"
-                            Height="40" Padding="16,8" ToolTip="Microsoft Graphからタスクをインポート">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📊" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="インポート" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <!-- 統計画面ボタン -->
-                    <Button Command="{Binding OpenStatisticsCommand}" Margin="0,0,12,0"
-                            Style="{StaticResource RoundButton}" Background="#3B82F6" Foreground="White"
-                            Height="40" Padding="16,8" ToolTip="統計とレポートを表示">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📈" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="統計" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <!-- プロジェクト・タグ管理ボタン -->
-                    <Button Command="{Binding OpenProjectTagManagerCommand}" Margin="0,0,12,0"
-                            Style="{StaticResource RoundButton}" Background="#EC4899" Foreground="White"
-                            Height="40" Padding="16,8" ToolTip="プロジェクトとタグの管理">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🏷️" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="管理" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <!-- 設定ボタン -->
-                    <Button Command="{Binding OpenSettingsCommand}"
-                            Style="{StaticResource RoundButton}" Background="#6B7280" Foreground="White"
-                            Height="40" Padding="16,8" ToolTip="アプリの設定">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚙️" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="設定" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
+            </ScrollViewer>
         </Border>
+        
+        <!-- リサイザー -->
+        <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" 
+                      Width="6" Background="#E5E7EB" 
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                      ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"/>
 
-        <!-- クイックアクセスバー -->
-        <Border Grid.Row="1" Background="White" Margin="10,5,10,5" CornerRadius="12" Padding="15">
+        <!-- メインエリアヘッダー（タイマー・クイックアクション） -->
+        <Border Grid.Row="0" Grid.Column="2" Background="White" Margin="5,10,10,5" CornerRadius="12" Padding="20">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
-                <!-- クイックテンプレートボタン -->
-                <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🚀" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="クイックアクション:" FontSize="12" FontWeight="Bold" 
-                                   VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#374151"/>
-                        
-                        
-                        <!-- テンプレートボタン群 -->
-                        <ItemsControl ItemsSource="{Binding QuickTemplates}" x:Name="QuickTemplatesItemsControl">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Content="{Binding DisplayName}" 
-                                            Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.CreateTaskFromTemplateCommand}"
-                                            CommandParameter="{Binding}"
-                                            Click="QuickTemplateButton_Click"
-                                            Style="{StaticResource RoundButton}" 
-                                            Background="{Binding BackgroundBrush}" Foreground="White"
-                                            FontSize="11" Padding="12,6" Margin="0,0,8,0" Height="32"
-                                            ToolTip="{Binding Description}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <!-- 一括操作ボタン -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="🔄" ToolTip="全て更新" Command="{Binding RefreshAllCommand}"
-                            Style="{StaticResource KanbanActionButton}" Background="#6B7280" Margin="5,0"/>
-                    <Button Content="📋" ToolTip="一括操作" Command="{Binding OpenBulkOperationCommand}"
-                            Style="{StaticResource KanbanActionButton}" Background="#3B82F6" Margin="5,0"/>
-                    <Button Content="⚙️" ToolTip="クイックアクション管理" Command="{Binding OpenQuickTemplateManagerCommand}"
-                            Style="{StaticResource KanbanActionButton}" Background="#EC4899" Margin="5,0"/>
-                    <Button Content="🗂️" ToolTip="並び替え" Command="{Binding OpenSortOptionsCommand}"
-                            Style="{StaticResource KanbanActionButton}" Background="#8B5CF6" Margin="5,0"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- タイマーコントロール -->
-        <Border Grid.Row="2" Background="White" Margin="10,5,10,5" CornerRadius="12" Padding="20">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
+                
                 <!-- タイマー表示 -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding TimeRemaining}" FontSize="36" FontWeight="Bold" 
-                               Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center"/>
-                    <StackPanel Margin="20,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding SessionTypeText}" FontSize="14" Foreground="Gray"/>
-                        <ProgressBar Value="{Binding ProgressValue, Mode=OneWay}" Maximum="100" 
-                                     Height="8" Width="200" Margin="0,4,0,0"/>
+                <Border Grid.Row="0" Grid.Column="0" Background="#F8FAFC" CornerRadius="12" Padding="25,15" Margin="0,0,20,0">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Margin="0,0,20,0">
+                            <TextBlock Text="{Binding TimeRemaining}" FontSize="36" FontWeight="Bold" 
+                                       Foreground="{StaticResource PrimaryBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding SessionTypeText}" FontSize="14" Foreground="Gray" 
+                                       HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                            <ProgressBar Value="{Binding ProgressValue, Mode=OneWay}" Maximum="100" 
+                                         Height="8" Width="200" Margin="0,8,0,0"/>
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Center">
+                            <Button Content="{Binding StartPauseButtonText}" Command="{Binding StartPauseCommand}"
+                                    Style="{StaticResource RoundButton}" Height="40" FontSize="14" Margin="0,0,0,8" Width="100"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <Button Content="停止" Command="{Binding StopCommand}"
+                                        Style="{StaticResource RoundButton}" Background="Gray" Height="32" FontSize="12" 
+                                        Width="60" Margin="0,0,4,0"/>
+                                <Button Content="スキップ" Command="{Binding SkipCommand}"
+                                        Style="{StaticResource RoundButton}" Background="{StaticResource SecondaryBrush}" 
+                                        Height="32" FontSize="12" Width="60" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <Button Content="+1分" Command="{Binding AddOneMinuteCommand}"
+                                        Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
+                                        Height="28" FontSize="11" Width="60" Margin="0,0,4,0" 
+                                        ToolTip="タイマーに1分追加"/>
+                                <Button Content="+10秒" Command="{Binding AddTenSecondsCommand}"
+                                        Style="{StaticResource RoundButton}" Background="#059669" Foreground="White"
+                                        Height="28" FontSize="11" Width="60" Margin="4,0,0,0"
+                                        ToolTip="タイマーに10秒追加"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="-1分" Command="{Binding SubtractOneMinuteCommand}"
+                                        Style="{StaticResource RoundButton}" Background="#EF4444" Foreground="White"
+                                        Height="28" FontSize="11" Width="60" Margin="0,0,4,0" 
+                                        ToolTip="タイマーから1分減らす"/>
+                                <Button Content="-10秒" Command="{Binding SubtractTenSecondsCommand}"
+                                        Style="{StaticResource RoundButton}" Background="#DC2626" Foreground="White"
+                                        Height="28" FontSize="11" Width="60" Margin="4,0,0,0"
+                                        ToolTip="タイマーから10秒減らす"/>
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
+                </Border>
+                
+                <!-- 空きスペース（クイックアクションは削除してサイドバーに統一） -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 </StackPanel>
-
+                
                 <!-- 統計情報 -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="20,0">
+                <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Style="{StaticResource StatisticCard}" Background="{StaticResource PrimaryBrush}" Margin="0,0,8,0">
                         <StackPanel>
-                            <TextBlock Text="完了ポモドーロ" Foreground="White" FontSize="12"/>
+                            <TextBlock Text="ポモドーロ" Foreground="White" FontSize="11"/>
                             <TextBlock Text="{Binding CompletedPomodoros}" Foreground="White" 
-                                       FontSize="24" FontWeight="Bold"/>
+                                       FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
-                    <Border Style="{StaticResource StatisticCard}" Background="{StaticResource SecondaryBrush}" Margin="8,0,0,0">
+                    <Border Style="{StaticResource StatisticCard}" Background="{StaticResource SecondaryBrush}">
                         <StackPanel>
-                            <TextBlock Text="完了タスク" Foreground="White" FontSize="12"/>
+                            <TextBlock Text="完了タスク" Foreground="White" FontSize="11"/>
                             <TextBlock Text="{Binding CompletedTasks}" Foreground="White" 
-                                       FontSize="24" FontWeight="Bold"/>
+                                       FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
-
-                <!-- コントロールボタン -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Button Content="{Binding StartPauseButtonText}" Command="{Binding StartPauseCommand}"
-                            Style="{StaticResource RoundButton}" Width="100" Height="40" FontSize="14" Margin="0,0,8,0"/>
-                    <Button Content="停止" Command="{Binding StopCommand}"
-                            Style="{StaticResource RoundButton}" Background="Gray" Width="80" Height="40" FontSize="14" Margin="0,0,8,0"/>
-                    <Button Content="スキップ" Command="{Binding SkipCommand}"
-                            Style="{StaticResource RoundButton}" Background="{StaticResource SecondaryBrush}" 
-                            Width="80" Height="40" FontSize="14" Margin="0,0,8,0"/>
-                    
-                    <!-- 時間調整ボタン -->
-                    <Button Content="+1分" Command="{Binding AddOneMinuteCommand}" ToolTip="タイマーに1分追加"
-                            Style="{StaticResource RoundButton}" Background="#10B981" 
-                            Width="50" Height="40" FontSize="12" Margin="0,0,4,0"/>
-                    <Button Content="-1分" Command="{Binding SubtractOneMinuteCommand}" ToolTip="タイマーから1分減らす"
-                            Style="{StaticResource RoundButton}" Background="#EF4444" 
-                            Width="50" Height="40" FontSize="12" Margin="0,0,4,0"/>
-                    <Button Content="+10秒" Command="{Binding AddTenSecondsCommand}" ToolTip="タイマーに10秒追加"
-                            Style="{StaticResource RoundButton}" Background="#3B82F6" 
-                            Width="50" Height="40" FontSize="12" Margin="0,0,4,0"/>
-                    <Button Content="-10秒" Command="{Binding SubtractTenSecondsCommand}" ToolTip="タイマーから10秒減らす"
-                            Style="{StaticResource RoundButton}" Background="#F59E0B" 
-                            Width="50" Height="40" FontSize="12"/>
-                </StackPanel>
+                
             </Grid>
         </Border>
 
         <!-- カンバンボード -->
-        <Grid Grid.Row="3" Margin="10,5,10,10">
+        <Grid Grid.Row="1" Grid.Column="2" Margin="5,5,10,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -326,7 +413,7 @@
                         <ItemsControl ItemsSource="{Binding TodoTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,10">
+                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -453,7 +540,7 @@
                         <ItemsControl ItemsSource="{Binding WaitingTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,10" BorderBrush="#3B82F6">
+                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#3B82F6">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -587,8 +674,8 @@
                     <!-- 実行中タスク詳細カード -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
                         <StackPanel>
-                            <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,10" BorderBrush="#F59E0B" 
-                                    Background="#FFFBF0" MinHeight="400"
+                            <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#F59E0B" 
+                                    Background="#FFFBF0" MinHeight="300"
                                     Visibility="{Binding CurrentTask, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -797,7 +884,7 @@
                         <ItemsControl ItemsSource="{Binding DoneTasksCollection}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,10" BorderBrush="#10B981" Opacity="0.8">
+                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#10B981" Opacity="0.8">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>

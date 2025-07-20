@@ -216,6 +216,19 @@ namespace PomodoroTimer.Behaviors
             {
                 var oldStatus = task.Status;
                 
+                // 実行中タスクを他の状態に移動する場合の特別処理
+                if (oldStatus == TaskStatus.Executing && newStatus != TaskStatus.Executing)
+                {
+                    // CurrentTaskからクリア
+                    if (viewModel.CurrentTask == task)
+                    {
+                        viewModel.CurrentTask = null;
+                    }
+                    
+                    // タスクの実行状態をリセット
+                    task.StopExecution();
+                }
+                
                 // ステータス変更
                 task.Status = newStatus;
                 
@@ -256,11 +269,7 @@ namespace PomodoroTimer.Behaviors
                         task.CompletedAt = DateTime.Now;
                         task.IsCompleted = true;
                         
-                        // 実行中タスクだった場合はクリア
-                        if (viewModel.CurrentTask == task)
-                        {
-                            viewModel.CurrentTask = null;
-                        }
+                        // 実行中タスクだった場合はクリア（既に上で処理済み）
                         break;
                 }
                 

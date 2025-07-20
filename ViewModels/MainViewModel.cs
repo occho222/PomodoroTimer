@@ -61,6 +61,9 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private TaskPriority? selectedPriority;
 
+        [ObservableProperty]
+        private System.Windows.Controls.ComboBoxItem? selectedDueDateFilter;
+
         // クイックタスク関連プロパティ
         [ObservableProperty]
         private string quickTaskText = string.Empty;
@@ -76,6 +79,9 @@ namespace PomodoroTimer.ViewModels
 
         [ObservableProperty]
         private ObservableCollection<string> availableTags = new();
+
+        [ObservableProperty]
+        private ObservableCollection<TaskPriority?> availablePriorities = new();
 
         // クイックテンプレート関連プロパティ
         [ObservableProperty]
@@ -319,7 +325,8 @@ namespace PomodoroTimer.ViewModels
             if (e.PropertyName == nameof(SearchText) || 
                 e.PropertyName == nameof(SelectedCategory) || 
                 e.PropertyName == nameof(SelectedTag) || 
-                e.PropertyName == nameof(SelectedPriority))
+                e.PropertyName == nameof(SelectedPriority) ||
+                e.PropertyName == nameof(SelectedDueDateFilter))
             {
                 ApplyFilters();
                 UpdateKanbanColumns(); // カンバンボードも更新
@@ -906,6 +913,7 @@ namespace PomodoroTimer.ViewModels
             SelectedCategory = string.Empty;
             SelectedTag = string.Empty;
             SelectedPriority = null;
+            SelectedDueDateFilter = null;
         }
 
         /// <summary>
@@ -926,6 +934,12 @@ namespace PomodoroTimer.ViewModels
             {
                 AvailableTags.Add(tag);
             }
+
+            AvailablePriorities.Clear();
+            AvailablePriorities.Add(null); // すべて
+            AvailablePriorities.Add(TaskPriority.Low);
+            AvailablePriorities.Add(TaskPriority.Medium);
+            AvailablePriorities.Add(TaskPriority.High);
         }
 
         /// <summary>
@@ -961,6 +975,23 @@ namespace PomodoroTimer.ViewModels
             if (SelectedPriority.HasValue)
             {
                 filteredTasks = filteredTasks.Where(t => t.Priority == SelectedPriority.Value);
+            }
+
+            // 期限フィルター
+            if (SelectedDueDateFilter != null)
+            {
+                var filterTag = SelectedDueDateFilter.Tag?.ToString();
+                var today = DateTime.Today;
+                
+                filteredTasks = filterTag switch
+                {
+                    "None" => filteredTasks.Where(t => t.DueDate == null),
+                    "Today" => filteredTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today),
+                    "Tomorrow" => filteredTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today.AddDays(1)),
+                    "ThisWeek" => filteredTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today.AddDays(7)),
+                    "Overdue" => filteredTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date < today),
+                    "All" or _ => filteredTasks
+                };
             }
 
             FilteredTasks.Clear();
@@ -1548,6 +1579,23 @@ namespace PomodoroTimer.ViewModels
                 if (SelectedPriority.HasValue)
                 {
                     filteredTasks = filteredTasks.Where(t => t?.Priority == SelectedPriority.Value);
+                }
+
+                // 期限フィルター
+                if (SelectedDueDateFilter != null)
+                {
+                    var filterTag = SelectedDueDateFilter.Tag?.ToString();
+                    var today = DateTime.Today;
+                    
+                    filteredTasks = filterTag switch
+                    {
+                        "None" => filteredTasks.Where(t => t?.DueDate == null),
+                        "Today" => filteredTasks.Where(t => t?.DueDate.HasValue == true && t.DueDate.Value.Date <= today),
+                        "Tomorrow" => filteredTasks.Where(t => t?.DueDate.HasValue == true && t.DueDate.Value.Date <= today.AddDays(1)),
+                        "ThisWeek" => filteredTasks.Where(t => t?.DueDate.HasValue == true && t.DueDate.Value.Date <= today.AddDays(7)),
+                        "Overdue" => filteredTasks.Where(t => t?.DueDate.HasValue == true && t.DueDate.Value.Date < today),
+                        "All" or _ => filteredTasks
+                    };
                 }
 
                 return filteredTasks.Where(t => t != null);

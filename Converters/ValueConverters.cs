@@ -237,4 +237,36 @@ namespace PomodoroTimer.Converters
         }
     }
 
+    /// <summary>
+    /// Nullable優先度を文字列に変換するコンバーター
+    /// </summary>
+    public class PriorityToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return "すべて";
+            }
+            
+            if (value is TaskPriority priority)
+            {
+                return priority switch
+                {
+                    TaskPriority.Low => "低",
+                    TaskPriority.Medium => "中",
+                    TaskPriority.High => "高",
+                    TaskPriority.Urgent => "緊急",
+                    _ => "不明"
+                };
+            }
+            return "不明";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }

@@ -323,32 +323,6 @@ namespace PomodoroTimer.Views
             }
         }
 
-        /// <summary>
-        /// クイックテンプレートボタンのクリック処理
-        /// </summary>
-        private void QuickTemplateButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Console.WriteLine("QuickTemplateButton_Click が呼び出されました");
-                
-                if (sender is System.Windows.Controls.Button button && button.DataContext is QuickTemplate template)
-                {
-                    Console.WriteLine($"クリックされたテンプレート: DisplayName='{template.DisplayName}', TaskTitle='{template.TaskTitle}', Description='{template.Description}'");
-                    
-                    // ViewModelのメソッドを直接呼び出し
-                    _viewModel?.CreateTaskFromTemplateCommand?.Execute(template);
-                }
-                else
-                {
-                    Console.WriteLine($"Button.DataContext: {(sender as System.Windows.Controls.Button)?.DataContext?.GetType().Name ?? "null"}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"QuickTemplateButton_Click でエラー: {ex.Message}");
-            }
-        }
 
         /// <summary>
         /// カンバン列にフォーカスを移動
