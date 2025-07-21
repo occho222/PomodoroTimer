@@ -39,6 +39,59 @@ namespace PomodoroTimer.Models
         private List<ChecklistItem> checklist = new();
 
         /// <summary>
+        /// Checklistプロパティが変更された時の処理
+        /// </summary>
+        partial void OnChecklistChanged(List<ChecklistItem> value)
+        {
+            // 既存のイベント購読を解除
+            if (checklist != null)
+            {
+                foreach (var item in checklist)
+                {
+                    item.PropertyChanged -= ChecklistItem_PropertyChanged;
+                }
+            }
+
+            // 新しいアイテムのイベントを購読
+            if (value != null)
+            {
+                foreach (var item in value)
+                {
+                    item.PropertyChanged += ChecklistItem_PropertyChanged;
+                }
+            }
+        }
+
+        /// <summary>
+        /// チェックリストアイテムのプロパティが変更された時の処理
+        /// </summary>
+        private void ChecklistItem_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ChecklistItem.IsChecked))
+            {
+                // チェックリスト関連のプロパティ変更通知を発行
+                OnPropertyChanged(nameof(CheckedItemsCount));
+                OnPropertyChanged(nameof(ChecklistProgress));
+                OnPropertyChanged(nameof(ChecklistCompletionPercentage));
+            }
+        }
+
+
+        /// <summary>
+        /// チェックリストアイテムのイベント購読
+        /// </summary>
+        private void SubscribeToChecklistItems()
+        {
+            if (Checklist != null)
+            {
+                foreach (var item in Checklist)
+                {
+                    item.PropertyChanged += ChecklistItem_PropertyChanged;
+                }
+            }
+        }
+
+        /// <summary>
         /// 期限日時
         /// </summary>
         [ObservableProperty]
@@ -193,6 +246,8 @@ namespace PomodoroTimer.Models
         /// </summary>
         public PomodoroTask()
         {
+            // 既存のチェックリストアイテムのイベントを購読
+            SubscribeToChecklistItems();
         }
 
         /// <summary>
@@ -204,6 +259,8 @@ namespace PomodoroTimer.Models
         {
             Title = title ?? string.Empty;
             EstimatedMinutes = Math.Max(1, estimatedMinutes);
+            // 既存のチェックリストアイテムのイベントを購読
+            SubscribeToChecklistItems();
         }
 
         /// <summary>
@@ -260,6 +317,44 @@ namespace PomodoroTimer.Models
                 catch
                 {
                     return 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// チェック済みアイテム数
+        /// </summary>
+        public int CheckedItemsCount
+        {
+            get
+            {
+                try
+                {
+                    return Checklist?.Count(item => item.IsChecked) ?? 0;
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// チェックリストの進捗表示テキスト
+        /// </summary>
+        public string ChecklistProgress
+        {
+            get
+            {
+                try
+                {
+                    if (Checklist == null || Checklist.Count == 0) return "";
+                    var checkedCount = CheckedItemsCount;
+                    return $"{checkedCount}/{Checklist.Count}";
+                }
+                catch
+                {
+                    return "";
                 }
             }
         }

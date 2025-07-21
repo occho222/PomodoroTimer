@@ -433,10 +433,14 @@ namespace PomodoroTimer.ViewModels
             if (CurrentTask != null && CurrentTask.Status == TaskStatus.Executing)
             {
                 CurrentTask.StopExecution();
+                CurrentTask = null;
+                OnPropertyChanged(nameof(CurrentTask));
                 UpdateKanbanColumns();
                 
                 // タスクデータを保存
                 _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                
+                Console.WriteLine("実行中タスクを停止し、CurrentTaskをnullに設定しました");
             }
             
             _timerService.Stop();
@@ -1242,6 +1246,8 @@ namespace PomodoroTimer.ViewModels
                 ExecutingTasks?.Clear();
                 DoneTasksCollection?.Clear();
 
+                PomodoroTask? currentExecutingTask = null;
+
                 if (filteredTasks != null)
                 {
                     // 期限の早い順、期限なしのものは最後、同じ期限内では優先度順、最後にDisplayOrder順でソート
@@ -1263,6 +1269,7 @@ namespace PomodoroTimer.ViewModels
                                 break;
                             case TaskStatus.Executing:
                                 ExecutingTasks?.Add(task);
+                                currentExecutingTask = task;
                                 break;
                             case TaskStatus.Completed:
                                 DoneTasksCollection?.Add(task);
@@ -1271,7 +1278,22 @@ namespace PomodoroTimer.ViewModels
                     }
                 }
 
+                // 実行中タスクがある場合はCurrentTaskに設定、ない場合はnullに設定
+                if (currentExecutingTask != null && CurrentTask != currentExecutingTask)
+                {
+                    CurrentTask = currentExecutingTask;
+                    OnPropertyChanged(nameof(CurrentTask));
+                    Console.WriteLine($"CurrentTaskを実行中タスク「{currentExecutingTask.Title}」に設定しました");
+                }
+                else if (currentExecutingTask == null && CurrentTask != null)
+                {
+                    CurrentTask = null;
+                    OnPropertyChanged(nameof(CurrentTask));
+                    Console.WriteLine("実行中タスクがないため、CurrentTaskをnullに設定しました");
+                }
+
                 Console.WriteLine($"カンバンボード更新: 未開始={TodoTasks?.Count ?? 0}, 待機中={WaitingTasks?.Count ?? 0}, 実行中={ExecutingTasks?.Count ?? 0}, 完了={DoneTasksCollection?.Count ?? 0}");
+                Console.WriteLine($"CurrentTask: {CurrentTask?.Title ?? "null"}, CurrentTask.Status: {CurrentTask?.Status.ToString() ?? "null"}");
             }
             catch (Exception ex)
             {
@@ -1657,8 +1679,13 @@ namespace PomodoroTimer.ViewModels
                 
                 UpdateKanbanColumns();
                 
+                // CurrentTaskの変更を明示的に通知
+                OnPropertyChanged(nameof(CurrentTask));
+                
                 // タスクデータを保存
                 _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                
+                Console.WriteLine($"タスク「{task.Title}」を実行中に設定しました。CurrentTask: {CurrentTask?.Title ?? "null"}");
             }
         }
 
@@ -1676,16 +1703,19 @@ namespace PomodoroTimer.ViewModels
                 // タイマーも停止
                 if (IsRunning)
                 {
-                    Stop();
+                    _timerService.Stop();
                 }
 
                 // 実行中画面をクリア
                 CurrentTask = null;
+                OnPropertyChanged(nameof(CurrentTask));
                 
                 UpdateKanbanColumns();
                 
                 // タスクデータを保存
                 _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                
+                Console.WriteLine($"タスク「{task.Title}」の実行を停止し、CurrentTaskをnullに設定しました");
             }
         }
 
@@ -2304,6 +2334,45 @@ namespace PomodoroTimer.ViewModels
                 {
                     CurrentTask = null;
                 });
+            }
+        }
+
+        /// <summary>
+        /// チェックリストアイテムのチェック状態をトグルするコマンド
+        /// </summary>
+        /// <param name="checklistItem">チェック状態を変更するアイテム</param>
+        [RelayCommand]
+        private async Task ToggleChecklistItem(object checklistItem)
+        {
+            try
+            {
+                if (checklistItem is ChecklistItem item && CurrentTask != null)
+                {
+                    // チェック状態をトグル
+                    item.IsChecked = !item.IsChecked;
+                    
+                    // 完了日時を更新
+                    item.CompletedAt = item.IsChecked ? DateTime.Now : null;
+                    
+                    // タスクデータを保存
+                    await _pomodoroService.SaveTasksAsync();
+                    
+                    Console.WriteLine($"チェックリストアイテム「{item.Text}」を{(item.IsChecked ? "完了" : "未完了")}に変更しました");
+                    
+                    // チェックリスト完了率をログ出力
+                    if (CurrentTask.Checklist?.Count > 0)
+                    {
+                        var completedCount = CurrentTask.Checklist.Count(c => c.IsChecked);
+                        var completionRate = (double)completedCount / CurrentTask.Checklist.Count * 100;
+                        Console.WriteLine($"チェックリスト進捗: {completedCount}/{CurrentTask.Checklist.Count} ({completionRate:F1}%)");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"チェックリストアイテムの更新に失敗しました: {ex.Message}");
+                System.Windows.MessageBox.Show($"チェックリストの更新に失敗しました: {ex.Message}", "エラー", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
