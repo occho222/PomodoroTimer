@@ -549,25 +549,6 @@ namespace PomodoroTimer.ViewModels
                 // 視覚的フィードバック（アニメーション的効果）
                 ShowQuickTaskFeedback($"タスク「{taskTitle}」を追加しました");
                 
-                // タスクデータを保存
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        if (_pomodoroService != null)
-                        {
-                            await _pomodoroService.SaveTasksAsync();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            System.Windows.MessageBox.Show($"タスクの保存に失敗しました: {ex.Message}", "保存エラー", 
-                                MessageBoxButton.OK, MessageBoxImage.Warning);
-                        });
-                    }
-                });
             }
             catch (Exception ex)
             {
@@ -592,77 +573,11 @@ namespace PomodoroTimer.ViewModels
                 
                 if (dialog.ShowDialog() == true)
                 {
-                    // ダイアログからデータを取得して検証
-                    if (string.IsNullOrWhiteSpace(viewModel.TaskTitle))
-                    {
-                        System.Windows.MessageBox.Show("タスク名が正しく設定されていません。", "エラー", 
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-
-                    var newTask = new PomodoroTask(viewModel.TaskTitle, viewModel.EstimatedMinutes)
-                    {
-                        Description = viewModel.BasicDescription ?? string.Empty,
-                        DetailedDescription = viewModel.DetailedDescription ?? string.Empty,
-                        Category = viewModel.TaskCategory ?? string.Empty,
-                        TagsText = viewModel.TaskTags ?? string.Empty,
-                        Priority = viewModel.SelectedPriority,
-                        Status = viewModel.SelectedStatus,
-                        DueDate = viewModel.DueDate,
-                        DisplayOrder = Tasks.Count
-                    };
-                    
-                    // チェックリストをコピー
-                    if (viewModel.ChecklistItems?.Count > 0)
-                    {
-                        newTask.Checklist.Clear();
-                        foreach (var item in viewModel.ChecklistItems)
-                        {
-                            newTask.Checklist.Add(new ChecklistItem 
-                            { 
-                                Text = item.Text, 
-                                IsChecked = item.IsChecked 
-                            });
-                        }
-                    }
-                    
-                    // 添付ファイルをコピー
-                    if (viewModel.AttachmentItems?.Count > 0)
-                    {
-                        newTask.Attachments.Clear();
-                        foreach (var item in viewModel.AttachmentItems)
-                        {
-                            newTask.Attachments.Add(item.FilePath);
-                        }
-                    }
-                    
-                    // サービスにタスクを追加
-                    _pomodoroService?.AddTask(newTask);
-                    
-                    // UI更新
+                    // タスクはTaskDetailDialogViewModelのSaveメソッドで既に追加されているため、
+                    // ここではUI更新のみを行う
                     UpdateFilteringLists();
                     ApplyFilters();
                     UpdateKanbanColumns(); // カンバンボードも更新
-                    
-                    // タスクデータを保存
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            if (_pomodoroService != null)
-                        {
-                            await _pomodoroService.SaveTasksAsync();
-                        }
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                System.Windows.MessageBox.Show($"タスクの保存に失敗しました: {ex.Message}", "保存エラー", 
-                                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                            });
-                        }
-                    });
                 }
             }
             catch (Exception ex)
@@ -2017,25 +1932,6 @@ namespace PomodoroTimer.ViewModels
                 ApplyFilters();
                 UpdateKanbanColumns();
                 
-                // タスクデータを保存
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        if (_pomodoroService != null)
-                        {
-                            await _pomodoroService.SaveTasksAsync();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            System.Windows.MessageBox.Show($"タスクの保存に失敗しました: {ex.Message}", "保存エラー", 
-                                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                        });
-                    }
-                });
 
                 Console.WriteLine($"テンプレート「{template.DisplayName}」からタスク「{newTask.Title}」を作成しました");
                 
