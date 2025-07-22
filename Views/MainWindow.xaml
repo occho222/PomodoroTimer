@@ -427,6 +427,7 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
                                                 <StackPanel Grid.Column="0">
@@ -493,6 +494,7 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
                                                 <TextBlock Grid.Column="0" 
@@ -501,6 +503,9 @@
                                                 <TextBlock Grid.Column="1" 
                                                            Text="{Binding EstimatedPomodoros, StringFormat={}/ {0}}" 
                                                            FontSize="12" Foreground="Gray" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="2" 
+                                                           Text="{Binding ActualMinutes, StringFormat={}⏱ {0}分}" 
+                                                           FontSize="11" Foreground="#4A90E2" VerticalAlignment="Center" Margin="8,0,0,0"/>
                                             </Grid>
                                         </Grid>
                                     </Border>
@@ -553,6 +558,7 @@
                                             <Grid Grid.Row="0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
@@ -624,6 +630,7 @@
                                             <Grid Grid.Row="3" Margin="0,8,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
@@ -866,7 +873,11 @@
                                                        Foreground="#F59E0B" VerticalAlignment="Center" Margin="8,0,4,0"/>
                                             <TextBlock Text="/" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding CurrentTask.EstimatedPomodoros}" FontSize="14" 
-                                                       Foreground="#6B7280" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                                       Foreground="#6B7280" VerticalAlignment="Center" Margin="4,0,16,0"/>
+                                            <TextBlock Text="⏱" FontSize="14" FontWeight="SemiBold" 
+                                                       Foreground="#4A90E2" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                            <TextBlock Text="{Binding CurrentTask.ActualMinutes, StringFormat={}{0}分}" FontSize="14" FontWeight="Bold" 
+                                                       Foreground="#4A90E2" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         
                                         <!-- 進捗バー -->
@@ -963,6 +974,7 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
                                                 <StackPanel Grid.Column="0" Orientation="Horizontal">
@@ -1010,12 +1022,14 @@
                                                 </Border>
                                             </StackPanel>
                                             
-                                            <!-- ポモドーロ情報 -->
+                                            <!-- ポモドーロ情報と実行時間 -->
                                             <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,4,0,0">
                                                 <TextBlock Text="{Binding CompletedPomodoros, StringFormat={}🍅 {0}}" 
                                                            FontSize="12" Foreground="Green"/>
                                                 <TextBlock Text="{Binding EstimatedPomodoros, StringFormat={}/ {0} 完了}" 
-                                                           FontSize="12" Foreground="Gray" Margin="4,0,0,0"/>
+                                                           FontSize="12" Foreground="Gray" Margin="4,0,8,0"/>
+                                                <TextBlock Text="{Binding ActualMinutes, StringFormat={}⏱ {0}分}" 
+                                                           FontSize="12" Foreground="#10B981" FontWeight="SemiBold"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>

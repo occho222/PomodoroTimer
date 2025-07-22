@@ -143,6 +143,12 @@ namespace PomodoroTimer.Models
         private DateTime? completedAt;
 
         /// <summary>
+        /// 現在のセッションの開始日時（実行中タスクのみ）
+        /// </summary>
+        [ObservableProperty]
+        private DateTime? currentSessionStartTime;
+
+        /// <summary>
         /// タスクの優先度
         /// </summary>
         [ObservableProperty]

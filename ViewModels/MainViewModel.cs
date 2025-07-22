@@ -482,6 +482,8 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void SubtractOneMinute()
         {
+            // タイマー調整時にも経過時間を記録（セッション開始時刻はリセットしない）
+            RecordCurrentTaskElapsedTimeForTimerAdjustment();
             _timerService.AddTime(TimeSpan.FromMinutes(-1));
         }
 
@@ -491,6 +493,8 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void SubtractTenSeconds()
         {
+            // タイマー調整時にも経過時間を記録（セッション開始時刻はリセットしない）
+            RecordCurrentTaskElapsedTimeForTimerAdjustment();
             _timerService.AddTime(TimeSpan.FromSeconds(-10));
         }
 
@@ -683,9 +687,11 @@ namespace PomodoroTimer.ViewModels
             // セッション継続が必要かチェック（CurrentTaskをクリアする前に）
             bool shouldContinueSession = task == CurrentTask && IsRunning && _settings.ContinueSessionOnTaskComplete;
 
-            // 実行中タスクの場合は、実行中画面をクリア
+            // 実行中タスクの場合は、経過時間を記録してから実行中画面をクリア
             if (task.Status == TaskStatus.Executing && CurrentTask == task)
             {
+                // タスク完了時の経過時間を記録
+                RecordCurrentTaskElapsedTime();
                 CurrentTask = null;
             }
 
@@ -1460,6 +1466,60 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// 現在実行中のタスクに経過時間を記録する
+        /// </summary>
+        private void RecordCurrentTaskElapsedTime()
+        {
+            if (CurrentTask != null && CurrentTask.CurrentSessionStartTime.HasValue)
+            {
+                // 現在のセッション開始時刻からの経過時間を計算（分単位）
+                var now = DateTime.Now;
+                var elapsedTime = now - CurrentTask.CurrentSessionStartTime.Value;
+                var elapsedMinutes = (int)Math.Ceiling(elapsedTime.TotalMinutes);
+                
+                // 1分以上の場合のみ記録
+                if (elapsedMinutes > 0)
+                {
+                    CurrentTask.ActualMinutes += elapsedMinutes;
+                    Console.WriteLine($"タスク '{CurrentTask.Title}' に {elapsedMinutes}分を記録。合計: {CurrentTask.ActualMinutes}分");
+                    
+                    // セッション開始時刻をリセット
+                    CurrentTask.CurrentSessionStartTime = null;
+                    
+                    // データを保存
+                    _ = Task.Run(async () => await _pomodoroService.SaveTasksAsync());
+                }
+            }
+        }
+
+        /// <summary>
+        /// タイマー調整時に現在実行中のタスクに経過時間を記録する（セッション開始時刻はリセットしない）
+        /// </summary>
+        private void RecordCurrentTaskElapsedTimeForTimerAdjustment()
+        {
+            if (CurrentTask != null && CurrentTask.CurrentSessionStartTime.HasValue)
+            {
+                // 現在のセッション開始時刻からの経過時間を計算（分単位）
+                var now = DateTime.Now;
+                var elapsedTime = now - CurrentTask.CurrentSessionStartTime.Value;
+                var elapsedMinutes = (int)Math.Ceiling(elapsedTime.TotalMinutes);
+                
+                // 1分以上の場合のみ記録
+                if (elapsedMinutes > 0)
+                {
+                    CurrentTask.ActualMinutes += elapsedMinutes;
+                    Console.WriteLine($"タイマー調整時: タスク '{CurrentTask.Title}' に {elapsedMinutes}分を記録。合計: {CurrentTask.ActualMinutes}分");
+                    
+                    // セッション開始時刻を現在時刻に更新（計測継続のため）
+                    CurrentTask.CurrentSessionStartTime = now;
+                    
+                    // データを保存
+                    _ = Task.Run(async () => await _pomodoroService.SaveTasksAsync());
+                }
+            }
+        }
+
+        /// <summary>
         /// 進捗表示を更新する
         /// </summary>
         private void UpdateProgress()
@@ -1684,7 +1744,9 @@ namespace PomodoroTimer.ViewModels
                     currentExecutingTask.StopExecution();
                 }
 
-                // 現在のタスクをストップしてから新しいタスクを開始
+                // 現在実行中のタスクの経過時間を記録してから新しいタスクを開始
+                RecordCurrentTaskElapsedTime();
+                
                 if (IsRunning)
                 {
                     Stop();
@@ -1693,6 +1755,9 @@ namespace PomodoroTimer.ViewModels
                 // 新しいタスクを実行中に移行
                 task.StartExecution();
                 CurrentTask = task;
+                
+                // セッション開始時刻を記録
+                CurrentTask.CurrentSessionStartTime = DateTime.Now;
                 
                 // タイマーを開始
                 StartPause();
@@ -1718,6 +1783,9 @@ namespace PomodoroTimer.ViewModels
         {
             if (task.Status == TaskStatus.Executing)
             {
+                // 経過時間を記録してからタスクを停止
+                RecordCurrentTaskElapsedTime();
+                
                 task.StopExecution();
                 
                 // タイマーも停止
