@@ -49,9 +49,10 @@ namespace PomodoroTimer.Views
                 
                 var graphService = new GraphService(settings);
                 var taskTemplateService = new TaskTemplateService(dataPersistenceService);
+                var notificationService = new NotificationService();
                 
                 _viewModel = new MainViewModel(pomodoroService, timerService, statisticsService, 
-                    dataPersistenceService, _systemTrayService, graphService, taskTemplateService);
+                    dataPersistenceService, _systemTrayService, graphService, taskTemplateService, notificationService);
                 
                 DataContext = _viewModel;
 

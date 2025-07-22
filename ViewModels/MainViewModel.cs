@@ -23,6 +23,7 @@ namespace PomodoroTimer.ViewModels
         private readonly ISystemTrayService _systemTrayService;
         private readonly IGraphService _graphService;
         private readonly ITaskTemplateService _taskTemplateService;
+        private readonly INotificationService _notificationService;
         private AppSettings _settings;
 
         // タスク関連プロパティ
@@ -142,7 +143,8 @@ namespace PomodoroTimer.ViewModels
         /// </summary>
         public MainViewModel(IPomodoroService pomodoroService, ITimerService timerService, 
             IStatisticsService statisticsService, IDataPersistenceService dataPersistenceService,
-            ISystemTrayService systemTrayService, IGraphService graphService, ITaskTemplateService taskTemplateService)
+            ISystemTrayService systemTrayService, IGraphService graphService, ITaskTemplateService taskTemplateService,
+            INotificationService notificationService)
         {
             _pomodoroService = pomodoroService ?? throw new ArgumentNullException(nameof(pomodoroService));
             _timerService = timerService ?? throw new ArgumentNullException(nameof(timerService));
@@ -151,6 +153,7 @@ namespace PomodoroTimer.ViewModels
             _systemTrayService = systemTrayService ?? throw new ArgumentNullException(nameof(systemTrayService));
             _graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
             _taskTemplateService = taskTemplateService ?? throw new ArgumentNullException(nameof(taskTemplateService));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
             _settings = new AppSettings();
 
             try
@@ -1309,6 +1312,7 @@ namespace PomodoroTimer.ViewModels
         {
             _settings = settings;
             _timerService.UpdateSettings(settings);
+            _notificationService.UpdateSettings(settings.EnableSoundNotification, settings.EnableDesktopNotification);
         }
 
         /// <summary>
@@ -1395,23 +1399,43 @@ namespace PomodoroTimer.ViewModels
 
                 // 集中時間を更新
                 UpdateTotalFocusTime();
-                
-                // システムトレイ通知
-                var sessionName = sessionType switch
-                {
-                    SessionType.Work => "作業セッション",
-                    SessionType.ShortBreak => "短い休憩",
-                    SessionType.LongBreak => "長い休憩",
-                    _ => "セッション"
-                };
-                _systemTrayService.ShowBalloonTip("ポモドーロタイマー", 
-                    $"{sessionName}が完了しました！", System.Windows.Forms.ToolTipIcon.Info);
+            }
+
+            // 全てのセッションタイプで通知を表示
+            var sessionName = sessionType switch
+            {
+                SessionType.Work => "作業セッション",
+                SessionType.ShortBreak => "短い休憩",
+                SessionType.LongBreak => "長い休憩",
+                _ => "セッション"
+            };
+            
+            var notificationMessage = $"{sessionName}が完了しました！";
+            
+            // 設定に応じて通知を表示
+            if (_settings.ShowNotifications)
+            {
+                // ポップアップ通知を表示（ブロッキング）
+                _notificationService.ShowDesktopNotification("ポモドーロタイマー", notificationMessage);
+            }
+            else
+            {
+                // 設定がOFFでもシステムトレイ通知は表示
+                _systemTrayService.ShowBalloonTip("ポモドーロタイマー", notificationMessage, System.Windows.Forms.ToolTipIcon.Info);
             }
 
             // セッション完了後の状態更新
             IsRunning = false;
             StartPauseButtonText = "開始";
             _systemTrayService.UpdateTimerStatus(false, _timerService.RemainingTime);
+            
+            // 自動開始設定に基づいて次のセッションを開始
+            if (_settings.AutoStartNextSession)
+            {
+                // 自動開始が有効な場合は次のセッションを開始
+                StartPause();
+            }
+            // AutoStartNextSessionがfalseの場合は何もしない（ユーザーが手動で開始ボタンを押すまで待機）
         }
 
         private void OnSessionTypeChanged(SessionType sessionType)
