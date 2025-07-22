@@ -32,6 +32,9 @@ namespace PomodoroTimer.Models
         private List<string> tags = new();
 
         [ObservableProperty]
+        private List<ChecklistItem> defaultChecklist = new();
+
+        [ObservableProperty]
         private DateTime createdAt = DateTime.Now;
 
         [ObservableProperty]
@@ -91,13 +94,22 @@ namespace PomodoroTimer.Models
 
         public PomodoroTask CreateTask()
         {
-            var task = new PomodoroTask(TaskTitle, EstimatedPomodoros)
+            var task = new PomodoroTask(TaskTitle, EstimatedPomodoros * 25) // ポモドーロ数から分に変換
             {
                 Description = TaskDescription,
                 Category = Category,
                 Priority = Priority,
                 TagsText = TagsText
             };
+
+            // チェックリストをコピー
+            foreach (var checklistItem in DefaultChecklist)
+            {
+                task.Checklist.Add(new ChecklistItem(checklistItem.Text)
+                {
+                    IsChecked = checklistItem.IsChecked
+                });
+            }
 
             UsageCount++;
             LastUsedAt = DateTime.Now;
@@ -108,7 +120,7 @@ namespace PomodoroTimer.Models
 
         public TaskTemplate Clone()
         {
-            return new TaskTemplate
+            var clone = new TaskTemplate
             {
                 Id = Guid.NewGuid(),
                 Name = $"{Name} - コピー",
@@ -124,6 +136,17 @@ namespace PomodoroTimer.Models
                 UsageCount = 0,
                 LastUsedAt = null
             };
+
+            // チェックリストもコピー
+            foreach (var checklistItem in DefaultChecklist)
+            {
+                clone.DefaultChecklist.Add(new ChecklistItem(checklistItem.Text)
+                {
+                    IsChecked = checklistItem.IsChecked
+                });
+            }
+
+            return clone;
         }
 
         public void UpdateFromTask(PomodoroTask task)
@@ -134,6 +157,17 @@ namespace PomodoroTimer.Models
             EstimatedPomodoros = (int)Math.Ceiling((double)task.EstimatedMinutes / 25); // 分からポモドーロ数に変換
             Priority = task.Priority;
             TagsText = task.TagsText;
+
+            // チェックリストも更新
+            DefaultChecklist.Clear();
+            foreach (var checklistItem in task.Checklist)
+            {
+                DefaultChecklist.Add(new ChecklistItem(checklistItem.Text)
+                {
+                    IsChecked = checklistItem.IsChecked
+                });
+            }
+
             UpdatedAt = DateTime.Now;
         }
     }

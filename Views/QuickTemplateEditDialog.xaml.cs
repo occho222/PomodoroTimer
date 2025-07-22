@@ -1,5 +1,6 @@
 using PomodoroTimer.Models;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace PomodoroTimer.Views
 {
@@ -17,6 +18,7 @@ namespace PomodoroTimer.Views
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
         public int EstimatedMinutes { get; set; } = 25;
         public string BackgroundColor { get; set; } = "#3B82F6";
+        public List<ChecklistItem> DefaultChecklist { get; set; } = new();
 
         public QuickTemplateEditDialog()
         {
@@ -65,6 +67,10 @@ namespace PomodoroTimer.Views
 
             // 背景色の設定
             SetBackgroundColorRadio(BackgroundColor);
+
+            // チェックリストの設定
+            DefaultChecklist = new List<ChecklistItem>(template.DefaultChecklist);
+            RefreshChecklistUI();
         }
 
         private void SetBackgroundColorRadio(string color)
@@ -136,6 +142,9 @@ namespace PomodoroTimer.Views
             EstimatedMinutes = (int)EstimatedMinutesSlider.Value;
             BackgroundColor = GetSelectedBackgroundColor();
 
+            // チェックリストを更新
+            UpdateChecklistFromUI();
+
             DialogResult = true;
             Close();
         }
@@ -144,6 +153,75 @@ namespace PomodoroTimer.Views
         {
             DialogResult = false;
             Close();
+        }
+
+        private void AddChecklistItemButton_Click(object sender, RoutedEventArgs e)
+        {
+            DefaultChecklist.Add(new ChecklistItem("新しいアイテム"));
+            RefreshChecklistUI();
+        }
+
+        private void RefreshChecklistUI()
+        {
+            ChecklistPanel.Children.Clear();
+            
+            for (int i = 0; i < DefaultChecklist.Count; i++)
+            {
+                var item = DefaultChecklist[i];
+                var itemPanel = new Grid();
+                itemPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
+                itemPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                itemPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
+                itemPanel.Margin = new Thickness(0, 2, 0, 2);
+
+                var checkBox = new System.Windows.Controls.CheckBox
+                {
+                    IsChecked = item.IsChecked,
+                    Margin = new Thickness(0, 0, 5, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                checkBox.SetValue(Grid.ColumnProperty, 0);
+                var itemIndex = i;
+                checkBox.Checked += (s, e) => DefaultChecklist[itemIndex].IsChecked = true;
+                checkBox.Unchecked += (s, e) => DefaultChecklist[itemIndex].IsChecked = false;
+
+                var textBox = new System.Windows.Controls.TextBox
+                {
+                    Text = item.Text,
+                    BorderThickness = new Thickness(0),
+                    Background = System.Windows.Media.Brushes.Transparent,
+                    Margin = new Thickness(0, 0, 5, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                textBox.SetValue(Grid.ColumnProperty, 1);
+                textBox.TextChanged += (s, e) => DefaultChecklist[itemIndex].Text = textBox.Text;
+
+                var deleteButton = new System.Windows.Controls.Button
+                {
+                    Content = "×",
+                    Width = 20,
+                    Height = 20,
+                    Background = System.Windows.Media.Brushes.LightCoral,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontSize = 10
+                };
+                deleteButton.SetValue(Grid.ColumnProperty, 2);
+                deleteButton.Click += (s, e) =>
+                {
+                    DefaultChecklist.RemoveAt(itemIndex);
+                    RefreshChecklistUI();
+                };
+
+                itemPanel.Children.Add(checkBox);
+                itemPanel.Children.Add(textBox);
+                itemPanel.Children.Add(deleteButton);
+                ChecklistPanel.Children.Add(itemPanel);
+            }
+        }
+
+        private void UpdateChecklistFromUI()
+        {
+            // UIから既に更新済みなので特に処理なし
         }
     }
 }

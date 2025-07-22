@@ -180,7 +180,8 @@ namespace PomodoroTimer.ViewModels
                             .Select(t => t.Trim()).ToList(),
                         Priority = editDialog.Priority,
                         EstimatedMinutes = editDialog.EstimatedMinutes,
-                        BackgroundColor = editDialog.BackgroundColor
+                        BackgroundColor = editDialog.BackgroundColor,
+                        DefaultChecklist = editDialog.DefaultChecklist
                     };
 
                     Templates.Add(newTemplate);
@@ -218,6 +219,7 @@ namespace PomodoroTimer.ViewModels
                     SelectedTemplate.Priority = editDialog.Priority;
                     SelectedTemplate.EstimatedMinutes = editDialog.EstimatedMinutes;
                     SelectedTemplate.BackgroundColor = editDialog.BackgroundColor;
+                    SelectedTemplate.DefaultChecklist = editDialog.DefaultChecklist;
 
                     SaveTemplates();
                 }

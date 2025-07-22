@@ -59,6 +59,9 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private string templateEditTagsText = string.Empty;
 
+        [ObservableProperty]
+        private ObservableCollection<ChecklistItem> templateEditChecklist = new();
+
         public event Action<PomodoroTask>? TaskCreated;
 
         public TaskTemplateDialogViewModel(ITaskTemplateService templateService, IPomodoroService pomodoroService)
@@ -149,6 +152,13 @@ namespace PomodoroTimer.ViewModels
             TemplateEditEstimatedPomodoros = SelectedTemplate.EstimatedPomodoros;
             TemplateEditPriority = SelectedTemplate.Priority;
             TemplateEditTagsText = SelectedTemplate.TagsText;
+
+            // チェックリストもロード
+            TemplateEditChecklist.Clear();
+            foreach (var item in SelectedTemplate.DefaultChecklist)
+            {
+                TemplateEditChecklist.Add(new ChecklistItem(item.Text) { IsChecked = item.IsChecked });
+            }
         }
 
         private void ClearEditFields()
@@ -161,6 +171,7 @@ namespace PomodoroTimer.ViewModels
             TemplateEditEstimatedPomodoros = 1;
             TemplateEditPriority = TaskPriority.Medium;
             TemplateEditTagsText = string.Empty;
+            TemplateEditChecklist.Clear();
         }
 
         [RelayCommand]
@@ -206,6 +217,13 @@ namespace PomodoroTimer.ViewModels
                 template.EstimatedPomodoros = TemplateEditEstimatedPomodoros;
                 template.Priority = TemplateEditPriority;
                 template.TagsText = TemplateEditTagsText;
+
+                // チェックリストも保存
+                template.DefaultChecklist.Clear();
+                foreach (var item in TemplateEditChecklist)
+                {
+                    template.DefaultChecklist.Add(new ChecklistItem(item.Text) { IsChecked = item.IsChecked });
+                }
 
                 if (SelectedTemplate == null)
                 {
@@ -400,6 +418,21 @@ namespace PomodoroTimer.ViewModels
                     MessageBox.Show($"テンプレートのエクスポートに失敗しました: {ex.Message}", "エラー", 
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        [RelayCommand]
+        private void AddChecklistItem()
+        {
+            TemplateEditChecklist.Add(new ChecklistItem("新しいアイテム"));
+        }
+
+        [RelayCommand]
+        private void RemoveChecklistItem(ChecklistItem item)
+        {
+            if (item != null)
+            {
+                TemplateEditChecklist.Remove(item);
             }
         }
     }

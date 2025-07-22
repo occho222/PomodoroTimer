@@ -2043,6 +2043,15 @@ namespace PomodoroTimer.ViewModels
                     IsCompleted = false
                 };
 
+                // チェックリストをコピー
+                foreach (var checklistItem in template.DefaultChecklist)
+                {
+                    newTask.Checklist.Add(new ChecklistItem(checklistItem.Text)
+                    {
+                        IsChecked = checklistItem.IsChecked
+                    });
+                }
+
                 _pomodoroService.AddTask(newTask);
                 
                 // UI更新

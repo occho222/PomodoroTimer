@@ -189,13 +189,23 @@
                             <ItemsControl ItemsSource="{Binding QuickTemplates}" x:Name="QuickTemplatesItemsControl">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Content="{Binding DisplayName}" 
-                                                Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.CreateTaskFromTemplateCommand}"
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.CreateTaskFromTemplateCommand}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource RoundButton}" 
                                                 Background="{Binding BackgroundBrush}" Foreground="White"
-                                                FontSize="10" Padding="8,4" Margin="0,0,0,2" Height="28"
-                                                ToolTip="{Binding Description}" HorizontalAlignment="Stretch"/>
+                                                FontSize="10" Padding="8,4" Margin="0,0,0,2" Height="32"
+                                                HorizontalAlignment="Stretch">
+                                            <Button.ToolTip>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Description}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding DefaultChecklist.Count, StringFormat='{}チェックリスト: {0}項目'}" FontSize="11" Foreground="Gray"/>
+                                                </StackPanel>
+                                            </Button.ToolTip>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding DisplayName}" FontSize="10" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding DefaultChecklist.Count, StringFormat='{}✓{0}'}" FontSize="8" Opacity="0.8" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
