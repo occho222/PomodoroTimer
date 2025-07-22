@@ -1439,9 +1439,36 @@ namespace PomodoroTimer.ViewModels
             if (_settings.AutoStartNextSession)
             {
                 // 自動開始が有効な場合は次のセッションを開始
-                StartPause();
+                // セッション種別の切り替えを待つため、少し遅延させる
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100); // TimerServiceのセッション切り替えを待つ
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        StartNextSession();
+                    });
+                });
             }
             // AutoStartNextSessionがfalseの場合は何もしない（ユーザーが手動で開始ボタンを押すまで待機）
+        }
+
+        /// <summary>
+        /// 自動開始時に次のセッションを開始する
+        /// </summary>
+        private void StartNextSession()
+        {
+            // 現在のセッションタイプに応じてタイマーを開始
+            var currentSessionType = _timerService.CurrentSessionType;
+            var duration = currentSessionType switch
+            {
+                SessionType.Work => TimeSpan.FromMinutes(_settings.WorkSessionMinutes),
+                SessionType.ShortBreak => TimeSpan.FromMinutes(_settings.ShortBreakMinutes),
+                SessionType.LongBreak => TimeSpan.FromMinutes(_settings.LongBreakMinutes),
+                _ => TimeSpan.FromMinutes(_settings.WorkSessionMinutes)
+            };
+            
+            // 適切な時間でタイマーを開始
+            _timerService.Start(duration);
         }
 
         private void OnSessionTypeChanged(SessionType sessionType)
