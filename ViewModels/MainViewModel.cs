@@ -1371,11 +1371,7 @@ namespace PomodoroTimer.ViewModels
                     // ポモドーロ完了を統計に記録
                     _statisticsService.RecordPomodoroComplete(CurrentTask, _settings.WorkSessionMinutes);
                     
-                    // 実行中タスクを進行中に戻す
-                    if (CurrentTask.Status == TaskStatus.Executing)
-                    {
-                        CurrentTask.StopExecution();
-                    }
+                    // セッション終了後もタスクは実行中状態を維持（StopExecutionは削除）
                     
                     if (CurrentTask.IsCompleted)
                     {

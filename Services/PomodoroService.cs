@@ -152,16 +152,8 @@ namespace PomodoroTimer.Services
 
             task.ActualMinutes += 25; // 25分セッション完了時に実際の作業時間を追加
             
-            // 見積もり時間に達した場合は自動完了
-            if (task.ActualMinutes >= task.EstimatedMinutes)
-            {
-                CompleteTask(task);
-            }
-            else
-            {
-                // 完了しない場合も保存
-                _ = Task.Run(SaveTasksAsync);
-            }
+            // タスクは手動完了のみとする（自動完了は削除）
+            _ = Task.Run(SaveTasksAsync);
         }
 
         public List<PomodoroTask> GetTasksByCategory(string category)
