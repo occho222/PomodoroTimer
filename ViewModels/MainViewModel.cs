@@ -158,7 +158,7 @@ namespace PomodoroTimer.ViewModels
 
             try
             {
-                Console.WriteLine("MainViewModel の初期化を開始します...");
+                DebugLog("MainViewModel の初期化を開始します...");
 
                 // 初期化処理を非同期で実行
                 _ = Task.Run(async () =>
@@ -169,7 +169,7 @@ namespace PomodoroTimer.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"非同期データ初期化でエラー: {ex.Message}");
+                        DebugLog($"非同期データ初期化でエラー: {ex.Message}");
                     }
                 });
 
@@ -243,7 +243,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"MainViewModel の初期化中にエラーが発生しました: {ex.Message}");
+                DebugLog($"MainViewModel の初期化中にエラーが発生しました: {ex.Message}");
                 Console.WriteLine($"スタックトレース: {ex.StackTrace}");
                 
                 // 最小限の初期化を試行
@@ -305,7 +305,7 @@ namespace PomodoroTimer.ViewModels
                 await _taskTemplateService.LoadTemplatesAsync();
 
                 // UIスレッドで更新
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                EnsureUIThread(() =>
                 {
                     Tasks = _pomodoroService.GetTasks();
                     FilteredTasks = new ObservableCollection<PomodoroTask>(Tasks);
@@ -316,7 +316,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"データの初期化に失敗しました: {ex.Message}");
+                DebugLog($"データの初期化に失敗しました: {ex.Message}");
             }
         }
 
@@ -441,7 +441,7 @@ namespace PomodoroTimer.ViewModels
                 UpdateKanbanColumns();
                 
                 // タスクデータを保存
-                _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                SaveDataAsync();
                 
                 Console.WriteLine("実行中タスクを停止し、CurrentTaskをnullに設定しました");
             }
@@ -509,7 +509,7 @@ namespace PomodoroTimer.ViewModels
             UpdateKanbanColumns(); // カンバンボードを更新
             
             // タスクデータを保存
-            _ = Task.Run(_pomodoroService.SaveTasksAsync);
+            SaveDataAsync();
         }
 
         /// <summary>
@@ -550,9 +550,7 @@ namespace PomodoroTimer.ViewModels
                 _pomodoroService?.AddTask(newTask);
                 
                 // UI更新
-                UpdateFilteringLists();
-                ApplyFilters();
-                UpdateKanbanColumns();
+                RefreshUI();
                 
                 // 入力フィールドをクリア
                 QuickTaskText = string.Empty;
@@ -586,9 +584,7 @@ namespace PomodoroTimer.ViewModels
                 {
                     // タスクはTaskDetailDialogViewModelのSaveメソッドで既に追加されているため、
                     // ここではUI更新のみを行う
-                    UpdateFilteringLists();
-                    ApplyFilters();
-                    UpdateKanbanColumns(); // カンバンボードも更新
+                    RefreshUI(); // カンバンボードも更新
                 }
             }
             catch (Exception ex)
@@ -616,9 +612,7 @@ namespace PomodoroTimer.ViewModels
                 task.EstimatedMinutes = dialog.EstimatedPomodoros * 25;
                 
                 _pomodoroService.UpdateTask(task);
-                UpdateFilteringLists();
-                ApplyFilters();
-                UpdateKanbanColumns(); // カンバンボードも更新
+                RefreshUI(); // カンバンボードも更新
             }
         }
 
@@ -640,9 +634,7 @@ namespace PomodoroTimer.ViewModels
                 if (dialog.ShowDialog() == true)
                 {
                     // タスクが更新された場合、UIを更新
-                    UpdateFilteringLists();
-                    ApplyFilters();
-                    UpdateKanbanColumns();
+                    RefreshUI();
                 }
             }
             catch (Exception ex)
@@ -665,9 +657,7 @@ namespace PomodoroTimer.ViewModels
             if (result == MessageBoxResult.Yes)
             {
                 _pomodoroService.RemoveTask(task);
-                UpdateFilteringLists();
-                ApplyFilters();
-                UpdateKanbanColumns(); // カンバンボードも更新
+                RefreshUI(); // カンバンボードも更新
             }
         }
 
@@ -708,7 +698,7 @@ namespace PomodoroTimer.ViewModels
             UpdateKanbanColumns();
             
             // タスクデータを保存
-            _ = Task.Run(_pomodoroService.SaveTasksAsync);
+            SaveDataAsync();
 
             // セッション継続機能
             if (shouldContinueSession)
@@ -728,7 +718,7 @@ namespace PomodoroTimer.ViewModels
             UpdateKanbanColumns();
             
             // タスクデータを保存
-            _ = Task.Run(_pomodoroService.SaveTasksAsync);
+            SaveDataAsync();
         }
 
         /// <summary>
@@ -774,7 +764,7 @@ namespace PomodoroTimer.ViewModels
                 UpdateKanbanColumns();
                 
                 // タスクデータを保存
-                _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                SaveDataAsync();
             }
         }
 
@@ -845,6 +835,46 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// 全てのUI要素を更新する共通メソッド
+        /// </summary>
+        private void RefreshUI()
+        {
+            UpdateFilteringLists();
+            ApplyFilters();
+            UpdateKanbanColumns();
+        }
+
+        /// <summary>
+        /// データを非同期で保存する共通メソッド
+        /// </summary>
+        private void SaveDataAsync()
+        {
+            _ = Task.Run(_pomodoroService.SaveTasksAsync);
+        }
+
+        /// <summary>
+        /// デバッグログ出力メソッド（リリースビルドでは無効化）
+        /// </summary>
+        /// <param name="message">ログメッセージ</param>
+        [System.Diagnostics.Conditional("DEBUG")]
+        private static void DebugLog(string message)
+        {
+            Console.WriteLine(message);
+        }
+
+        /// <summary>
+        /// UIスレッドで処理を実行する（必要な場合のみディスパッチ）
+        /// </summary>
+        /// <param name="action">実行するアクション</param>
+        private void EnsureUIThread(Action action)
+        {
+            if (System.Windows.Application.Current?.Dispatcher?.CheckAccess() == true)
+                action();
+            else
+                System.Windows.Application.Current?.Dispatcher?.Invoke(action);
+        }
+
+        /// <summary>
         /// フィルタリング用リストを更新する
         /// </summary>
         private void UpdateFilteringLists()
@@ -875,59 +905,10 @@ namespace PomodoroTimer.ViewModels
         /// </summary>
         private void ApplyFilters()
         {
-            var filteredTasks = Tasks.AsEnumerable();
-
-            // テキスト検索
-            if (!string.IsNullOrEmpty(SearchText))
-            {
-                filteredTasks = filteredTasks.Where(t => 
-                    t.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                    t.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
-            }
-
-            // カテゴリフィルター
-            if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "すべて")
-            {
-                filteredTasks = filteredTasks.Where(t => 
-                    t.Category.Equals(SelectedCategory, StringComparison.OrdinalIgnoreCase));
-            }
-
-            // タグフィルター
-            if (!string.IsNullOrEmpty(SelectedTag) && SelectedTag != "すべて")
-            {
-                filteredTasks = filteredTasks.Where(t => 
-                    t.Tags.Any(tag => tag.Equals(SelectedTag, StringComparison.OrdinalIgnoreCase)));
-            }
-
-            // 優先度フィルター
-            if (SelectedPriority.HasValue)
-            {
-                filteredTasks = filteredTasks.Where(t => t.Priority == SelectedPriority.Value);
-            }
-
-            // 期限フィルター
-            if (SelectedDueDateFilter != null)
-            {
-                var filterTag = SelectedDueDateFilter.Tag?.ToString();
-                var today = DateTime.Today;
-                
-                filteredTasks = filterTag switch
-                {
-                    "None" => filteredTasks.Where(t => t.DueDate == null),
-                    "Today" => filteredTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today),
-                    "Tomorrow" => filteredTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today.AddDays(1)),
-                    "ThisWeek" => filteredTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today.AddDays(7)),
-                    "Overdue" => filteredTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date < today),
-                    "All" or _ => filteredTasks
-                };
-            }
-
+            var filteredTasks = GetFilteredTasks();
+            
             FilteredTasks.Clear();
-            // 期限の早い順、期限なしのものは最後、同じ期限内では優先度順、最後にDisplayOrder順でソート
-            var sortedTasks = filteredTasks.OrderBy(t => t.DueDate ?? DateTime.MaxValue)
-                                          .ThenByDescending(t => t.Priority)
-                                          .ThenBy(t => t.DisplayOrder);
-            foreach (var task in sortedTasks)
+            foreach (var task in filteredTasks)
             {
                 FilteredTasks.Add(task);
             }
@@ -1306,7 +1287,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"カンバンボードの更新中にエラーが発生しました: {ex.Message}");
+                DebugLog($"カンバンボードの更新中にエラーが発生しました: {ex.Message}");
             }
         }
 
@@ -1514,7 +1495,7 @@ namespace PomodoroTimer.ViewModels
                     CurrentTask.CurrentSessionStartTime = null;
                     
                     // データを保存
-                    _ = Task.Run(async () => await _pomodoroService.SaveTasksAsync());
+                    SaveDataAsync();
                 }
             }
         }
@@ -1541,7 +1522,7 @@ namespace PomodoroTimer.ViewModels
                     CurrentTask.CurrentSessionStartTime = now;
                     
                     // データを保存
-                    _ = Task.Run(async () => await _pomodoroService.SaveTasksAsync());
+                    SaveDataAsync();
                 }
             }
         }
@@ -1642,11 +1623,15 @@ namespace PomodoroTimer.ViewModels
                     };
                 }
 
-                return filteredTasks.Where(t => t != null);
+                // 期限の早い順、期限なしのものは最後、同じ期限内では優先度順、最後にDisplayOrder順でソート
+                return filteredTasks.Where(t => t != null)
+                                   .OrderBy(t => t.DueDate ?? DateTime.MaxValue)
+                                   .ThenByDescending(t => t.Priority)
+                                   .ThenBy(t => t.DisplayOrder);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"フィルタ処理中にエラーが発生しました: {ex.Message}");
+                DebugLog($"フィルタ処理中にエラーが発生しました: {ex.Message}");
                 return Enumerable.Empty<PomodoroTask>();
             }
         }
@@ -1725,9 +1710,7 @@ namespace PomodoroTimer.ViewModels
                 {
                     // CSVからタスクをインポート
                     await _pomodoroService.ImportTasksFromCsvAsync(openFileDialog.FileName);
-                    UpdateFilteringLists();
-                    ApplyFilters();
-                    UpdateKanbanColumns(); // カンバンボードも更新
+                    RefreshUI(); // カンバンボードも更新
                     System.Windows.MessageBox.Show("タスクのインポートが完了しました。", "成功", 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -1752,7 +1735,7 @@ namespace PomodoroTimer.ViewModels
             UpdateKanbanColumns();
             
             // タスクデータを保存
-            _ = Task.Run(_pomodoroService.SaveTasksAsync);
+            SaveDataAsync();
         }
 
         /// <summary>
@@ -1795,7 +1778,7 @@ namespace PomodoroTimer.ViewModels
                 OnPropertyChanged(nameof(CurrentTask));
                 
                 // タスクデータを保存
-                _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                SaveDataAsync();
                 
                 Console.WriteLine($"タスク「{task.Title}」を実行中に設定しました。CurrentTask: {CurrentTask?.Title ?? "null"}");
             }
@@ -1828,7 +1811,7 @@ namespace PomodoroTimer.ViewModels
                 UpdateKanbanColumns();
                 
                 // タスクデータを保存
-                _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                SaveDataAsync();
                 
                 Console.WriteLine($"タスク「{task.Title}」の実行を停止し、CurrentTaskをnullに設定しました");
             }
@@ -1885,9 +1868,7 @@ namespace PomodoroTimer.ViewModels
                     await _pomodoroService.ImportTasksFromGraphAsync(importedTasks);
                     
                     // UI更新
-                    UpdateFilteringLists();
-                    ApplyFilters();
-                    UpdateKanbanColumns();
+                    RefreshUI();
 
                     System.Windows.MessageBox.Show($"{importedTasks.Count} 件のタスクをインポートしました。", "インポート完了", 
                         MessageBoxButton.OK, MessageBoxImage.Information);
@@ -1902,7 +1883,7 @@ namespace PomodoroTimer.ViewModels
             {
                 System.Windows.MessageBox.Show($"Microsoft Graphからのタスクインポートに失敗しました: {ex.Message}", "エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                Console.WriteLine($"Microsoft Graphインポートエラー: {ex}");
+                DebugLog($"Microsoft Graphインポートエラー: {ex}");
             }
         }
 
@@ -1938,9 +1919,7 @@ namespace PomodoroTimer.ViewModels
 
                 viewModel.TaskCreated += (task) =>
                 {
-                    UpdateFilteringLists();
-                    ApplyFilters();
-                    UpdateKanbanColumns();
+                    RefreshUI();
                 };
 
                 templateDialog.ShowDialog();
@@ -1990,9 +1969,7 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                UpdateFilteringLists();
-                ApplyFilters();
-                UpdateKanbanColumns();
+                RefreshUI();
                 LoadTodayStatistics();
                 
                 // QuickTemplatesの状態も出力
@@ -2082,9 +2059,7 @@ namespace PomodoroTimer.ViewModels
                 _pomodoroService.AddTask(newTask);
                 
                 // UI更新
-                UpdateFilteringLists();
-                ApplyFilters();
-                UpdateKanbanColumns();
+                RefreshUI();
                 
 
                 Console.WriteLine($"テンプレート「{template.DisplayName}」からタスク「{newTask.Title}」を作成しました");
@@ -2129,9 +2104,7 @@ namespace PomodoroTimer.ViewModels
                 {
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        UpdateFilteringLists();
-                        ApplyFilters();
-                        UpdateKanbanColumns();
+                        RefreshUI();
                         LoadTodayStatistics();
                     });
                 };
@@ -2245,14 +2218,12 @@ namespace PomodoroTimer.ViewModels
                     var task = _taskTemplateService.CreateTaskFromTemplate(templateDialog.SelectedTemplate);
                     _pomodoroService.AddTask(task);
 
-                    UpdateFilteringLists();
-                    ApplyFilters();
-                    UpdateKanbanColumns();
+                    RefreshUI();
 
                     System.Windows.MessageBox.Show($"テンプレート「{templateDialog.SelectedTemplate.Name}」からタスクを作成しました。", 
                         "タスク作成", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                    SaveDataAsync();
                     _ = Task.Run(_taskTemplateService.SaveTemplatesAsync);
                 }
             }
@@ -2371,7 +2342,7 @@ namespace PomodoroTimer.ViewModels
                                     
                                     CurrentTask = selectedTask;
                                     UpdateKanbanColumns();
-                                    _ = Task.Run(_pomodoroService.SaveTasksAsync);
+                                    SaveDataAsync();
                                 }
                                 break;
                                 
