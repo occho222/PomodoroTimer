@@ -649,6 +649,8 @@
                                                                FontSize="12" VerticalAlignment="Center"/>
                                                     <TextBlock Text="{Binding EstimatedPomodoros, StringFormat={}/ {0}}" 
                                                                FontSize="12" Foreground="Gray" VerticalAlignment="Center" Margin="2,0,0,0"/>
+                                                    <TextBlock Text="{Binding ActualMinutes, StringFormat={}⏱ {0}分}" 
+                                                               FontSize="11" Foreground="#4A90E2" VerticalAlignment="Center" Margin="8,0,0,0"/>
                                                 </StackPanel>
                                                 
                                                 <ProgressBar Grid.Column="1" 
