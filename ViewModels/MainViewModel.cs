@@ -49,6 +49,10 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private ObservableCollection<PomodoroTask> doneTasksCollection = new();
 
+        // 完了タスクフィルタ関連プロパティ
+        [ObservableProperty]
+        private bool showTodayCompletedOnly = false;
+
         // フィルタリング関連プロパティ
         [ObservableProperty]
         private string searchText = string.Empty;
@@ -140,6 +144,26 @@ namespace PomodoroTimer.ViewModels
         /// 待機中タスクの合計見積もり時間（分）
         /// </summary>
         public int WaitingTasksEstimatedMinutes => WaitingTasks?.Sum(t => t.EstimatedMinutes) ?? 0;
+
+        /// <summary>
+        /// フィルタリングされた完了タスクコレクション
+        /// </summary>
+        public ObservableCollection<PomodoroTask> FilteredDoneTasksCollection
+        {
+            get
+            {
+                if (!ShowTodayCompletedOnly)
+                    return DoneTasksCollection;
+
+                var today = DateTime.Today;
+                var todayTasks = DoneTasksCollection
+                    .Where(task => task.CompletedAt?.Date == today)
+                    .ToList();
+
+                var filteredCollection = new ObservableCollection<PomodoroTask>(todayTasks);
+                return filteredCollection;
+            }
+        }
 
         // ホットキー関連
         private RoutedCommand? _startPauseHotkey;
@@ -1298,6 +1322,9 @@ namespace PomodoroTimer.ViewModels
                 // 見積もり時間合計の変更を通知
                 OnPropertyChanged(nameof(TodoTasksEstimatedMinutes));
                 OnPropertyChanged(nameof(WaitingTasksEstimatedMinutes));
+                
+                // 完了タスクフィルタの変更を通知
+                OnPropertyChanged(nameof(FilteredDoneTasksCollection));
             }
             catch (Exception ex)
             {
@@ -2483,6 +2510,14 @@ namespace PomodoroTimer.ViewModels
                 System.Windows.MessageBox.Show($"チェックリストの更新に失敗しました: {ex.Message}", "エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// ShowTodayCompletedOnlyプロパティが変更されたときの処理
+        /// </summary>
+        partial void OnShowTodayCompletedOnlyChanged(bool value)
+        {
+            OnPropertyChanged(nameof(FilteredDoneTasksCollection));
         }
     }
 }

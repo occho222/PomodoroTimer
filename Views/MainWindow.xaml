@@ -978,19 +978,62 @@
                     <!-- 列ヘッダー -->
                     <Border Grid.Row="0" Background="#F0FDF4" CornerRadius="12,12,0,0" Padding="20,15">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="#10B981" VerticalAlignment="Center"/>
-                                <TextBlock Text="完了" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
-                                           Foreground="{StaticResource TextLight}"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding DoneTasksCollection.Count, StringFormat={}タスク数: {0}}" 
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                    <Ellipse Width="12" Height="12" Fill="#10B981" VerticalAlignment="Center"/>
+                                    <TextBlock Text="完了" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
+                                               Foreground="{StaticResource TextLight}"/>
+                                </StackPanel>
+                                
+                                <ToggleButton Grid.Column="1" 
+                                              IsChecked="{Binding ShowTodayCompletedOnly}"
+                                              ToolTip="本日完了タスクのみ表示"
+                                              Background="#10B981" 
+                                              Foreground="White"
+                                              Padding="8,4"
+                                              FontSize="10"
+                                              BorderThickness="0">
+                                    <ToggleButton.Style>
+                                        <Style TargetType="ToggleButton">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ToggleButton">
+                                                        <Border Background="{TemplateBinding Background}" 
+                                                                CornerRadius="4"
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                                              VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter Property="Background" Value="#059669"/>
+                                                    <Setter Property="Content" Value="📅 今日"/>
+                                                </Trigger>
+                                                <Trigger Property="IsChecked" Value="False">
+                                                    <Setter Property="Background" Value="#10B981"/>
+                                                    <Setter Property="Content" Value="📋 全て"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ToggleButton.Style>
+                                </ToggleButton>
+                            </Grid>
+                            <TextBlock Text="{Binding FilteredDoneTasksCollection.Count, StringFormat={}タスク数: {0}}" 
                                        FontSize="12" Foreground="Gray" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
 
                     <!-- タスクリスト -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
-                        <ItemsControl ItemsSource="{Binding DoneTasksCollection}">
+                        <ItemsControl ItemsSource="{Binding FilteredDoneTasksCollection}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#10B981" Opacity="0.8">
