@@ -1,5 +1,4 @@
 ﻿using PomodoroTimer.Models;
-using System.Collections.ObjectModel;
 
 namespace PomodoroTimer.Services
 {
