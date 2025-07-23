@@ -131,6 +131,16 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private double progressValue = 0;
 
+        /// <summary>
+        /// 未開始タスクの合計見積もり時間（分）
+        /// </summary>
+        public int TodoTasksEstimatedMinutes => TodoTasks?.Sum(t => t.EstimatedMinutes) ?? 0;
+
+        /// <summary>
+        /// 待機中タスクの合計見積もり時間（分）
+        /// </summary>
+        public int WaitingTasksEstimatedMinutes => WaitingTasks?.Sum(t => t.EstimatedMinutes) ?? 0;
+
         // ホットキー関連
         private RoutedCommand? _startPauseHotkey;
         private RoutedCommand? _stopHotkey;
@@ -1284,6 +1294,10 @@ namespace PomodoroTimer.ViewModels
 
                 Console.WriteLine($"カンバンボード更新: 未開始={TodoTasks?.Count ?? 0}, 待機中={WaitingTasks?.Count ?? 0}, 実行中={ExecutingTasks?.Count ?? 0}, 完了={DoneTasksCollection?.Count ?? 0}");
                 Console.WriteLine($"CurrentTask: {CurrentTask?.Title ?? "null"}, CurrentTask.Status: {CurrentTask?.Status.ToString() ?? "null"}");
+                
+                // 見積もり時間合計の変更を通知
+                OnPropertyChanged(nameof(TodoTasksEstimatedMinutes));
+                OnPropertyChanged(nameof(WaitingTasksEstimatedMinutes));
             }
             catch (Exception ex)
             {

@@ -413,8 +413,12 @@
                                 <TextBlock Text="未開始" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
                                            Foreground="{StaticResource TextLight}"/>
                             </StackPanel>
-                            <TextBlock Text="{Binding TodoTasks.Count, StringFormat={}タスク数: {0}}" 
-                                       FontSize="12" Foreground="Gray" Margin="0,4,0,0"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <TextBlock Text="{Binding TodoTasks.Count, StringFormat={}タスク数: {0}}" 
+                                           FontSize="12" Foreground="Gray"/>
+                                <TextBlock Text="{Binding TodoTasksEstimatedMinutes, StringFormat={}（見積: {0}分）}" 
+                                           FontSize="12" Foreground="#6B7280" Margin="8,0,0,0"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 
@@ -548,8 +552,12 @@
                                 <TextBlock Text="待機中" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
                                            Foreground="{StaticResource TextLight}"/>
                             </StackPanel>
-                            <TextBlock Text="{Binding WaitingTasks.Count, StringFormat={}タスク数: {0}}" 
-                                       FontSize="12" Foreground="Gray" Margin="0,4,0,0"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <TextBlock Text="{Binding WaitingTasks.Count, StringFormat={}タスク数: {0}}" 
+                                           FontSize="12" Foreground="Gray"/>
+                                <TextBlock Text="{Binding WaitingTasksEstimatedMinutes, StringFormat={}（見積: {0}分）}" 
+                                           FontSize="12" Foreground="#6B7280" Margin="8,0,0,0"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 
