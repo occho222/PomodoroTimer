@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.ComponentModel;
+using System.Reflection;
 using WpfMessageBox = System.Windows.MessageBox;
 using WpfApplication = System.Windows.Application;
 
@@ -26,6 +27,9 @@ namespace PomodoroTimer.Views
             try
             {
                 InitializeComponent();
+                
+                // バージョン情報をタイトルに設定
+                SetWindowTitle();
                 
                 // サービスの依存関係を手動で構築
                 var dataPersistenceService = new JsonDataPersistenceService();
@@ -91,8 +95,27 @@ namespace PomodoroTimer.Views
         /// </summary>
         private void InitializeMinimal()
         {
-            Title = "ポモドーロタイマー（最小モード）";
+            SetWindowTitle("（最小モード）");
             Console.WriteLine("最小限のモードで起動しました");
+        }
+
+        /// <summary>
+        /// ウィンドウタイトルにバージョン情報を設定
+        /// </summary>
+        /// <param name="suffix">タイトルに追加する接尾辞（オプション）</param>
+        private void SetWindowTitle(string suffix = "")
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var version = assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+                Title = $"ポモドーロタイマー - カンバンボード v{version}{suffix}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"タイトル設定でエラー: {ex.Message}");
+                Title = $"ポモドーロタイマー - カンバンボード{suffix}";
+            }
         }
 
         /// <summary>
