@@ -441,15 +441,14 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <StackPanel Grid.Column="0">
+                                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
                                                     <StackPanel Orientation="Horizontal">
                                                         <Ellipse Style="{StaticResource PriorityIndicator}"
                                                                  Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
                                                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                                                   VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                                   VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0"/>
                                                     </StackPanel>
                                                     <!-- 期限表示 -->
                                                     <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
@@ -457,32 +456,36 @@
                                                                Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
                                                 </StackPanel>
                                                 
-                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                    <Button Content="▶" ToolTip="開始"
-                                                            Command="{Binding DataContext.StartTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource AccentBrush}" Margin="2,0"/>
-                                                    <Button Content="✏" ToolTip="編集"
-                                                            Command="{Binding DataContext.EditTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource WarningBrush}" Margin="2,0"/>
-                                                    <Button Content="📋" ToolTip="テンプレート作成"
-                                                            Command="{Binding DataContext.CreateTemplateFromTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource SecondaryBrush}" Margin="2,0"/>
-                                                    <Button Content="🗑" ToolTip="削除"
-                                                            Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource ErrorBrush}" Margin="2,0"/>
-                                                    <Button Content="📝" ToolTip="詳細"
-                                                            Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="#6366F1" Margin="2,0"/>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                        <Button Content="▶" ToolTip="開始"
+                                                                Command="{Binding DataContext.StartTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource AccentBrush}" Margin="1"/>
+                                                        <Button Content="✏" ToolTip="編集"
+                                                                Command="{Binding DataContext.EditTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource WarningBrush}" Margin="1"/>
+                                                        <Button Content="📝" ToolTip="詳細"
+                                                                Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="#6366F1" Margin="1"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,2,0,0">
+                                                        <Button Content="📋" ToolTip="テンプレート作成"
+                                                                Command="{Binding DataContext.CreateTemplateFromTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource SecondaryBrush}" Margin="1"/>
+                                                        <Button Content="🗑" ToolTip="削除"
+                                                                Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource ErrorBrush}" Margin="1"/>
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </Grid>
                                             
@@ -580,15 +583,14 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <StackPanel Grid.Column="0">
+                                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
                                                     <StackPanel Orientation="Horizontal">
                                                         <Ellipse Style="{StaticResource PriorityIndicator}"
                                                                  Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
                                                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                                                   VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                                   VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0"/>
                                                     </StackPanel>
                                                     <!-- 期限表示 -->
                                                     <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
@@ -596,37 +598,41 @@
                                                                Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
                                                 </StackPanel>
                                                 
-                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                    <Button Content="▶" ToolTip="25分セッション開始"
-                                                            Command="{Binding DataContext.ExecuteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="#F59E0B" Margin="2,0"/>
-                                                    <Button Content="✓" ToolTip="完了"
-                                                            Command="{Binding DataContext.CompleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource AccentBrush}" Margin="2,0"/>
-                                                    <Button Content="⏸" ToolTip="一時停止"
-                                                            Command="{Binding DataContext.MoveTaskToTodoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="Orange" Margin="2,0"/>
-                                                    <Button Content="📋" ToolTip="テンプレート作成"
-                                                            Command="{Binding DataContext.CreateTemplateFromTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource SecondaryBrush}" Margin="2,0"/>
-                                                    <Button Content="🗑" ToolTip="削除"
-                                                            Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource ErrorBrush}" Margin="2,0"/>
-                                                    <Button Content="📝" ToolTip="詳細"
-                                                            Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="#6366F1" Margin="2,0"/>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                        <Button Content="▶" ToolTip="25分セッション開始"
+                                                                Command="{Binding DataContext.ExecuteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="#F59E0B" Margin="1"/>
+                                                        <Button Content="✓" ToolTip="完了"
+                                                                Command="{Binding DataContext.CompleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource AccentBrush}" Margin="1"/>
+                                                        <Button Content="⏸" ToolTip="一時停止"
+                                                                Command="{Binding DataContext.MoveTaskToTodoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="Orange" Margin="1"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,2,0,0">
+                                                        <Button Content="📋" ToolTip="テンプレート作成"
+                                                                Command="{Binding DataContext.CreateTemplateFromTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource SecondaryBrush}" Margin="1"/>
+                                                        <Button Content="🗑" ToolTip="削除"
+                                                                Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource ErrorBrush}" Margin="1"/>
+                                                        <Button Content="📝" ToolTip="詳細"
+                                                                Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="#6366F1" Margin="1"/>
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </Grid>
                                             
@@ -1001,37 +1007,40 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
                                                     <TextBlock Text="✅" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
                                                                VerticalAlignment="Center" TextWrapping="Wrap"
-                                                               TextDecorations="Strikethrough"/>
+                                                               TextDecorations="Strikethrough" Margin="0,0,8,0"/>
                                                 </StackPanel>
                                                 
-                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                    <Button Content="↩" ToolTip="未完了に戻す"
-                                                            Command="{Binding DataContext.ResetTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="Orange" Margin="2,0"/>
-                                                    <Button Content="📋" ToolTip="テンプレート作成"
-                                                            Command="{Binding DataContext.CreateTemplateFromTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource SecondaryBrush}" Margin="2,0"/>
-                                                    <Button Content="🗑" ToolTip="削除"
-                                                            Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="{StaticResource ErrorBrush}" Margin="2,0"/>
-                                                    <Button Content="📝" ToolTip="詳細"
-                                                            Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="#6366F1" Margin="2,0"/>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                        <Button Content="↩" ToolTip="未完了に戻す"
+                                                                Command="{Binding DataContext.ResetTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="Orange" Margin="1"/>
+                                                        <Button Content="📝" ToolTip="詳細"
+                                                                Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="#6366F1" Margin="1"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,2,0,0">
+                                                        <Button Content="📋" ToolTip="テンプレート作成"
+                                                                Command="{Binding DataContext.CreateTemplateFromTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource SecondaryBrush}" Margin="1"/>
+                                                        <Button Content="🗑" ToolTip="削除"
+                                                                Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="{StaticResource ErrorBrush}" Margin="1"/>
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </Grid>
                                             
