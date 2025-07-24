@@ -12,11 +12,11 @@
     <FileVersion>1.1.2.0</FileVersion>
     <Product>ポモドーロタイマー</Product>
     <Description>効率的なタスク管理とポモドーロテクニックを組み合わせたタイマーアプリケーション</Description>
-    <ApplicationIcon>pomoban_stylish.ico</ApplicationIcon>
+    <ApplicationIcon>pomoban_icon_20250723_155554_104847.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="pomoban_stylish.ico" />
+    <Content Include="pomoban_icon_20250723_155554_104847.ico" />
   </ItemGroup>
 
   <ItemGroup>

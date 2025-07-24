@@ -146,6 +146,16 @@ namespace PomodoroTimer.ViewModels
         public int WaitingTasksEstimatedMinutes => WaitingTasks?.Sum(t => t.EstimatedMinutes) ?? 0;
 
         /// <summary>
+        /// 完了タスクの合計見積もり時間（分）
+        /// </summary>
+        public int DoneTasksEstimatedMinutes => FilteredDoneTasksCollection?.Sum(t => t.EstimatedMinutes) ?? 0;
+
+        /// <summary>
+        /// 完了タスクの累計経過時間（分）
+        /// </summary>
+        public int DoneTasksTotalElapsedMinutes => FilteredDoneTasksCollection?.Sum(t => t.ActualMinutes) ?? 0;
+
+        /// <summary>
         /// フィルタリングされた完了タスクコレクション
         /// </summary>
         public ObservableCollection<PomodoroTask> FilteredDoneTasksCollection
@@ -1325,6 +1335,8 @@ namespace PomodoroTimer.ViewModels
                 
                 // 完了タスクフィルタの変更を通知
                 OnPropertyChanged(nameof(FilteredDoneTasksCollection));
+                OnPropertyChanged(nameof(DoneTasksEstimatedMinutes));
+                OnPropertyChanged(nameof(DoneTasksTotalElapsedMinutes));
             }
             catch (Exception ex)
             {
@@ -2518,6 +2530,8 @@ namespace PomodoroTimer.ViewModels
         partial void OnShowTodayCompletedOnlyChanged(bool value)
         {
             OnPropertyChanged(nameof(FilteredDoneTasksCollection));
+            OnPropertyChanged(nameof(DoneTasksEstimatedMinutes));
+            OnPropertyChanged(nameof(DoneTasksTotalElapsedMinutes));
         }
     }
 }

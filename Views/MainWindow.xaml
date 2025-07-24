@@ -988,6 +988,10 @@
                                     <Ellipse Width="12" Height="12" Fill="#10B981" VerticalAlignment="Center"/>
                                     <TextBlock Text="完了" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
                                                Foreground="{StaticResource TextLight}"/>
+                                    <TextBlock Text="{Binding DoneTasksEstimatedMinutes, StringFormat={}（見積: {0}分）}" 
+                                               FontSize="12" Foreground="#6B7280" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding DoneTasksTotalElapsedMinutes, StringFormat={}（実績: {0}分）}" 
+                                               FontSize="12" Foreground="#6B7280" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 
                                 <ToggleButton Grid.Column="1" 
