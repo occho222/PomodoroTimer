@@ -67,7 +67,20 @@
                                           Margin="0,0,0,10"/>
                                 <CheckBox Content="システムトレイに最小化" IsChecked="{Binding MinimizeToTray, Mode=TwoWay}" 
                                           Margin="0,0,0,10"/>
-                                <CheckBox Content="自動的に次のセッションを開始" IsChecked="{Binding AutoStartNextSession, Mode=TwoWay}"/>
+                                <CheckBox Content="自動的に次のセッションを開始" IsChecked="{Binding AutoStartNextSession, Mode=TwoWay}"
+                                          Margin="0,0,0,10"/>
+                            </StackPanel>
+
+                            <!-- 集中モード設定 -->
+                            <StackPanel Margin="0,0,0,15">
+                                <TextBlock Text="集中モード" Margin="0,0,0,10" FontWeight="SemiBold" FontSize="14"/>
+                                <CheckBox Content="集中モードを有効にする（タスク実行時に小さなGUIに切り替え）" 
+                                          IsChecked="{Binding EnableFocusMode, Mode=TwoWay}" 
+                                          Margin="0,0,0,10"/>
+                                <CheckBox Content="集中モードウィンドウを常に前面に表示" 
+                                          IsChecked="{Binding FocusModeAlwaysOnTop, Mode=TwoWay}" 
+                                          IsEnabled="{Binding EnableFocusMode}"
+                                          Margin="20,0,0,10"/>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

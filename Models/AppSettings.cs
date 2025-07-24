@@ -136,6 +136,16 @@
         public string Language { get; set; } = "ja-JP";
 
         /// <summary>
+        /// 集中モードを有効にするかどうか
+        /// </summary>
+        public bool EnableFocusMode { get; set; } = false;
+
+        /// <summary>
+        /// 集中モード時に前面固定するかどうか
+        /// </summary>
+        public bool FocusModeAlwaysOnTop { get; set; } = false;
+
+        /// <summary>
         /// カスタムテーマの色設定
         /// </summary>
         public ThemeSettings ThemeSettings { get; set; } = new ThemeSettings();

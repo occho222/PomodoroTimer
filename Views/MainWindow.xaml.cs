@@ -18,6 +18,7 @@ namespace PomodoroTimer.Views
     {
         private MainViewModel? _viewModel;
         private ISystemTrayService? _systemTrayService;
+        private FocusModeWindow? _focusModeWindow;
 
         /// <summary>
         /// デフォルトコンストラクタ（デザイナー用）
@@ -138,6 +139,84 @@ namespace PomodoroTimer.Views
             catch (Exception ex)
             {
                 Console.WriteLine($"ウィンドウ状態変更の処理でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 集中モードウィンドウを表示
+        /// </summary>
+        public void ShowFocusMode()
+        {
+            try
+            {
+                Console.WriteLine("[DEBUG] ShowFocusMode() が呼び出されました。");
+                
+                if (_viewModel == null) 
+                {
+                    Console.WriteLine("[DEBUG] _viewModel が null です。");
+                    return;
+                }
+
+                Console.WriteLine("[DEBUG] MainViewModelから既存のサービスインスタンスを取得中...");
+                
+                // MainViewModelから既存のサービスインスタンスを取得
+                var pomodoroService = _viewModel.GetPomodoroService();
+                var timerService = _viewModel.GetTimerService();
+
+                Console.WriteLine("[DEBUG] サービスインスタンスを取得しました。");
+
+                // 既存の集中モードウィンドウがあれば閉じる
+                _focusModeWindow?.Close();
+
+                Console.WriteLine("[DEBUG] 新しい集中モードウィンドウを作成中...");
+
+                // 新しい集中モードウィンドウを作成
+                _focusModeWindow = new FocusModeWindow(
+                    pomodoroService,
+                    timerService,
+                    _viewModel,
+                    this
+                );
+
+                Console.WriteLine("[DEBUG] メインウィンドウを非表示にします。");
+
+                // メインウィンドウを非表示
+                Hide();
+
+                Console.WriteLine("[DEBUG] 集中モードウィンドウを表示します。");
+
+                // 集中モードウィンドウを表示
+                _focusModeWindow.Show();
+                
+                Console.WriteLine("[DEBUG] 集中モードウィンドウが正常に表示されました。");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"集中モード表示でエラー: {ex.Message}");
+                Console.WriteLine($"[DEBUG] スタックトレース: {ex.StackTrace}");
+                WpfMessageBox.Show($"集中モードの表示に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// 集中モードを終了してメイン画面に戻る
+        /// </summary>
+        public void ExitFocusMode()
+        {
+            try
+            {
+                // 集中モードウィンドウを閉じる
+                _focusModeWindow?.Close();
+                _focusModeWindow = null;
+
+                // メインウィンドウを表示
+                Show();
+                WindowState = WindowState.Normal;
+                Activate();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"集中モード終了でエラー: {ex.Message}");
             }
         }
 
@@ -369,6 +448,23 @@ namespace PomodoroTimer.Views
             }
         }
 
+
+        /// <summary>
+        /// 集中モードトグルボタンのクリックイベント
+        /// </summary>
+        private void FocusModeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // ViewModelのEnableFocusModeプロパティは既にToggleButtonのIsCheckedとバインドされているため、
+                // 設定は自動的に更新される
+                Console.WriteLine($"[INFO] 集中モードが{(_viewModel?.EnableFocusMode == true ? "有効" : "無効")}に設定されました");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"集中モード設定変更でエラー: {ex.Message}");
+            }
+        }
 
         /// <summary>
         /// ウィンドウが閉じられる時の処理

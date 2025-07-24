@@ -36,6 +36,8 @@ namespace PomodoroTimer.Views
                 ShowNotifications = currentSettings.ShowNotifications,
                 MinimizeToTray = currentSettings.MinimizeToTray,
                 AutoStartNextSession = currentSettings.AutoStartNextSession,
+                EnableFocusMode = currentSettings.EnableFocusMode,
+                FocusModeAlwaysOnTop = currentSettings.FocusModeAlwaysOnTop,
                 GraphSettings = new GraphSettings
                 {
                     ClientId = currentSettings.GraphSettings.ClientId,

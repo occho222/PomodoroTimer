@@ -1,0 +1,378 @@
+<Window x:Class="PomodoroTimer.Views.FocusModeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="ポモドーロタイマー - 集中モード"
+        Height="700"
+        Width="480"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual"
+        SizeToContent="Manual">
+
+    <Window.Resources>
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#6366F1"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#5B5FC7"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#4F46E5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Background" Value="#E5E7EB"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#10B981"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#D1D5DB"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#9CA3AF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect Color="Black"
+                              Direction="270"
+                              ShadowDepth="4"
+                              Opacity="0.1"
+                              BlurRadius="8"/>
+        </Border.Effect>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ヘッダー -->
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="集中モード"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="#1F2937"
+                           VerticalAlignment="Center"/>
+
+                <ToggleButton Grid.Column="1"
+                              x:Name="AlwaysOnTopToggle"
+                              Content="📌"
+                              Style="{StaticResource ToggleButtonStyle}"
+                              ToolTip="常に前面に表示"
+                              Margin="0,0,8,0"
+                              Click="AlwaysOnTopToggle_Click"/>
+
+                <Button Grid.Column="2"
+                        x:Name="CloseButton"
+                        Content="✕"
+                        Width="24"
+                        Height="24"
+                        Background="#EF4444"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="CloseButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="12">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#DC2626"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- メインコンテンツ（実行中タスクカード） -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <Border Background="#FFFBF0" CornerRadius="12" BorderBrush="#F59E0B" BorderThickness="2" Padding="15"
+                        Visibility="{Binding CurrentTask, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- タスクヘッダー -->
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock Text="⏱️" FontSize="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock x:Name="CurrentTaskText" Text="{Binding CurrentTask.Title}" FontWeight="Bold" FontSize="16"
+                                           VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#1F2937"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Content="⏸" x:Name="PlayPauseButton" ToolTip="一時停止/再開"
+                                        Click="PlayPauseButton_Click"
+                                        Style="{StaticResource ModernButton}" 
+                                        Width="28" Height="24" FontSize="12" Margin="2,0"/>
+                                <Button Content="⏹" x:Name="StopButton" ToolTip="停止"
+                                        Click="StopButton_Click"
+                                        Style="{StaticResource ModernButton}"
+                                        Background="#EF4444" 
+                                        Width="28" Height="24" FontSize="12" Margin="2,0"/>
+                                <Button Content="✓" x:Name="CompleteButton" ToolTip="タスク完了"
+                                        Click="CompleteButton_Click"
+                                        Style="{StaticResource ModernButton}"
+                                        Background="#10B981" 
+                                        Width="28" Height="24" FontSize="12" Margin="2,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- セッション情報 -->
+                        <Border Grid.Row="1" Background="#F59E0B" CornerRadius="8" Margin="0,12,0,0" Padding="15,12">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="🍅" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding SessionTypeText}" FontSize="14" FontWeight="SemiBold" 
+                                           Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TimerText" Text="{Binding TimeRemaining}" FontSize="22" FontWeight="Bold" 
+                                           Foreground="White" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- 基本説明 -->
+                        <TextBlock Grid.Row="2" Text="{Binding CurrentTask.Description}" 
+                                   FontSize="13" Foreground="#374151" TextWrapping="Wrap" Margin="0,12,0,0" LineHeight="18"
+                                   Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        
+                        <!-- 詳細説明 -->
+                        <ScrollViewer Grid.Row="3" MaxHeight="100" Margin="0,12,0,0"
+                                      Visibility="{Binding CurrentTask.DetailedDescription, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                      VerticalScrollBarVisibility="Auto">
+                            <TextBlock Text="{Binding CurrentTask.DetailedDescription}" 
+                                       FontSize="12" Foreground="#4B5563" TextWrapping="Wrap"
+                                       Background="#F9FAFB" Padding="10" LineHeight="16"/>
+                        </ScrollViewer>
+                        
+                        <!-- チェックリスト -->
+                        <StackPanel Grid.Row="4" Margin="0,12,0,0"
+                                    Visibility="{Binding CurrentTask.Checklist.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <TextBlock Text="📋 やることリスト" FontSize="14" FontWeight="Bold" Foreground="#1F2937"/>
+                                <TextBlock Text="{Binding CurrentTask.ChecklistProgress, StringFormat={}({0})}" 
+                                           FontSize="12" Foreground="#6B7280" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding CurrentTask.Checklist}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#F9FAFB" CornerRadius="6" Margin="0,3" Padding="12,8"
+                                                    BorderThickness="1" BorderBrush="#E5E7EB">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox IsChecked="{Binding IsChecked, Mode=OneWay}" 
+                                                             VerticalAlignment="Top" Margin="0,2,12,0"
+                                                             Command="{Binding DataContext.ToggleChecklistItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                             CommandParameter="{Binding}">
+                                                        <CheckBox.Style>
+                                                            <Style TargetType="CheckBox">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="CheckBox">
+                                                                            <Border Width="18" Height="18" CornerRadius="3"
+                                                                                    Background="{TemplateBinding Background}"
+                                                                                    BorderBrush="#3B82F6" BorderThickness="2">
+                                                                                <Path x:Name="CheckMark" 
+                                                                                      Data="M 3 8 L 7 12 L 15 4" 
+                                                                                      Stroke="White" StrokeThickness="2.5" 
+                                                                                      Visibility="Collapsed"
+                                                                                      StrokeStartLineCap="Round"
+                                                                                      StrokeEndLineCap="Round"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsChecked" Value="True">
+                                                                                    <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                                                                    <Setter Property="Background" Value="#3B82F6"/>
+                                                                                </Trigger>
+                                                                                <Trigger Property="IsChecked" Value="False">
+                                                                                    <Setter Property="Background" Value="White"/>
+                                                                                </Trigger>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter Property="Background" Value="#EBF8FF"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </CheckBox.Style>
+                                                    </CheckBox>
+                                                    <TextBlock Text="{Binding Text}" FontSize="13" TextWrapping="Wrap" 
+                                                               VerticalAlignment="Top" Foreground="#374151" LineHeight="18">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                                        <Setter Property="Foreground" Value="#9CA3AF"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            
+                            <!-- チェックリスト進捗バー -->
+                            <StackPanel Margin="0,8,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="進捗:" FontSize="11" Foreground="#6B7280"/>
+                                    <TextBlock Text="{Binding CurrentTask.CheckedItemsCount}" FontSize="11" FontWeight="Bold" 
+                                               Foreground="#3B82F6" Margin="4,0,0,0"/>
+                                    <TextBlock Text="/" FontSize="11" Foreground="#6B7280"/>
+                                    <TextBlock Text="{Binding CurrentTask.Checklist.Count}" FontSize="11" Foreground="#6B7280"/>
+                                    <TextBlock Text="{Binding CurrentTask.ChecklistCompletionPercentage, StringFormat={}({0:F0}%)}" 
+                                               FontSize="11" Foreground="#6B7280" Margin="4,0,0,0"/>
+                                </StackPanel>
+                                <ProgressBar Value="{Binding CurrentTask.ChecklistCompletionPercentage, Mode=OneWay}" 
+                                             Maximum="100" Height="6" Background="#E5E7EB" 
+                                             Foreground="#10B981" BorderThickness="0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <!-- カテゴリとタグ -->
+                        <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,12,0,0">
+                            <Border Background="{StaticResource SecondaryBrush}" CornerRadius="4" Margin="0,0,8,0" Padding="8,4"
+                                    Visibility="{Binding CurrentTask.Category, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="{Binding CurrentTask.Category}" FontSize="11" 
+                                           Foreground="White" FontWeight="SemiBold"/>
+                            </Border>
+                            <TextBlock Text="{Binding CurrentTask.TagsText, Mode=OneWay}" FontSize="11" 
+                                       Foreground="#6B7280" VerticalAlignment="Center"
+                                       Visibility="{Binding CurrentTask.TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
+                        </StackPanel>
+                        
+                        <!-- 進捗とポモドーロ情報 -->
+                        <Grid Grid.Row="6" Margin="0,15,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- ポモドーロ数 -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                                <TextBlock Text="🍅 ポモドーロ:" FontSize="14" FontWeight="SemiBold" 
+                                           Foreground="#374151" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding CurrentTask.CompletedPomodoros}" FontSize="18" FontWeight="Bold" 
+                                           Foreground="#F59E0B" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                                <TextBlock Text="/" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding CurrentTask.EstimatedPomodoros}" FontSize="14" 
+                                           Foreground="#6B7280" VerticalAlignment="Center" Margin="4,0,16,0"/>
+                                <TextBlock Text="⏱" FontSize="14" FontWeight="SemiBold" 
+                                           Foreground="#4A90E2" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding CurrentTask.ActualMinutes, StringFormat={}{0}分}" FontSize="14" FontWeight="Bold" 
+                                           Foreground="#4A90E2" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding CurrentTask.EstimatedMinutes, StringFormat={}/ {0}分}" FontSize="14" 
+                                           Foreground="Gray" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            
+                            <!-- 進捗バー -->
+                            <StackPanel Grid.Row="1" Margin="0,0,0,8">
+                                <TextBlock Text="{Binding CurrentTask.ProgressPercentage, StringFormat={}進捗: {0:F0}%, Mode=OneWay}" 
+                                           FontSize="12" Foreground="#6B7280" Margin="0,0,0,4"/>
+                                <ProgressBar Value="{Binding CurrentTask.ProgressPercentage, Mode=OneWay}" Maximum="100" 
+                                             Height="10" Background="#E5E7EB" Foreground="#F59E0B"/>
+                            </StackPanel>
+                            
+                            <!-- 期限情報 -->
+                            <TextBlock Grid.Row="2" Text="{Binding CurrentTask.DueDate, StringFormat={}⏰ 期限: {0:MM/dd HH:mm}, Mode=OneWay}" 
+                                       FontSize="12" Foreground="#EF4444"
+                                       Visibility="{Binding CurrentTask.DueDate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </ScrollViewer>
+
+            <!-- フッター -->
+            <Grid Grid.Row="2" Margin="0,12,0,0">
+                <Button x:Name="BackToMainButton"
+                        Content="メイン画面に戻る"
+                        Style="{StaticResource ModernButton}"
+                        Background="#6B7280"
+                        HorizontalAlignment="Center"
+                        Click="BackToMainButton_Click"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

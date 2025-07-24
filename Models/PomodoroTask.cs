@@ -109,6 +109,49 @@ namespace PomodoroTimer.Models
         private int actualMinutes = 0;
 
         /// <summary>
+        /// 見積もりポモドーロ数
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(EstimatedMinutes))]
+        private int estimatedPomodoros = 1;
+
+        /// <summary>
+        /// 完了したポモドーロ数
+        /// </summary>
+        [ObservableProperty]
+        private int completedPomodoros = 0;
+
+        /// <summary>
+        /// EstimatedPomodorosが変更された時の処理
+        /// </summary>
+        partial void OnEstimatedPomodorosChanged(int value)
+        {
+            // 見積もりポモドーロ数が変更されたら、見積もり分数も更新
+            if (value > 0)
+            {
+                EstimatedMinutes = value * 25; // 1ポモドーロ = 25分
+            }
+        }
+
+        /// <summary>
+        /// EstimatedMinutesが変更された時の処理
+        /// </summary>
+        partial void OnEstimatedMinutesChanged(int value)
+        {
+            // 見積もり分数が変更されたら、ポモドーロ数も更新（ただし、ポモドーロ数から変更された場合は除く）
+            if (value > 0)
+            {
+                var calculatedPomodoros = Math.Max(1, (int)Math.Ceiling(value / 25.0));
+                if (calculatedPomodoros != EstimatedPomodoros)
+                {
+                    // 無限ループを避けるため、直接フィールドを更新
+                    estimatedPomodoros = calculatedPomodoros;
+                    OnPropertyChanged(nameof(EstimatedPomodoros));
+                }
+            }
+        }
+
+        /// <summary>
         /// タスクが完了しているかどうか
         /// </summary>
         [ObservableProperty]
@@ -264,6 +307,8 @@ namespace PomodoroTimer.Models
         {
             Title = title ?? string.Empty;
             EstimatedMinutes = Math.Max(1, estimatedMinutes);
+            // ポモドーロ数を分数から計算
+            EstimatedPomodoros = Math.Max(1, (int)Math.Ceiling(estimatedMinutes / 25.0));
             // 既存のチェックリストアイテムのイベントを購読
             SubscribeToChecklistItems();
         }
@@ -298,6 +343,44 @@ namespace PomodoroTimer.Models
                 try
                 {
                     return Math.Max(0, EstimatedMinutes - ActualMinutes);
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 残りポモドーロ数を取得する
+        /// </summary>
+        public int RemainingPomodoros
+        {
+            get
+            {
+                try
+                {
+                    return Math.Max(0, EstimatedPomodoros - CompletedPomodoros);
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// ポモドーロベースの進捗率を取得する
+        /// </summary>
+        public double PomodoroProgressPercentage
+        {
+            get
+            {
+                try
+                {
+                    if (EstimatedPomodoros <= 0) return 0;
+                    var progress = (double)CompletedPomodoros / EstimatedPomodoros * 100;
+                    return Math.Min(100, Math.Max(0, progress));
                 }
                 catch
                 {

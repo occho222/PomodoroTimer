@@ -4,6 +4,7 @@ using PomodoroTimer.Models;
 using PomodoroTimer.Services;
 using PomodoroTimer.Views;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -336,7 +337,14 @@ namespace PomodoroTimer.ViewModels
                 if (loadedSettings != null)
                 {
                     _settings = loadedSettings;
+                    Console.WriteLine($"[DEBUG] 設定読み込み完了: EnableFocusMode = {_settings?.EnableFocusMode}");
                     _timerService.UpdateSettings(_settings);
+                    OnPropertyChanged(nameof(EnableFocusMode)); // UI更新のため
+                }
+                else
+                {
+                    Console.WriteLine("[DEBUG] 設定ファイルが見つからない、またはnullです。デフォルト設定を使用します。");
+                    OnPropertyChanged(nameof(EnableFocusMode)); // UI更新のため
                 }
 
                 // タスクを読み込み
@@ -816,13 +824,16 @@ namespace PomodoroTimer.ViewModels
         /// 設定画面を開くコマンド
         /// </summary>
         [RelayCommand]
-        private void OpenSettings()
+        private async void OpenSettings()
         {
             var settingsDialog = new SettingsDialog(_settings, _dataPersistenceService);
             if (settingsDialog.ShowDialog() == true)
             {
                 // 新しい設定を適用
                 UpdateSettings(settingsDialog.Settings);
+                
+                // 設定を保存
+                await SaveSettingsAsync();
                 
                 // UIの表示を更新
                 UpdateSessionTypeText();
@@ -1224,10 +1235,12 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
+                Console.WriteLine($"[DEBUG] 設定を保存中: EnableFocusMode = {_settings?.EnableFocusMode}");
                 await _dataPersistenceService.SaveDataAsync("settings.json", _settings);
                 await _pomodoroService.SaveTasksAsync();
                 await _statisticsService.SaveStatisticsAsync();
                 await _taskTemplateService.SaveTemplatesAsync();
+                Console.WriteLine("[DEBUG] 設定保存完了");
             }
             catch (Exception ex)
             {
@@ -1350,9 +1363,12 @@ namespace PomodoroTimer.ViewModels
         /// <param name="settings">新しい設定</param>
         public void UpdateSettings(AppSettings settings)
         {
+            Console.WriteLine($"[DEBUG] UpdateSettings呼び出し: EnableFocusMode = {settings?.EnableFocusMode}");
             _settings = settings;
             _timerService.UpdateSettings(settings);
             _notificationService.UpdateSettings(settings.EnableSoundNotification, settings.EnableDesktopNotification);
+            OnPropertyChanged(nameof(EnableFocusMode)); // UI更新のため
+            Console.WriteLine($"[DEBUG] UpdateSettings完了: 現在の_settings.EnableFocusMode = {_settings?.EnableFocusMode}");
         }
 
         /// <summary>
@@ -1364,13 +1380,57 @@ namespace PomodoroTimer.ViewModels
             return _settings;
         }
 
+        /// <summary>
+        /// 現在のタイマーサービスを取得する
+        /// </summary>
+        /// <returns>現在のタイマーサービス</returns>
+        public ITimerService GetTimerService()
+        {
+            return _timerService;
+        }
+
+        /// <summary>
+        /// 現在のポモドーロサービスを取得する
+        /// </summary>
+        /// <returns>現在のポモドーロサービス</returns>
+        public IPomodoroService GetPomodoroService()
+        {
+            return _pomodoroService;
+        }
+
+        /// <summary>
+        /// 集中モードが有効かどうか
+        /// </summary>
+        public bool EnableFocusMode
+        {
+            get => _settings?.EnableFocusMode ?? false;
+            set
+            {
+                if (_settings != null && _settings.EnableFocusMode != value)
+                {
+                    _settings.EnableFocusMode = value;
+                    OnPropertyChanged();
+                    
+                    // 設定を保存
+                    _ = SaveSettingsAsync();
+                }
+            }
+        }
+
         #region タイマーイベントハンドラ
 
         private void OnTimerStarted()
         {
+            Console.WriteLine("[DEBUG] OnTimerStarted() が呼び出されました。");
+            
             IsRunning = true;
             StartPauseButtonText = "一時停止";
             _systemTrayService.UpdateTimerStatus(true, _timerService.RemainingTime);
+            
+            Console.WriteLine("[DEBUG] 集中モードチェックを実行します。");
+            
+            // 集中モードが有効な場合、集中モードウィンドウを表示
+            CheckAndShowFocusMode();
         }
 
         private void OnTimerStopped()
@@ -1389,9 +1449,16 @@ namespace PomodoroTimer.ViewModels
 
         private void OnTimerResumed()
         {
+            Console.WriteLine("[DEBUG] OnTimerResumed() が呼び出されました。");
+            
             IsRunning = true;
             StartPauseButtonText = "一時停止";
             _systemTrayService.UpdateTimerStatus(true, _timerService.RemainingTime);
+            
+            Console.WriteLine("[DEBUG] 集中モードチェックを実行します（Resume）。");
+            
+            // 集中モードが有効な場合、集中モードウィンドウを表示
+            CheckAndShowFocusMode();
         }
 
         private void OnTimeUpdated(TimeSpan remainingTime)
@@ -2532,6 +2599,48 @@ namespace PomodoroTimer.ViewModels
             OnPropertyChanged(nameof(FilteredDoneTasksCollection));
             OnPropertyChanged(nameof(DoneTasksEstimatedMinutes));
             OnPropertyChanged(nameof(DoneTasksTotalElapsedMinutes));
+        }
+
+        /// <summary>
+        /// 集中モードが有効かチェックし、必要に応じて集中モードウィンドウを表示
+        /// </summary>
+        private void CheckAndShowFocusMode()
+        {
+            try
+            {
+                Console.WriteLine($"[DEBUG] CheckAndShowFocusMode called - EnableFocusMode: {_settings?.EnableFocusMode}");
+                
+                if (_settings?.EnableFocusMode == true)
+                {
+                    Console.WriteLine("[DEBUG] 集中モードが有効です。メインウィンドウを取得中...");
+                    
+                    // メインウィンドウを取得
+                    var mainWindow = System.Windows.Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                    if (mainWindow != null)
+                    {
+                        Console.WriteLine("[DEBUG] メインウィンドウが見つかりました。集中モードウィンドウを表示します。");
+                        
+                        // メイン画面から集中モードに切り替え
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            Console.WriteLine("[DEBUG] ShowFocusMode() を呼び出します。");
+                            mainWindow.ShowFocusMode();
+                        });
+                    }
+                    else
+                    {
+                        Console.WriteLine("[DEBUG] メインウィンドウが見つかりませんでした。");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("[DEBUG] 集中モードが無効になっています。");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"集中モード表示チェックでエラー: {ex.Message}");
+            }
         }
     }
 }

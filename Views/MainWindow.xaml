@@ -356,6 +356,53 @@
                                         Height="28" FontSize="11" Width="60" Margin="4,0,0,0"
                                         ToolTip="タイマーから10秒減らす"/>
                             </StackPanel>
+                            <!-- 集中モードトグルボタン -->
+                            <ToggleButton x:Name="FocusModeToggle" 
+                                          IsChecked="{Binding EnableFocusMode, Mode=TwoWay}" 
+                                          Click="FocusModeToggle_Click"
+                                          Height="32" Width="124" Margin="0,8,0,0"
+                                          ToolTip="集中モードのON/OFF切り替え"
+                                          BorderThickness="0" Cursor="Hand">
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton">
+                                        <Setter Property="Background" Value="#E5E7EB"/>
+                                        <Setter Property="Foreground" Value="#374151"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ToggleButton">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="6"
+                                                            Padding="8,4"
+                                                            BorderThickness="0">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsChecked" Value="True">
+                                                            <Setter Property="Background" Value="#6366F1"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="#D1D5DB"/>
+                                                        </Trigger>
+                                                        <MultiTrigger>
+                                                            <MultiTrigger.Conditions>
+                                                                <Condition Property="IsChecked" Value="True"/>
+                                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                            </MultiTrigger.Conditions>
+                                                            <Setter Property="Background" Value="#5B5FC7"/>
+                                                        </MultiTrigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ToggleButton.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🔒" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <TextBlock Text="集中モード" FontSize="11" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ToggleButton>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -704,7 +751,7 @@
                                 <TextBlock Text="実行中" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
                                            Foreground="{StaticResource TextLight}"/>
                             </StackPanel>
-                            <TextBlock Text="{Binding CurrentTask, Converter={StaticResource BooleanToVisibilityConverter}, StringFormat={}{0:実行中}, FallbackValue=待機中}" 
+                            <TextBlock Text="{Binding CurrentTask.Title, FallbackValue=待機中}" 
                                        FontSize="12" Foreground="Gray" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
