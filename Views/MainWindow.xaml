@@ -5,6 +5,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:behaviors="clr-namespace:PomodoroTimer.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:converters="clr-namespace:PomodoroTimer.Converters"
         Title="ポモドーロタイマー - カンバンボード" 
         Height="900" Width="1600"
         MinHeight="800" MinWidth="1400"
@@ -12,6 +13,10 @@
         WindowState="Normal"
         Visibility="Visible"
         Background="{StaticResource BackgroundLight}">
+
+    <Window.Resources>
+        <converters:MinutesToTimeFormatConverter x:Key="MinutesToTimeFormatConverter"/>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -463,7 +468,7 @@
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                 <TextBlock Text="{Binding TodoTasks.Count, StringFormat={}タスク数: {0}}" 
                                            FontSize="12" Foreground="Gray"/>
-                                <TextBlock Text="{Binding TodoTasksEstimatedMinutes, StringFormat={}（見積: {0}分）}" 
+                                <TextBlock Text="{Binding TodoTasksEstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}（見積: {0}）}" 
                                            FontSize="12" Foreground="#6B7280" Margin="8,0,0,0"/>
                             </StackPanel>
                         </StackPanel>
@@ -568,9 +573,9 @@
                                                            Text="{Binding EstimatedPomodoros, StringFormat={}/ {0}}" 
                                                            FontSize="12" Foreground="Gray" VerticalAlignment="Center"/>
                                                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding ActualMinutes, StringFormat={}⏱ {0}分}" 
+                                                    <TextBlock Text="{Binding ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}⏱ {0}}" 
                                                                FontSize="11" Foreground="#4A90E2" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding EstimatedMinutes, StringFormat={}/ {0}分}" 
+                                                    <TextBlock Text="{Binding EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" 
                                                                FontSize="11" Foreground="Gray" VerticalAlignment="Center" Margin="2,0,0,0"/>
                                                 </StackPanel>
                                             </Grid>
@@ -605,7 +610,7 @@
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                 <TextBlock Text="{Binding WaitingTasks.Count, StringFormat={}タスク数: {0}}" 
                                            FontSize="12" Foreground="Gray"/>
-                                <TextBlock Text="{Binding WaitingTasksEstimatedMinutes, StringFormat={}（見積: {0}分）}" 
+                                <TextBlock Text="{Binding WaitingTasksEstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}（見積: {0}）}" 
                                            FontSize="12" Foreground="#6B7280" Margin="8,0,0,0"/>
                             </StackPanel>
                         </StackPanel>
@@ -713,9 +718,9 @@
                                                                FontSize="12" VerticalAlignment="Center"/>
                                                     <TextBlock Text="{Binding EstimatedPomodoros, StringFormat={}/ {0}}" 
                                                                FontSize="12" Foreground="Gray" VerticalAlignment="Center" Margin="2,0,0,0"/>
-                                                    <TextBlock Text="{Binding ActualMinutes, StringFormat={}⏱ {0}分}" 
+                                                    <TextBlock Text="{Binding ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}⏱ {0}}" 
                                                                FontSize="11" Foreground="#4A90E2" VerticalAlignment="Center" Margin="8,0,0,0"/>
-                                                    <TextBlock Text="{Binding EstimatedMinutes, StringFormat={}/ {0}分}" 
+                                                    <TextBlock Text="{Binding EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" 
                                                                FontSize="11" Foreground="Gray" VerticalAlignment="Center" Margin="2,0,0,0"/>
                                                 </StackPanel>
                                                 
@@ -954,9 +959,9 @@
                                                        Foreground="#6B7280" VerticalAlignment="Center" Margin="4,0,16,0"/>
                                             <TextBlock Text="⏱" FontSize="14" FontWeight="SemiBold" 
                                                        Foreground="#4A90E2" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                            <TextBlock Text="{Binding CurrentTask.ActualMinutes, StringFormat={}{0}分}" FontSize="14" FontWeight="Bold" 
+                                            <TextBlock Text="{Binding CurrentTask.ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}}" FontSize="14" FontWeight="Bold" 
                                                        Foreground="#4A90E2" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding CurrentTask.EstimatedMinutes, StringFormat={}/ {0}分}" FontSize="14" 
+                                            <TextBlock Text="{Binding CurrentTask.EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" FontSize="14" 
                                                        Foreground="Gray" VerticalAlignment="Center" Margin="4,0,0,0"/>
                                         </StackPanel>
                                         
@@ -1035,9 +1040,9 @@
                                     <Ellipse Width="12" Height="12" Fill="#10B981" VerticalAlignment="Center"/>
                                     <TextBlock Text="完了" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
                                                Foreground="{StaticResource TextLight}"/>
-                                    <TextBlock Text="{Binding DoneTasksEstimatedMinutes, StringFormat={}（見積: {0}分）}" 
+                                    <TextBlock Text="{Binding DoneTasksEstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}（見積: {0}）}" 
                                                FontSize="12" Foreground="#6B7280" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding DoneTasksTotalElapsedMinutes, StringFormat={}（実績: {0}分）}" 
+                                    <TextBlock Text="{Binding DoneTasksTotalElapsedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}（実績: {0}）}" 
                                                FontSize="12" Foreground="#6B7280" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 
@@ -1158,9 +1163,9 @@
                                                            FontSize="12" Foreground="Green"/>
                                                 <TextBlock Text="{Binding EstimatedPomodoros, StringFormat={}/ {0} 完了}" 
                                                            FontSize="12" Foreground="Gray" Margin="4,0,8,0"/>
-                                                <TextBlock Text="{Binding ActualMinutes, StringFormat={}⏱ {0}分}" 
+                                                <TextBlock Text="{Binding ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}⏱ {0}}" 
                                                            FontSize="12" Foreground="#10B981" FontWeight="SemiBold"/>
-                                                <TextBlock Text="{Binding EstimatedMinutes, StringFormat={}/ {0}分}" 
+                                                <TextBlock Text="{Binding EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" 
                                                            FontSize="12" Foreground="Gray" Margin="2,0,0,0"/>
                                             </StackPanel>
                                         </Grid>

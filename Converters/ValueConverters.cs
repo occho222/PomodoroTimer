@@ -269,4 +269,37 @@ namespace PomodoroTimer.Converters
         }
     }
 
+    /// <summary>
+    /// 分数を時間形式の文字列に変換するコンバーター（例: 90分 → 1時間30分）
+    /// </summary>
+    public class MinutesToTimeFormatConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int minutes)
+            {
+                if (minutes < 60)
+                {
+                    return $"{minutes}分";
+                }
+                
+                var hours = minutes / 60;
+                var remainingMinutes = minutes % 60;
+                
+                if (remainingMinutes == 0)
+                {
+                    return $"{hours}時間";
+                }
+                
+                return $"{hours}時間{remainingMinutes}分";
+            }
+            return "0分";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }

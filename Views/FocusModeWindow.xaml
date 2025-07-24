@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:PomodoroTimer.Converters"
         mc:Ignorable="d"
         Title="ポモドーロタイマー - 集中モード"
         Height="700"
@@ -16,6 +17,7 @@
         SizeToContent="Manual">
 
     <Window.Resources>
+        <converters:MinutesToTimeFormatConverter x:Key="MinutesToTimeFormatConverter"/>
         <Style x:Key="ModernButton" TargetType="Button">
             <Setter Property="Background" Value="#6366F1"/>
             <Setter Property="Foreground" Value="White"/>
@@ -341,9 +343,9 @@
                                            Foreground="#6B7280" VerticalAlignment="Center" Margin="4,0,16,0"/>
                                 <TextBlock Text="⏱" FontSize="14" FontWeight="SemiBold" 
                                            Foreground="#4A90E2" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding CurrentTask.ActualMinutes, StringFormat={}{0}分}" FontSize="14" FontWeight="Bold" 
+                                <TextBlock Text="{Binding CurrentTask.ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}}" FontSize="14" FontWeight="Bold" 
                                            Foreground="#4A90E2" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding CurrentTask.EstimatedMinutes, StringFormat={}/ {0}分}" FontSize="14" 
+                                <TextBlock Text="{Binding CurrentTask.EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" FontSize="14" 
                                            Foreground="Gray" VerticalAlignment="Center" Margin="4,0,0,0"/>
                             </StackPanel>
                             
