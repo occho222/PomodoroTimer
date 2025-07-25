@@ -212,17 +212,8 @@
                             </StackPanel>
                         </Border>
                         
-                        <!-- 説明 -->
-                        <ScrollViewer Grid.Row="2" MaxHeight="120" Margin="0,12,0,0"
-                                      Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                      VerticalScrollBarVisibility="Auto">
-                            <TextBlock Text="{Binding CurrentTask.Description}" 
-                                       FontSize="13" Foreground="#374151" TextWrapping="Wrap"
-                                       Background="#F9FAFB" Padding="10" LineHeight="18"/>
-                        </ScrollViewer>
-                        
                         <!-- チェックリスト -->
-                        <StackPanel Grid.Row="3" Margin="0,12,0,0"
+                        <StackPanel Grid.Row="2" Margin="0,12,0,0"
                                     Visibility="{Binding CurrentTask.Checklist.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <TextBlock Text="📋 やることリスト" FontSize="14" FontWeight="Bold" Foreground="#1F2937"/>
@@ -309,6 +300,15 @@
                                              Foreground="#10B981" BorderThickness="0"/>
                             </StackPanel>
                         </StackPanel>
+                        
+                        <!-- 説明 -->
+                        <ScrollViewer Grid.Row="3" MaxHeight="120" Margin="0,12,0,0"
+                                      Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                      VerticalScrollBarVisibility="Auto">
+                            <TextBlock Text="{Binding CurrentTask.Description}" 
+                                       FontSize="13" Foreground="#374151" TextWrapping="Wrap"
+                                       Background="#F9FAFB" Padding="10" LineHeight="18"/>
+                        </ScrollViewer>
                         
                         <!-- カテゴリとタグ -->
                         <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,12,0,0">
