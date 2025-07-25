@@ -163,7 +163,6 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
@@ -213,22 +212,17 @@
                             </StackPanel>
                         </Border>
                         
-                        <!-- 基本説明 -->
-                        <TextBlock Grid.Row="2" Text="{Binding CurrentTask.Description}" 
-                                   FontSize="13" Foreground="#374151" TextWrapping="Wrap" Margin="0,12,0,0" LineHeight="18"
-                                   Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                        
-                        <!-- 詳細説明 -->
-                        <ScrollViewer Grid.Row="3" MaxHeight="100" Margin="0,12,0,0"
-                                      Visibility="{Binding CurrentTask.DetailedDescription, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        <!-- 説明 -->
+                        <ScrollViewer Grid.Row="2" MaxHeight="120" Margin="0,12,0,0"
+                                      Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       VerticalScrollBarVisibility="Auto">
-                            <TextBlock Text="{Binding CurrentTask.DetailedDescription}" 
-                                       FontSize="12" Foreground="#4B5563" TextWrapping="Wrap"
-                                       Background="#F9FAFB" Padding="10" LineHeight="16"/>
+                            <TextBlock Text="{Binding CurrentTask.Description}" 
+                                       FontSize="13" Foreground="#374151" TextWrapping="Wrap"
+                                       Background="#F9FAFB" Padding="10" LineHeight="18"/>
                         </ScrollViewer>
                         
                         <!-- チェックリスト -->
-                        <StackPanel Grid.Row="4" Margin="0,12,0,0"
+                        <StackPanel Grid.Row="3" Margin="0,12,0,0"
                                     Visibility="{Binding CurrentTask.Checklist.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <TextBlock Text="📋 やることリスト" FontSize="14" FontWeight="Bold" Foreground="#1F2937"/>
@@ -317,7 +311,7 @@
                         </StackPanel>
                         
                         <!-- カテゴリとタグ -->
-                        <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,12,0,0">
+                        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,12,0,0">
                             <Border Background="{StaticResource SecondaryBrush}" CornerRadius="4" Margin="0,0,8,0" Padding="8,4"
                                     Visibility="{Binding CurrentTask.Category, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <TextBlock Text="{Binding CurrentTask.Category}" FontSize="11" 
@@ -329,7 +323,7 @@
                         </StackPanel>
                         
                         <!-- 進捗と時間情報 -->
-                        <Grid Grid.Row="6" Margin="0,15,0,0">
+                        <Grid Grid.Row="5" Margin="0,15,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>

@@ -19,11 +19,6 @@ namespace PomodoroTimer.Models
         [ObservableProperty]
         private string title = string.Empty;
 
-        /// <summary>
-        /// 詳細な説明（リッチテキスト対応）
-        /// </summary>
-        [ObservableProperty]
-        private string detailedDescription = string.Empty;
 
         /// <summary>
         /// 添付ファイルのパスリスト

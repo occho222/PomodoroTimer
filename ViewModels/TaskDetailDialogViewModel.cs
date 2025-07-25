@@ -24,10 +24,7 @@ namespace PomodoroTimer.ViewModels
         private string taskTitle = string.Empty;
 
         [ObservableProperty]
-        private string basicDescription = string.Empty;
-
-        [ObservableProperty]
-        private string detailedDescription = string.Empty;
+        private string description = string.Empty;
 
         [ObservableProperty]
         private string taskCategory = string.Empty;
@@ -140,8 +137,7 @@ namespace PomodoroTimer.ViewModels
         private void LoadTaskData()
         {
             TaskTitle = _originalTask.Title;
-            BasicDescription = _originalTask.Description;
-            DetailedDescription = _originalTask.DetailedDescription;
+            Description = _originalTask.Description;
             TaskCategory = _originalTask.Category;
             TaskTags = _originalTask.TagsText;
             SelectedStatus = _originalTask.Status;
@@ -372,8 +368,7 @@ namespace PomodoroTimer.ViewModels
 
                 // タスクデータを更新
                 _originalTask.Title = TaskTitle;
-                _originalTask.Description = BasicDescription;
-                _originalTask.DetailedDescription = DetailedDescription;
+                _originalTask.Description = Description;
                 _originalTask.Category = TaskCategory;
                 _originalTask.TagsText = TaskTags;
                 _originalTask.Status = SelectedStatus;
