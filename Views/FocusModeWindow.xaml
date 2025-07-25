@@ -163,6 +163,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
@@ -188,12 +189,6 @@
                                         Click="PlayPauseButton_Click"
                                         Style="{StaticResource ModernButton}" 
                                         Width="28" Height="24" FontSize="12" Margin="2,0"/>
-                                <Button Content="🔗" x:Name="OpenLinkButton" ToolTip="リンクを開く"
-                                        Click="OpenLinkButton_Click"
-                                        Style="{StaticResource ModernButton}"
-                                        Background="#8B5CF6" 
-                                        Width="28" Height="24" FontSize="12" Margin="2,0"
-                                        Visibility="{Binding CurrentTask.Url, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                 <Button Content="⏹" x:Name="StopButton" ToolTip="停止"
                                         Click="StopButton_Click"
                                         Style="{StaticResource ModernButton}"
@@ -328,8 +323,30 @@
                                        Visibility="{Binding CurrentTask.TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                         </StackPanel>
                         
+                        <!-- リンク -->
+                        <ItemsControl Grid.Row="5" ItemsSource="{Binding CurrentTask.Links}" Margin="0,12,0,0"
+                                     Visibility="{Binding CurrentTask.Links.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#F3E8FF" CornerRadius="4" Margin="0,0,6,6" Padding="8,4">
+                                        <Button Content="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                Command="{Binding DataContext.OpenLinkItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                                                Foreground="#7C3AED" Background="Transparent" BorderThickness="0" 
+                                                Cursor="Hand" ToolTip="{Binding Url}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        
                         <!-- 進捗と時間情報 -->
-                        <Grid Grid.Row="5" Margin="0,15,0,0">
+                        <Grid Grid.Row="6" Margin="0,15,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>

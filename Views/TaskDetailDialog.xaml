@@ -149,11 +149,54 @@
                                  VerticalScrollBarVisibility="Auto"
                                  HorizontalScrollBarVisibility="Disabled"/>
 
-                        <!-- URL -->
-                        <TextBlock Text="URL（リンク）" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding Url, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 Height="30" Margin="0,0,0,15"
-                                 ToolTip="https://example.com のような形式で入力してください"/>
+                        <!-- リンク -->
+                        <TextBlock Text="リンク" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- リンクリスト -->
+                            <ScrollViewer Grid.Row="0" MaxHeight="120" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding LinkItems}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#F0F9FF" CornerRadius="6" Padding="8" Margin="0,2">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <TextBlock Grid.Column="0" Text="🔗" FontSize="16" 
+                                                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                    <TextBox Grid.Column="1" Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                             Margin="0,0,4,0" VerticalAlignment="Center" 
+                                                             ToolTip="リンクの表示名"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding Url, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                             Margin="4,0,8,0" VerticalAlignment="Center"
+                                                             ToolTip="https://example.com のような形式"/>
+                                                    <Button Grid.Column="3" Content="🗑" 
+                                                            Command="{Binding DataContext.RemoveLinkItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource KanbanActionButton}"
+                                                            Background="#EF4444" FontSize="12"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            
+                            <!-- リンク追加ボタン -->
+                            <Button Grid.Row="1" Content="+ リンク追加" 
+                                    Command="{Binding AddLinkItemCommand}"
+                                    HorizontalAlignment="Left" Margin="0,5,0,0" Padding="8,4"
+                                    Background="#F0F9FF" BorderBrush="#3B82F6"/>
+                        </Grid>
 
                         <!-- 添付ファイル -->
                         <TextBlock Text="添付ファイル" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>

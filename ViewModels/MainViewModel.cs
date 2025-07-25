@@ -644,6 +644,19 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// LinkItemを開くコマンド
+        /// </summary>
+        /// <param name="linkItem">開くリンクアイテム</param>
+        [RelayCommand]
+        private void OpenLinkItem(LinkItem? linkItem)
+        {
+            if (linkItem != null && !string.IsNullOrWhiteSpace(linkItem.Url))
+            {
+                OpenUrl(linkItem.GetNormalizedUrl());
+            }
+        }
+
+        /// <summary>
         /// タスク開始コマンド
         /// </summary>
         /// <param name="task">開始するタスク</param>

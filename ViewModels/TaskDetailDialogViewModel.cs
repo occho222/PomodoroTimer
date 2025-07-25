@@ -36,6 +36,9 @@ namespace PomodoroTimer.ViewModels
         private string url = string.Empty;
 
         [ObservableProperty]
+        private ObservableCollection<LinkItem> linkItems = new();
+
+        [ObservableProperty]
         private TaskStatus selectedStatus = TaskStatus.Todo;
 
         [ObservableProperty]
@@ -166,6 +169,14 @@ namespace PomodoroTimer.ViewModels
                 AttachmentItems.Add(new AttachmentItem { FilePath = attachment });
             }
 
+            // リンクアイテムをコピー（データマイグレーション含む）
+            _originalTask.MigrateUrlToLinks();
+            LinkItems.Clear();
+            foreach (var link in _originalTask.Links)
+            {
+                LinkItems.Add(link);
+            }
+
             UpdateProgress();
             LoadProjectsAndTags();
         }
@@ -286,6 +297,22 @@ namespace PomodoroTimer.ViewModels
         }
 
         [RelayCommand]
+        private void AddLinkItem()
+        {
+            var newLink = new LinkItem("新しいリンク", "https://");
+            LinkItems.Add(newLink);
+        }
+
+        [RelayCommand]
+        private void RemoveLinkItem(LinkItem linkItem)
+        {
+            if (linkItem != null)
+            {
+                LinkItems.Remove(linkItem);
+            }
+        }
+
+        [RelayCommand]
         private void PasteImage()
         {
             try
@@ -394,6 +421,13 @@ namespace PomodoroTimer.ViewModels
                 foreach (var attachment in AttachmentItems)
                 {
                     _originalTask.Attachments.Add(attachment.FilePath);
+                }
+
+                // リンクアイテムを更新
+                _originalTask.Links.Clear();
+                foreach (var link in LinkItems)
+                {
+                    _originalTask.Links.Add(link);
                 }
 
                 if (_isEditMode)

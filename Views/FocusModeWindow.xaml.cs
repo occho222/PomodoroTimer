@@ -201,24 +201,6 @@ namespace PomodoroTimer.Views
             }
         }
 
-        private void OpenLinkButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var currentTask = _mainViewModel.CurrentTask;
-                if (currentTask != null && !string.IsNullOrWhiteSpace(currentTask.Url))
-                {
-                    _mainViewModel.OpenUrlCommand.Execute(currentTask.Url);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"リンクを開く処理でエラー: {ex.Message}");
-                System.Windows.MessageBox.Show($"リンクを開けませんでした: {ex.Message}", "エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         /// <summary>
         /// 集中モード専用のタスク完了処理（MainViewModelの自動選択ダイアログを無効化）
         /// </summary>

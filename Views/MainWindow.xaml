@@ -494,6 +494,7 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             
                                             <!-- タスクヘッダー -->
@@ -523,12 +524,6 @@
                                                                 CommandParameter="{Binding}"
                                                                 Style="{StaticResource KanbanActionButton}"
                                                                 Background="{StaticResource AccentBrush}" Margin="1"/>
-                                                        <Button Content="🔗" ToolTip="リンクを開く"
-                                                                Command="{Binding DataContext.OpenUrlCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding Url}"
-                                                                Style="{StaticResource KanbanActionButton}"
-                                                                Background="#8B5CF6" Margin="1"
-                                                                Visibility="{Binding Url, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                         <Button Content="📝" ToolTip="詳細"
                                                                 Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
@@ -567,8 +562,30 @@
                                                            Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                                             </StackPanel>
                                             
+                                            <!-- リンク -->
+                                            <ItemsControl Grid.Row="3" ItemsSource="{Binding Links}" Margin="0,6,0,0"
+                                                         Visibility="{Binding Links.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="#F3E8FF" CornerRadius="3" Margin="0,0,3,0" Padding="6,2">
+                                                            <Button Content="{Binding Title}" FontSize="9" 
+                                                                    Command="{Binding DataContext.OpenLinkItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                                                                    Foreground="#7C3AED" Background="Transparent" BorderThickness="0" 
+                                                                    Cursor="Hand" ToolTip="{Binding Url}"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            
                                             <!-- 実行時間と進捗 -->
-                                            <Grid Grid.Row="3" Margin="0,8,0,0">
+                                            <Grid Grid.Row="4" Margin="0,8,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
@@ -631,6 +648,7 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             
                                             <!-- タスクヘッダー -->
@@ -660,12 +678,6 @@
                                                                 CommandParameter="{Binding}"
                                                                 Style="{StaticResource KanbanActionButton}"
                                                                 Background="#F59E0B" Margin="1"/>
-                                                        <Button Content="🔗" ToolTip="リンクを開く"
-                                                                Command="{Binding DataContext.OpenUrlCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding Url}"
-                                                                Style="{StaticResource KanbanActionButton}"
-                                                                Background="#8B5CF6" Margin="1"
-                                                                Visibility="{Binding Url, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                         <Button Content="✓" ToolTip="完了"
                                                                 Command="{Binding DataContext.CompleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
@@ -714,8 +726,30 @@
                                                            Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                                             </StackPanel>
                                             
+                                            <!-- リンク -->
+                                            <ItemsControl Grid.Row="3" ItemsSource="{Binding Links}" Margin="0,6,0,0"
+                                                         Visibility="{Binding Links.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="#F3E8FF" CornerRadius="3" Margin="0,0,3,0" Padding="6,2">
+                                                            <Button Content="{Binding Title}" FontSize="9" 
+                                                                    Command="{Binding DataContext.OpenLinkItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                                                                    Foreground="#7C3AED" Background="Transparent" BorderThickness="0" 
+                                                                    Cursor="Hand" ToolTip="{Binding Url}"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            
                                             <!-- 実行時間と進捗 -->
-                                            <Grid Grid.Row="3" Margin="0,8,0,0">
+                                            <Grid Grid.Row="4" Margin="0,8,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
@@ -1102,6 +1136,7 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             
                                             <!-- タスクヘッダー -->
@@ -1160,10 +1195,35 @@
                                                     <TextBlock Text="{Binding Category}" FontSize="10" 
                                                                Foreground="White" Padding="4,2"/>
                                                 </Border>
+                                                <TextBlock Text="{Binding TagsText, Mode=OneWay}" FontSize="10" 
+                                                           Foreground="Gray" VerticalAlignment="Center"
+                                                           Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                                             </StackPanel>
                                             
+                                            <!-- リンク -->
+                                            <ItemsControl Grid.Row="3" ItemsSource="{Binding Links}" Margin="0,6,0,0"
+                                                         Visibility="{Binding Links.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="#F3E8FF" CornerRadius="3" Margin="0,0,3,0" Padding="6,2">
+                                                            <Button Content="{Binding Title}" FontSize="9" 
+                                                                    Command="{Binding DataContext.OpenLinkItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                                                                    Foreground="#7C3AED" Background="Transparent" BorderThickness="0" 
+                                                                    Cursor="Hand" ToolTip="{Binding Url}"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            
                                             <!-- 実行時間 -->
-                                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,4,0,0">
+                                            <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,4,0,0">
                                                 <TextBlock Text="{Binding ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}⏱ {0}}" 
                                                            FontSize="12" Foreground="#10B981" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" 

@@ -204,7 +204,13 @@ namespace PomodoroTimer.Models
         private string category = string.Empty;
 
         /// <summary>
-        /// タスクのURL（リンク）
+        /// タスクのリンクリスト
+        /// </summary>
+        [ObservableProperty]
+        private List<LinkItem> links = new();
+
+        /// <summary>
+        /// 旧URLプロパティ（後方互換性のため）
         /// </summary>
         [ObservableProperty]
         private string url = string.Empty;
@@ -575,6 +581,19 @@ namespace PomodoroTimer.Models
             Status = TaskStatus.Todo;
             StartedAt = null;
             CompletedAt = null;
+        }
+
+        /// <summary>
+        /// 旧URLフィールドからLinksへデータを移行する
+        /// </summary>
+        public void MigrateUrlToLinks()
+        {
+            if (!string.IsNullOrWhiteSpace(Url) && Links.Count == 0)
+            {
+                var linkItem = new LinkItem("リンク", Url);
+                Links.Add(linkItem);
+                Url = string.Empty; // 移行後は空にする
+            }
         }
     }
 
