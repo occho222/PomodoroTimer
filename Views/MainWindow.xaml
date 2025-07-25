@@ -566,7 +566,7 @@
                                                            Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                                             </StackPanel>
                                             
-                                            <!-- ポモドーロ情報と進捗 -->
+                                            <!-- 実行時間と進捗 -->
                                             <Grid Grid.Row="3" Margin="0,8,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -574,12 +574,6 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <TextBlock Grid.Column="0" 
-                                                           Text="{Binding CompletedPomodoros, StringFormat={}🍅 {0}}" 
-                                                           FontSize="12" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="1" 
-                                                           Text="{Binding EstimatedPomodoros, StringFormat={}/ {0}}" 
-                                                           FontSize="12" Foreground="Gray" VerticalAlignment="Center"/>
                                                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                                                     <TextBlock Text="{Binding ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}⏱ {0}}" 
                                                                FontSize="11" Foreground="#4A90E2" VerticalAlignment="Center"/>
@@ -713,7 +707,7 @@
                                                            Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                                             </StackPanel>
                                             
-                                            <!-- ポモドーロ情報と進捗 -->
+                                            <!-- 実行時間と進捗 -->
                                             <Grid Grid.Row="3" Margin="0,8,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -722,12 +716,8 @@
                                                 </Grid.ColumnDefinitions>
                                                 
                                                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding CompletedPomodoros, StringFormat={}🍅 {0}}" 
-                                                               FontSize="12" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding EstimatedPomodoros, StringFormat={}/ {0}}" 
-                                                               FontSize="12" Foreground="Gray" VerticalAlignment="Center" Margin="2,0,0,0"/>
                                                     <TextBlock Text="{Binding ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}⏱ {0}}" 
-                                                               FontSize="11" Foreground="#4A90E2" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                                               FontSize="11" Foreground="#4A90E2" VerticalAlignment="Center"/>
                                                     <TextBlock Text="{Binding EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" 
                                                                FontSize="11" Foreground="Gray" VerticalAlignment="Center" Margin="2,0,0,0"/>
                                                 </StackPanel>
@@ -960,18 +950,11 @@
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         
-                                        <!-- ポモドーロ数 -->
+                                        <!-- 時間情報 -->
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                                            <TextBlock Text="🍅 ポモドーロ:" FontSize="14" FontWeight="SemiBold" 
-                                                       Foreground="#374151" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding CurrentTask.CompletedPomodoros}" FontSize="18" FontWeight="Bold" 
-                                                       Foreground="#F59E0B" VerticalAlignment="Center" Margin="8,0,4,0"/>
-                                            <TextBlock Text="/" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding CurrentTask.EstimatedPomodoros}" FontSize="14" 
-                                                       Foreground="#6B7280" VerticalAlignment="Center" Margin="4,0,16,0"/>
                                             <TextBlock Text="⏱" FontSize="14" FontWeight="SemiBold" 
                                                        Foreground="#4A90E2" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                            <TextBlock Text="{Binding CurrentTask.ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}}" FontSize="14" FontWeight="Bold" 
+                                            <TextBlock Text="{Binding CurrentTaskRealTimeElapsedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}}" FontSize="14" FontWeight="Bold" 
                                                        Foreground="#4A90E2" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding CurrentTask.EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" FontSize="14" 
                                                        Foreground="Gray" VerticalAlignment="Center" Margin="4,0,0,0"/>
@@ -1176,12 +1159,8 @@
                                                 </Border>
                                             </StackPanel>
                                             
-                                            <!-- ポモドーロ情報と実行時間 -->
+                                            <!-- 実行時間 -->
                                             <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,4,0,0">
-                                                <TextBlock Text="{Binding CompletedPomodoros, StringFormat={}🍅 {0}}" 
-                                                           FontSize="12" Foreground="Green"/>
-                                                <TextBlock Text="{Binding EstimatedPomodoros, StringFormat={}/ {0} 完了}" 
-                                                           FontSize="12" Foreground="Gray" Margin="4,0,8,0"/>
                                                 <TextBlock Text="{Binding ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}⏱ {0}}" 
                                                            FontSize="12" Foreground="#10B981" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" 

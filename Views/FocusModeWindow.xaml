@@ -328,7 +328,7 @@
                                        Visibility="{Binding CurrentTask.TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                         </StackPanel>
                         
-                        <!-- 進捗とポモドーロ情報 -->
+                        <!-- 進捗と時間情報 -->
                         <Grid Grid.Row="6" Margin="0,15,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -336,18 +336,11 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             
-                            <!-- ポモドーロ数 -->
+                            <!-- 時間情報 -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                                <TextBlock Text="🍅 ポモドーロ:" FontSize="14" FontWeight="SemiBold" 
-                                           Foreground="#374151" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding CurrentTask.CompletedPomodoros}" FontSize="18" FontWeight="Bold" 
-                                           Foreground="#F59E0B" VerticalAlignment="Center" Margin="8,0,4,0"/>
-                                <TextBlock Text="/" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding CurrentTask.EstimatedPomodoros}" FontSize="14" 
-                                           Foreground="#6B7280" VerticalAlignment="Center" Margin="4,0,16,0"/>
                                 <TextBlock Text="⏱" FontSize="14" FontWeight="SemiBold" 
                                            Foreground="#4A90E2" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding CurrentTask.ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}}" FontSize="14" FontWeight="Bold" 
+                                <TextBlock Text="{Binding CurrentTaskRealTimeElapsedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}}" FontSize="14" FontWeight="Bold" 
                                            Foreground="#4A90E2" VerticalAlignment="Center"/>
                                 <TextBlock Text="{Binding CurrentTask.EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" FontSize="14" 
                                            Foreground="Gray" VerticalAlignment="Center" Margin="4,0,0,0"/>

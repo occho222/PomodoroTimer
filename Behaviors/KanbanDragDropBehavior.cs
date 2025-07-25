@@ -260,7 +260,13 @@ namespace PomodoroTimer.Behaviors
                             // 既存の実行中タスクを待機中に戻す
                             viewModel.CurrentTask.StopExecution();
                         }
+                        
+                        // タスクを実行中に設定
+                        task.StartExecution();
                         viewModel.CurrentTask = task;
+                        
+                        // セッション開始時刻を記録
+                        task.CurrentSessionStartTime = DateTime.Now;
                         break;
                         
                     case TaskStatus.Completed:
@@ -277,6 +283,12 @@ namespace PomodoroTimer.Behaviors
                 Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     viewModel.UpdateKanbanColumns();
+                    
+                    // 実行中に移動した場合はリアルタイム更新も開始
+                    if (newStatus == TaskStatus.Executing)
+                    {
+                        viewModel.NotifyTaskExecutionStarted();
+                    }
                     
                     // データを保存
                     _ = Task.Run(async () =>

@@ -157,6 +157,36 @@ namespace PomodoroTimer.ViewModels
         public int DoneTasksTotalElapsedMinutes => FilteredDoneTasksCollection?.Sum(t => t.ActualMinutes) ?? 0;
 
         /// <summary>
+        /// 現在実行中タスクのリアルタイム経過時間（分）
+        /// </summary>
+        public int CurrentTaskRealTimeElapsedMinutes
+        {
+            get
+            {
+                if (CurrentTask == null || !CurrentTask.CurrentSessionStartTime.HasValue)
+                    return CurrentTask?.ActualMinutes ?? 0;
+
+                var elapsedTime = DateTime.Now - CurrentTask.CurrentSessionStartTime.Value;
+                var currentSessionMinutes = (int)Math.Floor(elapsedTime.TotalMinutes);
+                return CurrentTask.ActualMinutes + currentSessionMinutes;
+            }
+        }
+
+        /// <summary>
+        /// 現在実行中タスクのリアルタイム経過時間（時間:分形式）
+        /// </summary>
+        public string CurrentTaskRealTimeElapsedTimeDisplay
+        {
+            get
+            {
+                var totalMinutes = CurrentTaskRealTimeElapsedMinutes;
+                var hours = totalMinutes / 60;
+                var minutes = totalMinutes % 60;
+                return hours > 0 ? $"{hours}:{minutes:D2}" : $"{minutes}分";
+            }
+        }
+
+        /// <summary>
         /// フィルタリングされた完了タスクコレクション
         /// </summary>
         public ObservableCollection<PomodoroTask> FilteredDoneTasksCollection
@@ -517,6 +547,7 @@ namespace PomodoroTimer.ViewModels
         private void AddOneMinute()
         {
             _timerService.AddTime(TimeSpan.FromMinutes(1));
+            UpdateRealTimeElapsedTime();
         }
 
         /// <summary>
@@ -526,6 +557,7 @@ namespace PomodoroTimer.ViewModels
         private void AddTenSeconds()
         {
             _timerService.AddTime(TimeSpan.FromSeconds(10));
+            UpdateRealTimeElapsedTime();
         }
 
         /// <summary>
@@ -537,6 +569,7 @@ namespace PomodoroTimer.ViewModels
             // タイマー調整時にも経過時間を記録（セッション開始時刻はリセットしない）
             RecordCurrentTaskElapsedTimeForTimerAdjustment();
             _timerService.AddTime(TimeSpan.FromMinutes(-1));
+            UpdateRealTimeElapsedTime();
         }
 
         /// <summary>
@@ -545,9 +578,8 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void SubtractTenSeconds()
         {
-            // タイマー調整時にも経過時間を記録（セッション開始時刻はリセットしない）
-            RecordCurrentTaskElapsedTimeForTimerAdjustment();
             _timerService.AddTime(TimeSpan.FromSeconds(-10));
+            UpdateRealTimeElapsedTime();
         }
 
         /// <summary>
@@ -1466,6 +1498,27 @@ namespace PomodoroTimer.ViewModels
             TimeRemaining = $"{remainingTime.Minutes:D2}:{remainingTime.Seconds:D2}";
             UpdateProgress();
             _systemTrayService.UpdateTimerStatus(IsRunning, remainingTime);
+            
+            // リアルタイム経過時間を更新
+            UpdateRealTimeElapsedTime();
+        }
+
+        /// <summary>
+        /// リアルタイム経過時間の表示を更新する
+        /// </summary>
+        private void UpdateRealTimeElapsedTime()
+        {
+            OnPropertyChanged(nameof(CurrentTaskRealTimeElapsedMinutes));
+            OnPropertyChanged(nameof(CurrentTaskRealTimeElapsedTimeDisplay));
+        }
+
+        /// <summary>
+        /// ドラッグアンドドロップでタスクが実行中に移動した際の更新処理
+        /// </summary>
+        public void NotifyTaskExecutionStarted()
+        {
+            OnPropertyChanged(nameof(CurrentTask));
+            UpdateRealTimeElapsedTime();
         }
 
         private void OnSessionCompleted(SessionType sessionType)
@@ -1899,6 +1952,9 @@ namespace PomodoroTimer.ViewModels
                 
                 // タイマーを開始
                 StartPause();
+                
+                // リアルタイム更新を開始
+                UpdateRealTimeElapsedTime();
                 
                 UpdateKanbanColumns();
                 
