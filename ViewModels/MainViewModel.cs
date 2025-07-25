@@ -599,6 +599,51 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// URLを開くコマンド
+        /// </summary>
+        /// <param name="url">開くURL</param>
+        [RelayCommand]
+        private void OpenUrl(string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return;
+
+            try
+            {
+                // URLが有効な形式かチェック
+                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                {
+                    // httpやhttpsが付いていない場合は自動で追加
+                    if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                    {
+                        url = "https://" + url;
+                        if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+                        {
+                            System.Windows.MessageBox.Show("無効なURLです。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show("無効なURLです。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+
+                // デフォルトブラウザでURLを開く
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"URLを開けませんでした: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
         /// タスク開始コマンド
         /// </summary>
         /// <param name="task">開始するタスク</param>

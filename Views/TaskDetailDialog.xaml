@@ -149,6 +149,12 @@
                                  VerticalScrollBarVisibility="Auto"
                                  HorizontalScrollBarVisibility="Disabled"/>
 
+                        <!-- URL -->
+                        <TextBlock Text="URL（リンク）" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding Url, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 Height="30" Margin="0,0,0,15"
+                                 ToolTip="https://example.com のような形式で入力してください"/>
+
                         <!-- 添付ファイル -->
                         <TextBlock Text="添付ファイル" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
                         <ItemsControl ItemsSource="{Binding AttachmentItems}">

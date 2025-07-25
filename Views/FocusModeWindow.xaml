@@ -188,6 +188,12 @@
                                         Click="PlayPauseButton_Click"
                                         Style="{StaticResource ModernButton}" 
                                         Width="28" Height="24" FontSize="12" Margin="2,0"/>
+                                <Button Content="🔗" x:Name="OpenLinkButton" ToolTip="リンクを開く"
+                                        Click="OpenLinkButton_Click"
+                                        Style="{StaticResource ModernButton}"
+                                        Background="#8B5CF6" 
+                                        Width="28" Height="24" FontSize="12" Margin="2,0"
+                                        Visibility="{Binding CurrentTask.Url, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                 <Button Content="⏹" x:Name="StopButton" ToolTip="停止"
                                         Click="StopButton_Click"
                                         Style="{StaticResource ModernButton}"

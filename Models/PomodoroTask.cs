@@ -204,6 +204,12 @@ namespace PomodoroTimer.Models
         private string category = string.Empty;
 
         /// <summary>
+        /// タスクのURL（リンク）
+        /// </summary>
+        [ObservableProperty]
+        private string url = string.Empty;
+
+        /// <summary>
         /// タスクのタグリスト
         /// </summary>
         [ObservableProperty]
