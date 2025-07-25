@@ -3,122 +3,128 @@ using PomodoroTimer.Models;
 namespace PomodoroTimer.Services
 {
     /// <summary>
-    /// “Œvî•ñƒT[ƒrƒX‚ÌƒCƒ“ƒ^[ƒtƒF[ƒX
+    /// ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Tï¿½[ï¿½rï¿½Xï¿½ÌƒCï¿½ï¿½ï¿½^ï¿½[ï¿½tï¿½Fï¿½[ï¿½X
     /// </summary>
     public interface IStatisticsService
     {
         /// <summary>
-        /// “úŽŸ“Œv‚ðŽæ“¾‚·‚é
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="date">‘ÎÛ“ú</param>
-        /// <returns>“úŽŸ“Œvî•ñ</returns>
+        /// <param name="date">ï¿½ÎÛ“ï¿½</param>
+        /// <returns>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½</returns>
         DailyStatistics GetDailyStatistics(DateTime date);
 
         /// <summary>
-        /// TŽŸ“Œv‚ðŽæ“¾‚·‚é
+        /// ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="weekStart">T‚ÌŠJŽn“ú</param>
-        /// <returns>TŽŸ“Œvî•ñ</returns>
+        /// <param name="weekStart">ï¿½Tï¿½ÌŠJï¿½nï¿½ï¿½</param>
+        /// <returns>ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½</returns>
         List<DailyStatistics> GetWeeklyStatistics(DateTime weekStart);
 
         /// <summary>
-        /// ‘SŠúŠÔ‚Ì“Œv‚ðŽæ“¾‚·‚é
+        /// ï¿½Sï¿½ï¿½ï¿½Ô‚Ì“ï¿½ï¿½vï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <returns>‘SŠúŠÔ“Œvî•ñ</returns>
+        /// <returns>ï¿½Sï¿½ï¿½ï¿½Ô“ï¿½ï¿½vï¿½ï¿½ï¿½</returns>
         AllTimeStatistics GetAllTimeStatistics();
 
         /// <summary>
-        /// ƒ|ƒ‚ƒh[ƒŠ®—¹‚ð‹L˜^‚·‚é
+        /// ï¿½|ï¿½ï¿½ï¿½hï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½^ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="task">Š®—¹‚µ‚½ƒ^ƒXƒN</param>
-        /// <param name="sessionDurationMinutes">ƒZƒbƒVƒ‡ƒ“ŽžŠÔi•ªj</param>
+        /// <param name="task">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½^ï¿½Xï¿½N</param>
+        /// <param name="sessionDurationMinutes">ï¿½Zï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôiï¿½ï¿½ï¿½j</param>
         void RecordPomodoroComplete(PomodoroTask task, int sessionDurationMinutes);
 
         /// <summary>
-        /// ƒ^ƒXƒNŠ®—¹‚ð‹L˜^‚·‚é
+        /// ï¿½^ï¿½Xï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½^ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="task">Š®—¹‚µ‚½ƒ^ƒXƒN</param>
+        /// <param name="task">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½^ï¿½Xï¿½N</param>
         void RecordTaskComplete(PomodoroTask task);
 
         /// <summary>
-        /// ƒvƒƒWƒFƒNƒg•Ê“Œv‚ðŽæ“¾‚·‚é
+        /// ï¿½^ï¿½Xï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö–ß‚ï¿½ï¿½ï¿½ï¿½ê‡ï¿½j
         /// </summary>
-        /// <param name="startDate">ŠJŽn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <returns>ƒvƒƒWƒFƒNƒg•Ê“Œv‚ÌƒfƒBƒNƒVƒ‡ƒiƒŠ</returns>
+        /// <param name="task">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö–ß‚ï¿½ï¿½ï¿½ï¿½^ï¿½Xï¿½N</param>
+        void UndoTaskComplete(PomodoroTask task);
+
+        /// <summary>
+        /// ï¿½vï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½gï¿½Ê“ï¿½ï¿½vï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
+        /// </summary>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <returns>ï¿½vï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½gï¿½Ê“ï¿½ï¿½vï¿½Ìƒfï¿½Bï¿½Nï¿½Vï¿½ï¿½ï¿½iï¿½ï¿½</returns>
         Dictionary<string, ProjectStatistics> GetProjectStatistics(DateTime startDate, DateTime endDate);
 
         /// <summary>
-        /// ƒ^ƒO•Ê“Œv‚ðŽæ“¾‚·‚é
+        /// ï¿½^ï¿½Oï¿½Ê“ï¿½ï¿½vï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJŽn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <returns>ƒ^ƒO•Ê“Œv‚ÌƒfƒBƒNƒVƒ‡ƒiƒŠ</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <returns>ï¿½^ï¿½Oï¿½Ê“ï¿½ï¿½vï¿½Ìƒfï¿½Bï¿½Nï¿½Vï¿½ï¿½ï¿½iï¿½ï¿½</returns>
         Dictionary<string, TagStatistics> GetTagStatistics(DateTime startDate, DateTime endDate);
 
         /// <summary>
-        /// ƒJƒeƒSƒŠ•Ê‚Ìì‹ÆŽžŠÔƒ‰ƒ“ƒLƒ“ƒO‚ðŽæ“¾‚·‚é
+        /// ï¿½Jï¿½eï¿½Sï¿½ï¿½ï¿½Ê‚Ìï¿½ÆŽï¿½ï¿½Ôƒï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJŽn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <param name="topCount">ãˆÊ‰½ˆÊ‚Ü‚ÅŽæ“¾‚·‚é‚©</param>
-        /// <returns>ì‹ÆŽžŠÔ‡‚ÌƒJƒeƒSƒŠƒ‰ƒ“ƒLƒ“ƒO</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <param name="topCount">ï¿½ï¿½Ê‰ï¿½ï¿½Ê‚Ü‚ÅŽæ“¾ï¿½ï¿½ï¿½é‚©</param>
+        /// <returns>ï¿½ï¿½ÆŽï¿½ï¿½Ôï¿½ï¿½ÌƒJï¿½eï¿½Sï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½O</returns>
         List<(string Category, int FocusMinutes, int CompletedPomodoros)> GetCategoryRanking(
             DateTime startDate, DateTime endDate, int topCount = 10);
 
         /// <summary>
-        /// ƒ^ƒO•Ê‚Ìì‹ÆŽžŠÔƒ‰ƒ“ƒLƒ“ƒO‚ðŽæ“¾‚·‚é
+        /// ï¿½^ï¿½Oï¿½Ê‚Ìï¿½ÆŽï¿½ï¿½Ôƒï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJŽn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <param name="topCount">ãˆÊ‰½ˆÊ‚Ü‚ÅŽæ“¾‚·‚é‚©</param>
-        /// <returns>ì‹ÆŽžŠÔ‡‚Ìƒ^ƒOƒ‰ƒ“ƒLƒ“ƒO</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <param name="topCount">ï¿½ï¿½Ê‰ï¿½ï¿½Ê‚Ü‚ÅŽæ“¾ï¿½ï¿½ï¿½é‚©</param>
+        /// <returns>ï¿½ï¿½ÆŽï¿½ï¿½Ôï¿½ï¿½Ìƒ^ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½O</returns>
         List<(string Tag, int FocusMinutes, int CompletedPomodoros)> GetTagRanking(
             DateTime startDate, DateTime endDate, int topCount = 10);
 
         /// <summary>
-        /// TŽŸƒŒƒ|[ƒg‚ðŽæ“¾‚·‚é
+        /// ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="weekStart">T‚ÌŠJŽn“ú</param>
-        /// <returns>TŽŸƒŒƒ|[ƒg</returns>
+        /// <param name="weekStart">ï¿½Tï¿½ÌŠJï¿½nï¿½ï¿½</param>
+        /// <returns>ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½|ï¿½[ï¿½g</returns>
         WeeklyReport GetWeeklyReport(DateTime weekStart);
 
         /// <summary>
-        /// ŒŽŠÔ“Œv‚ðŽæ“¾‚·‚é
+        /// ï¿½ï¿½ï¿½Ô“ï¿½ï¿½vï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="year">”N</param>
-        /// <param name="month">ŒŽ</param>
-        /// <returns>ŒŽŠÔ“Œv</returns>
+        /// <param name="year">ï¿½N</param>
+        /// <param name="month">ï¿½ï¿½</param>
+        /// <returns>ï¿½ï¿½ï¿½Ô“ï¿½ï¿½v</returns>
         MonthlyStatistics GetMonthlyStatistics(int year, int month);
 
         /// <summary>
-        /// ¶ŽY«ƒgƒŒƒ“ƒh‚ðŽæ“¾‚·‚é
+        /// ï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJŽn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <returns>¶ŽY«ƒgƒŒƒ“ƒhƒf[ƒ^</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <returns>ï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½hï¿½fï¿½[ï¿½^</returns>
         List<ProductivityTrend> GetProductivityTrend(DateTime startDate, DateTime endDate);
 
         /// <summary>
-        /// ŽžŠÔ‘Ñ•Êì‹Æ•ªÍ‚ðŽæ“¾‚·‚é
+        /// ï¿½ï¿½ï¿½Ô‘Ñ•Êï¿½Æ•ï¿½ï¿½Í‚ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJŽn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <returns>ŽžŠÔ‘Ñ•Êì‹Æ•ªÍ</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <returns>ï¿½ï¿½ï¿½Ô‘Ñ•Êï¿½Æ•ï¿½ï¿½ï¿½</returns>
         Dictionary<int, HourlyProductivity> GetHourlyProductivity(DateTime startDate, DateTime endDate);
 
         /// <summary>
-        /// “Œvƒf[ƒ^‚ðƒNƒŠƒA‚·‚é
+        /// ï¿½ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½
         /// </summary>
         void ClearStatistics();
 
         /// <summary>
-        /// “Œvƒf[ƒ^‚ð•Û‘¶‚·‚é
+        /// ï¿½ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½ï¿½Û‘ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         Task SaveStatisticsAsync();
 
         /// <summary>
-        /// “Œvƒf[ƒ^‚ð“Ç‚Ýž‚Þ
+        /// ï¿½ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½ï¿½Ç‚Ýï¿½ï¿½ï¿½
         /// </summary>
         Task LoadStatisticsAsync();
     }

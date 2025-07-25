@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace PomodoroTimer.Services
 {
     /// <summary>
-    /// “Œvî•ñƒT[ƒrƒX‚ÌÀ‘•
+    /// ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Tï¿½[ï¿½rï¿½Xï¿½Ìï¿½ï¿½ï¿½
     /// </summary>
     public class StatisticsService : IStatisticsService
     {
@@ -18,7 +18,7 @@ namespace PomodoroTimer.Services
             _dataPersistenceService = dataPersistenceService ?? throw new ArgumentNullException(nameof(dataPersistenceService));
             _dailyStatistics = new ConcurrentDictionary<DateTime, DailyStatistics>();
             
-            // ‹N“®‚É“Œvƒf[ƒ^‚ğ“Ç‚İ‚İ
+            // ï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½É“ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
             _ = Task.Run(LoadStatisticsAsync);
         }
 
@@ -33,7 +33,7 @@ namespace PomodoroTimer.Services
             var weekStartDate = weekStart.Date.AddDays(-(int)weekStart.DayOfWeek);
             var weeklyStatsList = new List<DailyStatistics>();
 
-            // ˆêTŠÔ•ª‚Ì“Œv‚ğûW
+            // ï¿½ï¿½Tï¿½Ô•ï¿½ï¿½Ì“ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½W
             for (int i = 0; i < 7; i++)
             {
                 var date = weekStartDate.AddDays(i);
@@ -66,7 +66,7 @@ namespace PomodoroTimer.Services
             dailyStats.CompletedPomodoros++;
             dailyStats.TotalFocusMinutes += sessionDurationMinutes;
 
-            // ƒvƒƒWƒFƒNƒg•Ê“Œv‚ÌXV
+            // ï¿½vï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½gï¿½Ê“ï¿½ï¿½vï¿½ÌXï¿½V
             if (!string.IsNullOrEmpty(task.Category))
             {
                 var projectStats = dailyStats.ProjectStatistics.GetValueOrDefault(task.Category, 
@@ -78,7 +78,7 @@ namespace PomodoroTimer.Services
                 dailyStats.ProjectStatistics[task.Category] = projectStats;
             }
 
-            // ƒ^ƒO•Ê“Œv‚ÌXV
+            // ï¿½^ï¿½Oï¿½Ê“ï¿½ï¿½vï¿½ÌXï¿½V
             foreach (var tag in task.Tags.Where(t => !string.IsNullOrEmpty(t)))
             {
                 var tagStats = dailyStats.TagStatistics.GetValueOrDefault(tag,
@@ -90,10 +90,10 @@ namespace PomodoroTimer.Services
                 dailyStats.TagStatistics[tag] = tagStats;
             }
 
-            // W’†“x‚ÌŒvZiŠÈˆÕ”ÅFŠ®—¹‚µ‚½ƒ|ƒ‚ƒh[ƒ”‚ÉŠî‚Ã‚­j
+            // ï¿½Wï¿½ï¿½ï¿½xï¿½ÌŒvï¿½Zï¿½iï¿½ÈˆÕ”ÅFï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½|ï¿½ï¿½ï¿½hï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ÉŠï¿½Ã‚ï¿½ï¿½j
             UpdateFocusScore(dailyStats);
             
-            // “Œvƒf[ƒ^‚ğ•Û‘¶
+            // ï¿½ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½ï¿½Û‘ï¿½
             _ = Task.Run(SaveStatisticsAsync);
         }
 
@@ -104,7 +104,7 @@ namespace PomodoroTimer.Services
 
             dailyStats.CompletedTasks++;
 
-            // ƒvƒƒWƒFƒNƒg•Ê“Œv‚ÌXV
+            // ï¿½vï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½gï¿½Ê“ï¿½ï¿½vï¿½ÌXï¿½V
             if (!string.IsNullOrEmpty(task.Category))
             {
                 var projectStats = dailyStats.ProjectStatistics.GetValueOrDefault(task.Category, 
@@ -115,7 +115,7 @@ namespace PomodoroTimer.Services
                 dailyStats.ProjectStatistics[task.Category] = projectStats;
             }
 
-            // ƒ^ƒO•Ê“Œv‚ÌXV
+            // ï¿½^ï¿½Oï¿½Ê“ï¿½ï¿½vï¿½ÌXï¿½V
             foreach (var tag in task.Tags.Where(t => !string.IsNullOrEmpty(t)))
             {
                 var tagStats = dailyStats.TagStatistics.GetValueOrDefault(tag,
@@ -128,7 +128,68 @@ namespace PomodoroTimer.Services
 
             UpdateFocusScore(dailyStats);
             
-            // “Œvƒf[ƒ^‚ğ•Û‘¶
+            // ï¿½ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½ï¿½Û‘ï¿½
+            _ = Task.Run(SaveStatisticsAsync);
+        }
+
+        public void UndoTaskComplete(PomodoroTask task)
+        {
+            var today = DateTime.Today;
+            var dailyStats = GetDailyStatistics(today);
+
+            // ï¿½Sï¿½ï¿½ï¿½ÌŠï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Jï¿½Eï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½Z
+            if (dailyStats.CompletedTasks > 0)
+            {
+                dailyStats.CompletedTasks--;
+            }
+
+            // ï¿½vï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½gï¿½Ê“ï¿½ï¿½vï¿½ÌXï¿½V
+            if (!string.IsNullOrEmpty(task.Category) && 
+                dailyStats.ProjectStatistics.ContainsKey(task.Category))
+            {
+                var projectStats = dailyStats.ProjectStatistics[task.Category];
+                if (projectStats.CompletedTasks > 0)
+                {
+                    projectStats.CompletedTasks--;
+                }
+                
+                // ï¿½ï¿½ï¿½ÛŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½A0ï¿½Ìê‡ï¿½Ííœ
+                if (projectStats.CompletedTasks == 0 && projectStats.FocusMinutes == 0 && projectStats.CompletedPomodoros == 0)
+                {
+                    dailyStats.ProjectStatistics.Remove(task.Category);
+                }
+                else
+                {
+                    dailyStats.ProjectStatistics[task.Category] = projectStats;
+                }
+            }
+
+            // ï¿½^ï¿½Oï¿½Ê“ï¿½ï¿½vï¿½ÌXï¿½V
+            foreach (var tag in task.Tags.Where(t => !string.IsNullOrEmpty(t)))
+            {
+                if (dailyStats.TagStatistics.ContainsKey(tag))
+                {
+                    var tagStats = dailyStats.TagStatistics[tag];
+                    if (tagStats.CompletedTasks > 0)
+                    {
+                        tagStats.CompletedTasks--;
+                    }
+                    
+                    // ï¿½ï¿½ï¿½ÛŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½A0ï¿½Ìê‡ï¿½Ííœ
+                    if (tagStats.CompletedTasks == 0 && tagStats.FocusMinutes == 0 && tagStats.CompletedPomodoros == 0)
+                    {
+                        dailyStats.TagStatistics.Remove(tag);
+                    }
+                    else
+                    {
+                        dailyStats.TagStatistics[tag] = tagStats;
+                    }
+                }
+            }
+
+            UpdateFocusScore(dailyStats);
+            
+            // ï¿½ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½ï¿½Û‘ï¿½
             _ = Task.Run(SaveStatisticsAsync);
         }
 
@@ -161,11 +222,11 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// ƒ^ƒO•Ê“Œv‚ğæ“¾‚·‚é
+        /// ï¿½^ï¿½Oï¿½Ê“ï¿½ï¿½vï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <returns>ƒ^ƒO•Ê“Œv‚ÌƒfƒBƒNƒVƒ‡ƒiƒŠ</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <returns>ï¿½^ï¿½Oï¿½Ê“ï¿½ï¿½vï¿½Ìƒfï¿½Bï¿½Nï¿½Vï¿½ï¿½ï¿½iï¿½ï¿½</returns>
         public Dictionary<string, TagStatistics> GetTagStatistics(DateTime startDate, DateTime endDate)
         {
             var tagStats = new Dictionary<string, TagStatistics>();
@@ -195,12 +256,12 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// ƒJƒeƒSƒŠ•Ê‚Ìì‹ÆŠÔƒ‰ƒ“ƒLƒ“ƒO‚ğæ“¾‚·‚é
+        /// ï¿½Jï¿½eï¿½Sï¿½ï¿½ï¿½Ê‚Ìï¿½Æï¿½ï¿½Ôƒï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <param name="topCount">ãˆÊ‰½ˆÊ‚Ü‚Åæ“¾‚·‚é‚©</param>
-        /// <returns>ì‹ÆŠÔ‡‚ÌƒJƒeƒSƒŠƒ‰ƒ“ƒLƒ“ƒO</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <param name="topCount">ï¿½ï¿½Ê‰ï¿½ï¿½Ê‚Ü‚Åæ“¾ï¿½ï¿½ï¿½é‚©</param>
+        /// <returns>ï¿½ï¿½Æï¿½ï¿½Ôï¿½ï¿½ÌƒJï¿½eï¿½Sï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½O</returns>
         public List<(string Category, int FocusMinutes, int CompletedPomodoros)> GetCategoryRanking(
             DateTime startDate, DateTime endDate, int topCount = 10)
         {
@@ -214,12 +275,12 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// ƒ^ƒO•Ê‚Ìì‹ÆŠÔƒ‰ƒ“ƒLƒ“ƒO‚ğæ“¾‚·‚é
+        /// ï¿½^ï¿½Oï¿½Ê‚Ìï¿½Æï¿½ï¿½Ôƒï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <param name="topCount">ãˆÊ‰½ˆÊ‚Ü‚Åæ“¾‚·‚é‚©</param>
-        /// <returns>ì‹ÆŠÔ‡‚Ìƒ^ƒOƒ‰ƒ“ƒLƒ“ƒO</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <param name="topCount">ï¿½ï¿½Ê‰ï¿½ï¿½Ê‚Ü‚Åæ“¾ï¿½ï¿½ï¿½é‚©</param>
+        /// <returns>ï¿½ï¿½Æï¿½ï¿½Ôï¿½ï¿½Ìƒ^ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½O</returns>
         public List<(string Tag, int FocusMinutes, int CompletedPomodoros)> GetTagRanking(
             DateTime startDate, DateTime endDate, int topCount = 10)
         {
@@ -233,10 +294,10 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// TŸƒŒƒ|[ƒg‚ğæ“¾‚·‚é
+        /// ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½|ï¿½[ï¿½gï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="weekStart">T‚ÌŠJn“ú</param>
-        /// <returns>TŸƒŒƒ|[ƒg</returns>
+        /// <param name="weekStart">ï¿½Tï¿½ÌŠJï¿½nï¿½ï¿½</param>
+        /// <returns>ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½|ï¿½[ï¿½g</returns>
         public WeeklyReport GetWeeklyReport(DateTime weekStart)
         {
             var weekStartDate = weekStart.Date.AddDays(-(int)weekStart.DayOfWeek);
@@ -248,17 +309,17 @@ namespace PomodoroTimer.Services
                 DailyStatistics = weeklyStats
             };
 
-            // Å‚àg—p‚³‚ê‚½ƒvƒƒWƒFƒNƒg‚ğæ“¾
+            // ï¿½Å‚ï¿½ï¿½gï¿½pï¿½ï¿½ï¿½ê‚½ï¿½vï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½gï¿½ï¿½ï¿½æ“¾
             var projectStats = GetProjectStatistics(weekStartDate, weekStartDate.AddDays(6));
             var topProject = projectStats.OrderByDescending(p => p.Value.FocusMinutes).FirstOrDefault();
-            report.TopProject = topProject.Key ?? "‚È‚µ";
+            report.TopProject = topProject.Key ?? "ï¿½È‚ï¿½";
 
-            // Å‚àg—p‚³‚ê‚½ƒ^ƒO‚ğæ“¾
+            // ï¿½Å‚ï¿½ï¿½gï¿½pï¿½ï¿½ï¿½ê‚½ï¿½^ï¿½Oï¿½ï¿½ï¿½æ“¾
             var tagStats = GetTagStatistics(weekStartDate, weekStartDate.AddDays(6));
             var topTag = tagStats.OrderByDescending(t => t.Value.FocusMinutes).FirstOrDefault();
-            report.TopTag = topTag.Key ?? "‚È‚µ";
+            report.TopTag = topTag.Key ?? "ï¿½È‚ï¿½";
 
-            // ‘OT‚Æ‚Ì”äŠr
+            // ï¿½Oï¿½Tï¿½Æ‚Ì”ï¿½r
             var lastWeekStart = weekStartDate.AddDays(-7);
             var lastWeekStats = GetWeeklyStatistics(lastWeekStart);
             var lastWeekPomodoros = lastWeekStats.Sum(d => d.CompletedPomodoros);
@@ -268,11 +329,11 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// ŒŠÔ“Œv‚ğæ“¾‚·‚é
+        /// ï¿½ï¿½ï¿½Ô“ï¿½ï¿½vï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="year">”N</param>
-        /// <param name="month">Œ</param>
-        /// <returns>ŒŠÔ“Œv</returns>
+        /// <param name="year">ï¿½N</param>
+        /// <param name="month">ï¿½ï¿½</param>
+        /// <returns>ï¿½ï¿½ï¿½Ô“ï¿½ï¿½v</returns>
         public MonthlyStatistics GetMonthlyStatistics(int year, int month)
         {
             var monthlyStats = new MonthlyStatistics
@@ -302,11 +363,11 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// ¶Y«ƒgƒŒƒ“ƒh‚ğæ“¾‚·‚é
+        /// ï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <returns>¶Y«ƒgƒŒƒ“ƒhƒf[ƒ^</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <returns>ï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½hï¿½fï¿½[ï¿½^</returns>
         public List<ProductivityTrend> GetProductivityTrend(DateTime startDate, DateTime endDate)
         {
             var trends = new List<ProductivityTrend>();
@@ -330,49 +391,49 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// ŠÔ‘Ñ•Êì‹Æ•ªÍ‚ğæ“¾‚·‚é
+        /// ï¿½ï¿½ï¿½Ô‘Ñ•Êï¿½Æ•ï¿½ï¿½Í‚ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="startDate">ŠJn“ú</param>
-        /// <param name="endDate">I—¹“ú</param>
-        /// <returns>ŠÔ‘Ñ•Êì‹Æ•ªÍ</returns>
+        /// <param name="startDate">ï¿½Jï¿½nï¿½ï¿½</param>
+        /// <param name="endDate">ï¿½Iï¿½ï¿½ï¿½ï¿½</param>
+        /// <returns>ï¿½ï¿½ï¿½Ô‘Ñ•Êï¿½Æ•ï¿½ï¿½ï¿½</returns>
         public Dictionary<int, HourlyProductivity> GetHourlyProductivity(DateTime startDate, DateTime endDate)
         {
-            // ŠÈˆÕÀ‘•FÀÛ‚ÌŠÔ‘Ñƒf[ƒ^‚ª•K—v‚Èê‡‚ÍAƒZƒbƒVƒ‡ƒ“ŠJnŠÔ‚Ì‹L˜^‹@”\‚ğ’Ç‰Á‚·‚é•K—v‚ª‚ ‚è‚Ü‚·
+            // ï¿½ÈˆÕï¿½ï¿½ï¿½ï¿½Fï¿½ï¿½ï¿½Û‚Ìï¿½ï¿½Ô‘Ñƒfï¿½[ï¿½^ï¿½ï¿½ï¿½Kï¿½vï¿½Èê‡ï¿½ÍAï¿½Zï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Jï¿½nï¿½ï¿½ï¿½Ô‚Ì‹Lï¿½^ï¿½@ï¿½\ï¿½ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½Kï¿½vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½
             var hourlyStats = new Dictionary<int, HourlyProductivity>();
 
-            // 0-23‚Ì‰Šú‰»
+            // 0-23ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
             for (int hour = 0; hour < 24; hour++)
             {
                 hourlyStats[hour] = new HourlyProductivity { Hour = hour };
             }
 
-            // Œ»İ‚ÍƒTƒ“ƒvƒ‹ƒf[ƒ^‚Æ‚µ‚ÄAˆê”Ê“I‚Èì‹ÆŠÔ‘Ñ‚Éƒf[ƒ^‚ğ”z•ª
+            // ï¿½ï¿½ï¿½İ‚ÍƒTï¿½ï¿½ï¿½vï¿½ï¿½ï¿½fï¿½[ï¿½^ï¿½Æ‚ï¿½ï¿½ÄAï¿½ï¿½Ê“Iï¿½Èï¿½Æï¿½ï¿½Ô‘Ñ‚Éƒfï¿½[ï¿½^ï¿½ï¿½zï¿½ï¿½
             var currentDate = startDate.Date;
             while (currentDate <= endDate.Date)
             {
                 var dailyStats = GetDailyStatistics(currentDate);
                 if (dailyStats.CompletedPomodoros > 0)
                 {
-                    // ì‹ÆŠÔ‚ğ’©(9-12)A’‹(13-17)A–é(19-22)‚É•ªU
+                    // ï¿½ï¿½Æï¿½ï¿½Ô‚ï¿½(9-12)ï¿½Aï¿½ï¿½(13-17)ï¿½Aï¿½ï¿½(19-22)ï¿½É•ï¿½ï¿½U
                     var morningPomodoros = (int)(dailyStats.CompletedPomodoros * 0.4);
                     var afternoonPomodoros = (int)(dailyStats.CompletedPomodoros * 0.5);
                     var eveningPomodoros = dailyStats.CompletedPomodoros - morningPomodoros - afternoonPomodoros;
 
-                    // ’©‚ÌŠÔ‘Ñ
+                    // ï¿½ï¿½ï¿½Ìï¿½ï¿½Ô‘ï¿½
                     for (int h = 9; h <= 11; h++)
                     {
                         hourlyStats[h].Pomodoros += morningPomodoros / 3;
                         hourlyStats[h].FocusMinutes += (dailyStats.TotalFocusMinutes * 40 / 100) / 3;
                     }
 
-                    // ’‹‚ÌŠÔ‘Ñ
+                    // ï¿½ï¿½ï¿½Ìï¿½ï¿½Ô‘ï¿½
                     for (int h = 13; h <= 17; h++)
                     {
                         hourlyStats[h].Pomodoros += afternoonPomodoros / 5;
                         hourlyStats[h].FocusMinutes += (dailyStats.TotalFocusMinutes * 50 / 100) / 5;
                     }
 
-                    // –é‚ÌŠÔ‘Ñ
+                    // ï¿½ï¿½Ìï¿½ï¿½Ô‘ï¿½
                     for (int h = 19; h <= 21; h++)
                     {
                         hourlyStats[h].Pomodoros += eveningPomodoros / 3;
@@ -403,8 +464,8 @@ namespace PomodoroTimer.Services
             }
             catch (Exception ex)
             {
-                // ƒƒO‹L˜^iÀ‘•‚É“KØ‚ÈƒƒK[‚ğg—pj
-                Console.WriteLine($"“Œvƒf[ƒ^‚Ì•Û‘¶‚É¸”s‚µ‚Ü‚µ‚½: {ex.Message}");
+                // ï¿½ï¿½ï¿½Oï¿½Lï¿½^ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É“Kï¿½Ø‚Èƒï¿½ï¿½Kï¿½[ï¿½ï¿½ï¿½gï¿½pï¿½j
+                Console.WriteLine($"ï¿½ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½Ì•Û‘ï¿½ï¿½Éï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½: {ex.Message}");
             }
         }
 
@@ -429,18 +490,18 @@ namespace PomodoroTimer.Services
             }
             catch (Exception ex)
             {
-                // ƒƒO‹L˜^iÀ‘•‚É“KØ‚ÈƒƒK[‚ğg—pj
-                Console.WriteLine($"“Œvƒf[ƒ^‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½: {ex.Message}");
+                // ï¿½ï¿½ï¿½Oï¿½Lï¿½^ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É“Kï¿½Ø‚Èƒï¿½ï¿½Kï¿½[ï¿½ï¿½ï¿½gï¿½pï¿½j
+                Console.WriteLine($"ï¿½ï¿½ï¿½vï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚İï¿½ï¿½İ‚Éï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// W’†“xƒXƒRƒA‚ğXV‚·‚é
+        /// ï¿½Wï¿½ï¿½ï¿½xï¿½Xï¿½Rï¿½Aï¿½ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="dailyStats">“úŸ“Œv</param>
+        /// <param name="dailyStats">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½v</param>
         private void UpdateFocusScore(DailyStatistics dailyStats)
         {
-            // ŠÈˆÕ“I‚ÈW’†“xŒvZFŠ®—¹ƒ|ƒ‚ƒh[ƒ”‚ÆŠ®—¹ƒ^ƒXƒN”‚ÉŠî‚Ã‚­
+            // ï¿½ÈˆÕ“Iï¿½ÈWï¿½ï¿½ï¿½xï¿½vï¿½Zï¿½Fï¿½ï¿½ï¿½ï¿½ï¿½|ï¿½ï¿½ï¿½hï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ÆŠï¿½ï¿½ï¿½ï¿½^ï¿½Xï¿½Nï¿½ï¿½ï¿½ÉŠï¿½Ã‚ï¿½
             var pomodoroScore = Math.Min(dailyStats.CompletedPomodoros * 10, 70);
             var taskScore = Math.Min(dailyStats.CompletedTasks * 15, 30);
             

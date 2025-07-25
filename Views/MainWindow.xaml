@@ -523,11 +523,6 @@
                                                                 CommandParameter="{Binding}"
                                                                 Style="{StaticResource KanbanActionButton}"
                                                                 Background="{StaticResource AccentBrush}" Margin="1"/>
-                                                        <Button Content="✏" ToolTip="編集"
-                                                                Command="{Binding DataContext.EditTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource KanbanActionButton}"
-                                                                Background="{StaticResource WarningBrush}" Margin="1"/>
                                                         <Button Content="📝" ToolTip="詳細"
                                                                 Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"

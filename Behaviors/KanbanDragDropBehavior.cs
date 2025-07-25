@@ -216,6 +216,15 @@ namespace PomodoroTimer.Behaviors
             {
                 var oldStatus = task.Status;
                 
+                // 完了状態から他の状態に変更する場合は統計からundo
+                if (oldStatus == TaskStatus.Completed && newStatus != TaskStatus.Completed)
+                {
+                    // StatisticsServiceにアクセスするためのプロパティがMainViewModelに必要
+                    var undoMethod = viewModel.GetType().GetMethod("UndoTaskCompleteInStatistics", 
+                        System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    undoMethod?.Invoke(viewModel, new object[] { task });
+                }
+                
                 // 実行中タスクを他の状態に移動する場合の特別処理
                 if (oldStatus == TaskStatus.Executing && newStatus != TaskStatus.Executing)
                 {
@@ -274,6 +283,11 @@ namespace PomodoroTimer.Behaviors
                             task.StartedAt = DateTime.Now;
                         task.CompletedAt = DateTime.Now;
                         task.IsCompleted = true;
+                        
+                        // 統計に記録
+                        var recordMethod = viewModel.GetType().GetMethod("RecordTaskCompleteInStatistics", 
+                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        recordMethod?.Invoke(viewModel, new object[] { task });
                         
                         // 実行中タスクだった場合はクリア（既に上で処理済み）
                         break;

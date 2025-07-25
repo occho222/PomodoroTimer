@@ -798,6 +798,13 @@ namespace PomodoroTimer.ViewModels
         [RelayCommand]
         private void ResetTask(PomodoroTask task)
         {
+            // 完了状態から戻す場合は統計からも削除
+            if (task.Status == TaskStatus.Completed)
+            {
+                _statisticsService.UndoTaskComplete(task);
+                LoadTodayStatistics(); // 統計情報を再読み込み
+            }
+            
             task.ResetTask();
             UpdateKanbanColumns();
             
@@ -817,7 +824,15 @@ namespace PomodoroTimer.ViewModels
                 parameters[0] is PomodoroTask task && 
                 parameters[1] is TaskStatus newStatus)
             {
+                var oldStatus = task.Status;
                 task.Status = newStatus;
+                
+                // 完了状態から他の状態に変更する場合は統計からundo
+                if (oldStatus == TaskStatus.Completed && newStatus != TaskStatus.Completed)
+                {
+                    _statisticsService.UndoTaskComplete(task);
+                    LoadTodayStatistics();
+                }
                 
                 // 状態に応じて他のプロパティも更新
                 switch (newStatus)
@@ -850,6 +865,26 @@ namespace PomodoroTimer.ViewModels
                 // タスクデータを保存
                 SaveDataAsync();
             }
+        }
+
+        /// <summary>
+        /// 統計からタスク完了記録を取り消す（ドラッグ&ドロップ用）
+        /// </summary>
+        /// <param name="task">取り消し対象のタスク</param>
+        public void UndoTaskCompleteInStatistics(PomodoroTask task)
+        {
+            _statisticsService.UndoTaskComplete(task);
+            LoadTodayStatistics();
+        }
+
+        /// <summary>
+        /// 統計にタスク完了を記録する（ドラッグ&ドロップ用）
+        /// </summary>
+        /// <param name="task">完了したタスク</param>
+        public void RecordTaskCompleteInStatistics(PomodoroTask task)
+        {
+            _statisticsService.RecordTaskComplete(task);
+            LoadTodayStatistics();
         }
 
         /// <summary>
