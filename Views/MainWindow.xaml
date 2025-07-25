@@ -504,15 +504,15 @@
                                                 </Grid.ColumnDefinitions>
                                                 
                                                 <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                                    <StackPanel Orientation="Horizontal">
+                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                                         <Ellipse Style="{StaticResource PriorityIndicator}"
                                                                  Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
-                                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                                                   VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0"/>
                                                     </StackPanel>
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                                                               TextWrapping="Wrap" LineHeight="18" Margin="0,0,8,0"/>
                                                     <!-- 期限表示 -->
                                                     <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
-                                                               Foreground="{Binding DueDateColor}" Margin="20,2,0,0"
+                                                               Foreground="{Binding DueDateColor}" Margin="0,2,0,0"
                                                                Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
                                                 </StackPanel>
                                                 
@@ -646,15 +646,15 @@
                                                 </Grid.ColumnDefinitions>
                                                 
                                                 <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                                    <StackPanel Orientation="Horizontal">
+                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                                         <Ellipse Style="{StaticResource PriorityIndicator}"
                                                                  Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
-                                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                                                   VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0"/>
                                                     </StackPanel>
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                                                               TextWrapping="Wrap" LineHeight="18" Margin="0,0,8,0"/>
                                                     <!-- 期限表示 -->
                                                     <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
-                                                               Foreground="{Binding DueDateColor}" Margin="20,2,0,0"
+                                                               Foreground="{Binding DueDateColor}" Margin="0,2,0,0"
                                                                Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
                                                 </StackPanel>
                                                 
@@ -765,7 +765,7 @@
                                            Foreground="{StaticResource TextLight}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding CurrentTask.Title, FallbackValue=待機中}" 
-                                       FontSize="12" Foreground="Gray" Margin="0,4,0,0"/>
+                                       FontSize="12" Foreground="Gray" Margin="0,4,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
@@ -795,12 +795,16 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         
-                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                            <Ellipse Style="{StaticResource PriorityIndicator}"
-                                                     Fill="{Binding CurrentTask.Priority, Converter={StaticResource PriorityToColorConverter}}"/>
-                                            <TextBlock Text="⏱️" FontSize="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <StackPanel Grid.Column="0">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                <Ellipse Style="{StaticResource PriorityIndicator}"
+                                                         Fill="{Binding CurrentTask.Priority, Converter={StaticResource PriorityToColorConverter}}"/>
+                                                <TextBlock Text="⏱️" FontSize="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Text="実行中" FontSize="12" FontWeight="SemiBold" 
+                                                           VerticalAlignment="Center" Foreground="#6B7280"/>
+                                            </StackPanel>
                                             <TextBlock Text="{Binding CurrentTask.Title}" FontWeight="Bold" FontSize="16"
-                                                       VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#1F2937"/>
+                                                       TextWrapping="Wrap" LineHeight="20" Foreground="#1F2937" Margin="22,0,0,0"/>
                                         </StackPanel>
                                         
                                         <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -1121,10 +1125,12 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
-                                                    <TextBlock Text="✅" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                        <TextBlock Text="✅" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                    </StackPanel>
                                                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                                               VerticalAlignment="Center" TextWrapping="Wrap"
+                                                               TextWrapping="Wrap" LineHeight="18"
                                                                TextDecorations="Strikethrough" Margin="0,0,8,0"/>
                                                 </StackPanel>
                                                 
