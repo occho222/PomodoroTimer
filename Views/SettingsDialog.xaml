@@ -71,18 +71,6 @@
                                           Margin="0,0,0,10"/>
                             </StackPanel>
 
-                            <!-- 集中モード設定 -->
-                            <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="集中モード" Margin="0,0,0,10" FontWeight="SemiBold" FontSize="14"/>
-                                <CheckBox Content="集中モードを有効にする（タスク実行時に小さなGUIに切り替え）" 
-                                          IsChecked="{Binding EnableFocusMode, Mode=TwoWay}" 
-                                          Margin="0,0,0,10"/>
-                                <CheckBox Content="集中モードウィンドウを常に前面に表示" 
-                                          IsChecked="{Binding FocusModeAlwaysOnTop, Mode=TwoWay}" 
-                                          IsEnabled="{Binding EnableFocusMode}"
-                                          Margin="20,0,0,10"/>
-                            </StackPanel>
-
                             <!-- クイックタスク設定 -->
                             <StackPanel Margin="0,0,0,15">
                                 <TextBlock Text="クイックタスク設定" Margin="0,0,0,10" FontWeight="SemiBold" FontSize="14"/>
@@ -239,7 +227,7 @@
                                         <TextBlock Grid.Row="0" Grid.Column="1" Text="ポモドーロタイマー" Margin="0,0,0,5"/>
                                         
                                         <TextBlock Grid.Row="1" Grid.Column="0" Text="バージョン:" FontWeight="SemiBold" Margin="0,0,10,5"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="1.2.4" Margin="0,0,0,5"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="1.2.5" Margin="0,0,0,5"/>
                                         
                                         <TextBlock Grid.Row="2" Grid.Column="0" Text="データフォルダ:" FontWeight="SemiBold" Margin="0,0,10,0" VerticalAlignment="Top"/>
                                         <TextBlock Grid.Row="2" Grid.Column="1" x:Name="DataFolderPath" Text="" TextWrapping="Wrap" 
