@@ -33,6 +33,9 @@ namespace PomodoroTimer.ViewModels
         private string taskTags = string.Empty;
 
         [ObservableProperty]
+        private string url = string.Empty;
+
+        [ObservableProperty]
         private TaskStatus selectedStatus = TaskStatus.Todo;
 
         [ObservableProperty]
@@ -140,6 +143,7 @@ namespace PomodoroTimer.ViewModels
             Description = _originalTask.Description;
             TaskCategory = _originalTask.Category;
             TaskTags = _originalTask.TagsText;
+            Url = _originalTask.Url;
             SelectedStatus = _originalTask.Status;
             SelectedPriority = _originalTask.Priority;
             DueDate = _originalTask.DueDate;
@@ -371,6 +375,7 @@ namespace PomodoroTimer.ViewModels
                 _originalTask.Description = Description;
                 _originalTask.Category = TaskCategory;
                 _originalTask.TagsText = TaskTags;
+                _originalTask.Url = Url;
                 _originalTask.Status = SelectedStatus;
                 _originalTask.Priority = SelectedPriority;
                 _originalTask.DueDate = DueDate;
