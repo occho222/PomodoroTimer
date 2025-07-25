@@ -86,6 +86,21 @@
                              BorderBrush="#E2E8F0" Background="White"/>
                 </StackPanel>
                 
+                <!-- デフォルトチェックリスト -->
+                <StackPanel Margin="0,0,0,15">
+                    <TextBlock Text="デフォルトチェックリスト" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                    <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="4" MaxHeight="120" Background="White">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="ChecklistPanel" Margin="8">
+                                <!-- チェックリストアイテムがここに動的に追加される -->
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                    <Button x:Name="AddChecklistItemButton" Content="+ アイテム追加" 
+                           HorizontalAlignment="Left" Margin="0,5,0,0" Padding="8,4"
+                           Background="#F0F9FF" BorderBrush="#3B82F6" Click="AddChecklistItemButton_Click"/>
+                </StackPanel>
+                
                 <!-- 説明 -->
                 <StackPanel Margin="0,0,0,15">
                     <TextBlock Text="説明" FontWeight="SemiBold" Margin="0,0,0,5"/>
@@ -159,21 +174,6 @@
                     </StackPanel>
                 </StackPanel>
                 
-                <!-- デフォルトチェックリスト -->
-                <StackPanel Margin="0,0,0,15">
-                    <TextBlock Text="デフォルトチェックリスト" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                    <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="4" MaxHeight="120" Background="White">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel x:Name="ChecklistPanel" Margin="8">
-                                <!-- チェックリストアイテムがここに動的に追加される -->
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
-                    <Button x:Name="AddChecklistItemButton" Content="+ アイテム追加" 
-                           HorizontalAlignment="Left" Margin="0,5,0,0" Padding="8,4"
-                           Background="#F0F9FF" BorderBrush="#3B82F6" Click="AddChecklistItemButton_Click"/>
-                </StackPanel>
-
                 <!-- 背景色 -->
                 <StackPanel Margin="0,0,0,15">
                     <TextBlock Text="背景色" FontWeight="SemiBold" Margin="0,0,0,5"/>

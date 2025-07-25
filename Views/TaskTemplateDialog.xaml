@@ -138,6 +138,39 @@
                     <TextBlock Text="テンプレート名:" Style="{StaticResource LabelStyle}"/>
                     <TextBox Text="{Binding TemplateEditName}" Style="{StaticResource InputStyle}"/>
 
+                    <!-- チェックリスト編集 -->
+                    <TextBlock Text="デフォルトチェックリスト:" Style="{StaticResource LabelStyle}"/>
+                    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" MaxHeight="150" Margin="0,0,0,10">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="5">
+                                <ItemsControl ItemsSource="{Binding TemplateEditChecklist}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" Margin="0,0,5,0"/>
+                                                <TextBox Grid.Column="1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
+                                                        BorderThickness="0" Background="Transparent" Margin="0,0,5,0"/>
+                                                <Button Grid.Column="2" Content="×" Width="20" Height="20" 
+                                                       Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.RemoveChecklistItemCommand}"
+                                                       CommandParameter="{Binding}"
+                                                       Background="#EF4444" Foreground="White" FontSize="10"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button Content="+ チェックリストアイテム追加" 
+                                       Command="{Binding AddChecklistItemCommand}" 
+                                       HorizontalAlignment="Left" Margin="0,5,0,0"
+                                       Background="LightBlue" Padding="5,2"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
                     <TextBlock Text="説明:" Style="{StaticResource LabelStyle}"/>
                     <TextBox Text="{Binding TemplateEditDescription}" Style="{StaticResource InputStyle}" 
                              Height="50" TextWrapping="Wrap" AcceptsReturn="True"/>
@@ -178,39 +211,6 @@
 
                     <TextBlock Text="タグ (カンマ区切り):" Style="{StaticResource LabelStyle}"/>
                     <TextBox Text="{Binding TemplateEditTagsText}" Style="{StaticResource InputStyle}"/>
-
-                    <!-- チェックリスト編集 -->
-                    <TextBlock Text="デフォルトチェックリスト:" Style="{StaticResource LabelStyle}"/>
-                    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" MaxHeight="150" Margin="0,0,0,10">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel Margin="5">
-                                <ItemsControl ItemsSource="{Binding TemplateEditChecklist}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0,2">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" Margin="0,0,5,0"/>
-                                                <TextBox Grid.Column="1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
-                                                        BorderThickness="0" Background="Transparent" Margin="0,0,5,0"/>
-                                                <Button Grid.Column="2" Content="×" Width="20" Height="20" 
-                                                       Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.RemoveChecklistItemCommand}"
-                                                       CommandParameter="{Binding}"
-                                                       Background="LightCoral" Foreground="White" FontSize="10"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <Button Content="+ チェックリストアイテム追加" 
-                                       Command="{Binding AddChecklistItemCommand}" 
-                                       HorizontalAlignment="Left" Margin="0,5,0,0"
-                                       Background="LightBlue" Padding="5,2"/>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
 
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Button Content="保存" Command="{Binding SaveTemplateCommand}" Style="{StaticResource ButtonStyle}"/>

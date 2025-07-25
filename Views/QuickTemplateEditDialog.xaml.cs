@@ -201,7 +201,7 @@ namespace PomodoroTimer.Views
                     Content = "×",
                     Width = 20,
                     Height = 20,
-                    Background = System.Windows.Media.Brushes.LightCoral,
+                    Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#EF4444")),
                     Foreground = System.Windows.Media.Brushes.White,
                     FontSize = 10
                 };
