@@ -268,8 +268,8 @@ namespace PomodoroTimer.Views
                         var result = dialog.ShowDialog();
                         if (result == true && viewModel.SelectedTaskResult != null)
                         {
-                            // 選択されたタスクを実行
-                            _mainViewModel.ExecuteTaskCommand?.Execute(viewModel.SelectedTaskResult);
+                            // 集中モード専用のタスク実行（タイマーを継続）
+                            ExecuteTaskInFocusMode(viewModel.SelectedTaskResult);
                         }
                         else
                         {
@@ -305,6 +305,49 @@ namespace PomodoroTimer.Views
             catch (Exception ex)
             {
                 Console.WriteLine($"次のタスク選択でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 集中モード専用のタスク実行処理（タイマーを継続）
+        /// </summary>
+        private void ExecuteTaskInFocusMode(PomodoroTask task)
+        {
+            try
+            {
+                if (task.Status == Models.TaskStatus.Waiting)
+                {
+                    // 既に実行中のタスクがある場合は停止
+                    var currentExecutingTask = _mainViewModel.ExecutingTasks.FirstOrDefault();
+                    if (currentExecutingTask != null)
+                    {
+                        currentExecutingTask.StopExecution();
+                    }
+
+                    // 現在実行中のタスクの経過時間を記録
+                    _mainViewModel.RecordCurrentTaskElapsedTime();
+                    
+                    // 新しいタスクを実行中に移行（タイマーは継続）
+                    task.StartExecution();
+                    _mainViewModel.CurrentTask = task;
+                    
+                    // セッション開始時刻を記録
+                    _mainViewModel.CurrentTask.CurrentSessionStartTime = DateTime.Now;
+                    
+                    // カンバンボードを更新
+                    _mainViewModel.UpdateKanbanColumns();
+                    
+                    // タスクデータを保存
+                    _mainViewModel.SaveDataAsync();
+                    
+                    Console.WriteLine($"[FOCUS MODE] タスク「{task.Title}」を実行中に設定しました（タイマー継続）。");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"集中モードでのタスク実行処理でエラー: {ex.Message}");
+                System.Windows.MessageBox.Show($"タスク実行処理でエラーが発生しました: {ex.Message}", "エラー", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

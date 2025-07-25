@@ -733,7 +733,7 @@ namespace PomodoroTimer.ViewModels
             if (task.Status == TaskStatus.Executing && CurrentTask == task)
             {
                 // タスク完了時の経過時間を記録
-                RecordCurrentTaskElapsedTime();
+                RecordCurrentTaskElapsedTimeInternal();
                 CurrentTask = null;
             }
 
@@ -902,7 +902,7 @@ namespace PomodoroTimer.ViewModels
         /// <summary>
         /// データを非同期で保存する共通メソッド
         /// </summary>
-        private void SaveDataAsync()
+        public void SaveDataAsync()
         {
             _ = Task.Run(_pomodoroService.SaveTasksAsync);
         }
@@ -1594,9 +1594,17 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
-        /// 現在実行中のタスクに経過時間を記録する
+        /// 現在実行中のタスクに経過時間を記録する（公開メソッド）
         /// </summary>
-        private void RecordCurrentTaskElapsedTime()
+        public void RecordCurrentTaskElapsedTime()
+        {
+            RecordCurrentTaskElapsedTimeInternal();
+        }
+
+        /// <summary>
+        /// 現在実行中のタスクに経過時間を記録する（内部メソッド）
+        /// </summary>
+        private void RecordCurrentTaskElapsedTimeInternal()
         {
             if (CurrentTask != null && CurrentTask.CurrentSessionStartTime.HasValue)
             {
@@ -1875,7 +1883,7 @@ namespace PomodoroTimer.ViewModels
                 }
 
                 // 現在実行中のタスクの経過時間を記録してから新しいタスクを開始
-                RecordCurrentTaskElapsedTime();
+                RecordCurrentTaskElapsedTimeInternal();
                 
                 if (IsRunning)
                 {
@@ -1914,7 +1922,7 @@ namespace PomodoroTimer.ViewModels
             if (task.Status == TaskStatus.Executing)
             {
                 // 経過時間を記録してからタスクを停止
-                RecordCurrentTaskElapsedTime();
+                RecordCurrentTaskElapsedTimeInternal();
                 
                 task.StopExecution();
                 
