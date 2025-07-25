@@ -187,6 +187,22 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// 現在実行中タスクのリアルタイム進捗率
+        /// </summary>
+        public double CurrentTaskRealTimeProgressPercentage
+        {
+            get
+            {
+                if (CurrentTask == null || CurrentTask.EstimatedMinutes <= 0)
+                    return 0;
+
+                var currentMinutes = CurrentTaskRealTimeElapsedMinutes;
+                var progress = (double)currentMinutes / CurrentTask.EstimatedMinutes * 100;
+                return Math.Min(100, Math.Max(0, progress));
+            }
+        }
+
+        /// <summary>
         /// フィルタリングされた完了タスクコレクション
         /// </summary>
         public ObservableCollection<PomodoroTask> FilteredDoneTasksCollection
@@ -1546,6 +1562,7 @@ namespace PomodoroTimer.ViewModels
         {
             OnPropertyChanged(nameof(CurrentTaskRealTimeElapsedMinutes));
             OnPropertyChanged(nameof(CurrentTaskRealTimeElapsedTimeDisplay));
+            OnPropertyChanged(nameof(CurrentTaskRealTimeProgressPercentage));
         }
 
         /// <summary>

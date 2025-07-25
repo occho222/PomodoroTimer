@@ -342,9 +342,9 @@
                             
                             <!-- 進捗バー -->
                             <StackPanel Grid.Row="1" Margin="0,0,0,8">
-                                <TextBlock Text="{Binding CurrentTask.ProgressPercentage, StringFormat={}進捗: {0:F0}%, Mode=OneWay}" 
+                                <TextBlock Text="{Binding CurrentTaskRealTimeProgressPercentage, StringFormat={}進捗: {0:F0}%, Mode=OneWay}" 
                                            FontSize="12" Foreground="#6B7280" Margin="0,0,0,4"/>
-                                <ProgressBar Value="{Binding CurrentTask.ProgressPercentage, Mode=OneWay}" Maximum="100" 
+                                <ProgressBar Value="{Binding CurrentTaskRealTimeProgressPercentage, Mode=OneWay}" Maximum="100" 
                                              Height="10" Background="#E5E7EB" Foreground="#F59E0B"/>
                             </StackPanel>
                             
