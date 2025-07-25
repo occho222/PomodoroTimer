@@ -146,6 +146,11 @@
         public bool FocusModeAlwaysOnTop { get; set; } = false;
 
         /// <summary>
+        /// クイックタスクのデフォルト時間（分）
+        /// </summary>
+        public int QuickTaskDefaultMinutes { get; set; } = 5;
+
+        /// <summary>
         /// カスタムテーマの色設定
         /// </summary>
         public ThemeSettings ThemeSettings { get; set; } = new ThemeSettings();

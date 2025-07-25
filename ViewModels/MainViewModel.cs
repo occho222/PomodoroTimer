@@ -621,13 +621,14 @@ namespace PomodoroTimer.ViewModels
                 }
 
                 // スマートデフォルト設定でタスクを作成
-                var newTask = new PomodoroTask(taskTitle, 1)
+                var newTask = new PomodoroTask(taskTitle)
                 {
                     Description = string.Empty,
                     Category = "クイック登録",
                     Priority = TaskPriority.Medium,
                     DisplayOrder = Tasks.Count,
-                    DueDate = DateTime.Today
+                    DueDate = DateTime.Today,
+                    EstimatedMinutes = _settingsService.CurrentSettings.QuickTaskDefaultMinutes
                 };
                 
                 // サービスにタスクを追加
