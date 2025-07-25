@@ -628,7 +628,7 @@ namespace PomodoroTimer.ViewModels
                     Priority = TaskPriority.Medium,
                     DisplayOrder = Tasks.Count,
                     DueDate = DateTime.Today,
-                    EstimatedMinutes = _settingsService.CurrentSettings.QuickTaskDefaultMinutes
+                    EstimatedMinutes = _settings.QuickTaskDefaultMinutes
                 };
                 
                 // サービスにタスクを追加
