@@ -888,6 +888,77 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// 完了タスクを待機中状態に戻すコマンド
+        /// </summary>
+        /// <param name="task">待機中に戻すタスク</param>
+        [RelayCommand]
+        private void MoveCompletedTaskToWaiting(PomodoroTask task)
+        {
+            if (task.Status == TaskStatus.Completed)
+            {
+                // 統計から削除
+                _statisticsService.UndoTaskComplete(task);
+                LoadTodayStatistics();
+                
+                // 待機中状態に変更
+                task.Status = TaskStatus.Waiting;
+                task.IsCompleted = false;
+                task.CompletedAt = null;
+                
+                // 開始日時が設定されていない場合は設定
+                if (task.StartedAt == null)
+                {
+                    task.StartedAt = DateTime.Now;
+                }
+                
+                UpdateKanbanColumns();
+                SaveDataAsync();
+            }
+        }
+
+        /// <summary>
+        /// 完了タスクを実行中状態に戻すコマンド
+        /// </summary>
+        /// <param name="task">実行中に戻すタスク</param>
+        [RelayCommand]
+        private void MoveCompletedTaskToExecuting(PomodoroTask task)
+        {
+            if (task.Status == TaskStatus.Completed)
+            {
+                // 現在実行中のタスクがある場合は停止
+                if (CurrentTask != null)
+                {
+                    StopTaskExecution(CurrentTask);
+                }
+                
+                // 統計から削除
+                _statisticsService.UndoTaskComplete(task);
+                LoadTodayStatistics();
+                
+                // 実行中状態に変更
+                task.Status = TaskStatus.Executing;
+                task.IsCompleted = false;
+                task.CompletedAt = null;
+                task.CurrentSessionStartTime = DateTime.Now;
+                
+                // 開始日時が設定されていない場合は設定
+                if (task.StartedAt == null)
+                {
+                    task.StartedAt = DateTime.Now;
+                }
+                
+                // 現在のタスクとして設定
+                CurrentTask = task;
+                
+                // タイマーを開始（25分）
+                _timerService.Start(TimeSpan.FromMinutes(25));
+                
+                UpdateKanbanColumns();
+                SaveDataAsync();
+            }
+        }
+
+        /// <summary>
         /// タスクの状態変更コマンド
         /// </summary>
         /// <param name="task">状態を変更するタスク</param>

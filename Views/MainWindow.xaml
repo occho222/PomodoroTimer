@@ -1174,18 +1174,28 @@
                                                 
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Top">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                        <Button Content="↩" ToolTip="未完了に戻す"
+                                                        <Button Content="▶" ToolTip="実行中に戻す"
+                                                                Command="{Binding DataContext.MoveCompletedTaskToExecutingCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="#F59E0B" Margin="1"/>
+                                                        <Button Content="⏸" ToolTip="待機中に戻す"
+                                                                Command="{Binding DataContext.MoveCompletedTaskToWaitingCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource KanbanActionButton}"
+                                                                Background="#3B82F6" Margin="1"/>
+                                                        <Button Content="↩" ToolTip="未開始に戻す"
                                                                 Command="{Binding DataContext.ResetTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
                                                                 Style="{StaticResource KanbanActionButton}"
                                                                 Background="Orange" Margin="1"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,2,0,0">
                                                         <Button Content="📝" ToolTip="詳細"
                                                                 Command="{Binding DataContext.OpenTaskDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
                                                                 Style="{StaticResource KanbanActionButton}"
                                                                 Background="#6366F1" Margin="1"/>
-                                                    </StackPanel>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,2,0,0">
                                                         <Button Content="📋" ToolTip="テンプレート作成"
                                                                 Command="{Binding DataContext.CreateTemplateFromTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
