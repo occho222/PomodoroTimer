@@ -186,6 +186,10 @@ namespace PomodoroTimer.Behaviors
 
         private bool CanDropTask(PomodoroTask task, TaskStatus targetStatus)
         {
+            // 同じ状態への移動は不要
+            if (task.Status == targetStatus)
+                return false;
+                
             // ドロップのルールを定義
             switch (targetStatus)
             {
@@ -194,12 +198,12 @@ namespace PomodoroTimer.Behaviors
                     return task.Status == TaskStatus.Waiting || task.Status == TaskStatus.Completed;
                 
                 case TaskStatus.Waiting:
-                    // 未開始や実行中から移動可能
-                    return task.Status == TaskStatus.Todo || task.Status == TaskStatus.Executing;
+                    // 未開始、実行中、完了から移動可能
+                    return task.Status == TaskStatus.Todo || task.Status == TaskStatus.Executing || task.Status == TaskStatus.Completed;
                 
                 case TaskStatus.Executing:
-                    // 待機中からのみ移動可能
-                    return task.Status == TaskStatus.Waiting;
+                    // 待機中、完了から移動可能
+                    return task.Status == TaskStatus.Waiting || task.Status == TaskStatus.Completed;
                 
                 case TaskStatus.Completed:
                     // 実行中や待機中からは完了にできる
@@ -216,13 +220,24 @@ namespace PomodoroTimer.Behaviors
             {
                 var oldStatus = task.Status;
                 
-                // 完了状態から他の状態に変更する場合は統計からundo
+                // 完了状態から他の状態に変更する場合
                 if (oldStatus == TaskStatus.Completed && newStatus != TaskStatus.Completed)
                 {
-                    // StatisticsServiceにアクセスするためのプロパティがMainViewModelに必要
-                    var undoMethod = viewModel.GetType().GetMethod("UndoTaskCompleteInStatistics", 
-                        System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    undoMethod?.Invoke(viewModel, new object[] { task });
+                    // 新しいコマンドを使用して適切に状態変更
+                    switch (newStatus)
+                    {
+                        case TaskStatus.Todo:
+                            viewModel.ResetTaskCommand.Execute(task);
+                            return; // コマンドが完全な処理を行うのでここで終了
+                            
+                        case TaskStatus.Waiting:
+                            viewModel.MoveCompletedTaskToWaitingCommand.Execute(task);
+                            return; // コマンドが完全な処理を行うのでここで終了
+                            
+                        case TaskStatus.Executing:
+                            viewModel.MoveCompletedTaskToExecutingCommand.Execute(task);
+                            return; // コマンドが完全な処理を行うのでここで終了
+                    }
                 }
                 
                 // 実行中タスクを他の状態に移動する場合の特別処理
