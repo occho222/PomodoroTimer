@@ -159,6 +159,7 @@ namespace PomodoroTimer.Behaviors
                 return;
             }
 
+
             // MainViewModelを取得してタスクのステータスを変更
             var mainWindow = Window.GetWindow(AssociatedObject);
             var viewModel = mainWindow?.DataContext as MainViewModel;
@@ -243,18 +244,25 @@ namespace PomodoroTimer.Behaviors
                 // 実行中タスクを他の状態に移動する場合の特別処理
                 if (oldStatus == TaskStatus.Executing && newStatus != TaskStatus.Executing)
                 {
-                    // CurrentTaskからクリア
-                    if (viewModel.CurrentTask == task)
+                    // 完了以外の場合のみCurrentTaskをクリア（完了の場合はCompleteTaskCommandに任せる）
+                    if (newStatus != TaskStatus.Completed)
                     {
-                        viewModel.CurrentTask = null;
+                        // CurrentTaskからクリア
+                        if (viewModel.CurrentTask == task)
+                        {
+                            viewModel.CurrentTask = null;
+                        }
+                        
+                        // タスクの実行状態をリセット
+                        task.StopExecution();
                     }
-                    
-                    // タスクの実行状態をリセット
-                    task.StopExecution();
                 }
                 
-                // ステータス変更
-                task.Status = newStatus;
+                // ステータス変更（完了の場合は後で処理するため、ここではスキップ）
+                if (newStatus != TaskStatus.Completed)
+                {
+                    task.Status = newStatus;
+                }
                 
                 // ステータスに応じて他のプロパティも更新
                 switch (newStatus)
@@ -294,18 +302,21 @@ namespace PomodoroTimer.Behaviors
                         break;
                         
                     case TaskStatus.Completed:
-                        if (task.StartedAt == null)
-                            task.StartedAt = DateTime.Now;
-                        task.CompletedAt = DateTime.Now;
-                        task.IsCompleted = true;
-                        
-                        // 統計に記録
-                        var recordMethod = viewModel.GetType().GetMethod("RecordTaskCompleteInStatistics", 
-                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        recordMethod?.Invoke(viewModel, new object[] { task });
-                        
-                        // 実行中タスクだった場合はクリア（既に上で処理済み）
-                        break;
+                        // 実行中タスクからの完了の場合（現在のタスクステータスをチェック）
+                        if (task.Status == TaskStatus.Executing || oldStatus == TaskStatus.Executing)
+                        {
+                            // CurrentTaskを確実にドラッグされたタスクに設定してからCompleteTaskCommandを実行
+                            // これにより、CompleteTaskCommandが正しいタスクを完了させる
+                            viewModel.CurrentTask = task;
+                            viewModel.CompleteTaskCommand.Execute(task);
+                            return; // CompleteTaskCommandが完全な処理を行うのでここで終了
+                        }
+                        else
+                        {
+                            // 待機中からの完了の場合は直接CompleteTaskCommandを使用
+                            viewModel.CompleteTaskCommand.Execute(task);
+                            return; // CompleteTaskCommandが完全な処理を行うのでここで終了
+                        }
                 }
                 
                 // UIを更新
