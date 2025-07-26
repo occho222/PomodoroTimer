@@ -136,6 +136,9 @@ namespace PomodoroTimer.ViewModels
             _originalTask = task ?? new PomodoroTask();
             _isEditMode = task != null;
 
+            // コマンドを初期化
+            PasteImageCommand = new RelayCommand(PasteImage);
+
             LoadTaskData();
             PropertyChanged += OnPropertyChanged;
         }
@@ -312,7 +315,8 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
-        [RelayCommand]
+        public IRelayCommand PasteImageCommand { get; }
+
         private void PasteImage()
         {
             try

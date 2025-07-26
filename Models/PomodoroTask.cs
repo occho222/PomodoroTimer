@@ -460,6 +460,28 @@ namespace PomodoroTimer.Models
         public int AttachmentCount => Attachments?.Count ?? 0;
 
         /// <summary>
+        /// 画像ファイルの添付ファイルを取得する
+        /// </summary>
+        public List<string> ImageAttachments
+        {
+            get
+            {
+                if (Attachments == null) return new List<string>();
+                
+                var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+                return Attachments
+                    .Where(attachment => imageExtensions.Any(ext => 
+                        attachment.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+            }
+        }
+
+        /// <summary>
+        /// 画像ファイルがあるかどうか
+        /// </summary>
+        public bool HasImages => ImageAttachments.Count > 0;
+
+        /// <summary>
         /// 期限までの残り日数を取得する
         /// </summary>
         public int? DaysUntilDue

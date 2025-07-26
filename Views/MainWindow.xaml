@@ -550,6 +550,34 @@
                                                        FontSize="12" Foreground="Gray" TextWrapping="Wrap" Margin="0,8,0,0"
                                                        Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                             
+                                            <!-- 画像表示 -->
+                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+                                                         Margin="0,4,0,0" MaxHeight="80"
+                                                         Visibility="{Binding HasImages, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl ItemsSource="{Binding ImageAttachments}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border CornerRadius="4" Margin="0,0,4,0" Background="White" BorderThickness="1" BorderBrush="#E5E7EB">
+                                                                <Image Source="{Binding}" Width="60" Height="60" 
+                                                                       Stretch="UniformToFill" ToolTip="{Binding}"
+                                                                       Cursor="Hand">
+                                                                    <Image.InputBindings>
+                                                                        <MouseBinding MouseAction="LeftClick" 
+                                                                                    Command="{Binding DataContext.OpenImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                    CommandParameter="{Binding}"/>
+                                                                    </Image.InputBindings>
+                                                                </Image>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                            
                                             <!-- カテゴリとタグ -->
                                             <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
                                                 <Border Background="{StaticResource SecondaryBrush}" CornerRadius="3" Margin="0,0,4,0"
@@ -713,6 +741,34 @@
                                             <TextBlock Grid.Row="1" Text="{Binding Description}" 
                                                        FontSize="12" Foreground="Gray" TextWrapping="Wrap" Margin="0,8,0,0"
                                                        Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            
+                                            <!-- 画像表示 -->
+                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+                                                         Margin="0,4,0,0" MaxHeight="80"
+                                                         Visibility="{Binding HasImages, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl ItemsSource="{Binding ImageAttachments}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border CornerRadius="4" Margin="0,0,4,0" Background="White" BorderThickness="1" BorderBrush="#E5E7EB">
+                                                                <Image Source="{Binding}" Width="60" Height="60" 
+                                                                       Stretch="UniformToFill" ToolTip="{Binding}"
+                                                                       Cursor="Hand">
+                                                                    <Image.InputBindings>
+                                                                        <MouseBinding MouseAction="LeftClick" 
+                                                                                    Command="{Binding DataContext.OpenImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                    CommandParameter="{Binding}"/>
+                                                                    </Image.InputBindings>
+                                                                </Image>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
                                             
                                             <!-- カテゴリとタグ -->
                                             <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
@@ -961,6 +1017,34 @@
                                     <TextBlock Grid.Row="3" Text="{Binding CurrentTask.Description}" 
                                                FontSize="12" Foreground="Gray" TextWrapping="Wrap" Margin="0,12,0,0"
                                                Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    
+                                    <!-- 画像表示 -->
+                                    <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+                                                 Margin="0,6,0,0" MaxHeight="100"
+                                                 Visibility="{Binding CurrentTask.HasImages, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <ItemsControl ItemsSource="{Binding CurrentTask.ImageAttachments}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="6" Margin="0,0,6,0" Background="White" BorderThickness="1" BorderBrush="#E5E7EB">
+                                                        <Image Source="{Binding}" Width="80" Height="80" 
+                                                               Stretch="UniformToFill" ToolTip="{Binding}"
+                                                               Cursor="Hand">
+                                                            <Image.InputBindings>
+                                                                <MouseBinding MouseAction="LeftClick" 
+                                                                            Command="{Binding DataContext.OpenImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                            CommandParameter="{Binding}"/>
+                                                            </Image.InputBindings>
+                                                        </Image>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
                                     
                                     <!-- カテゴリとタグ -->
                                     <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,12,0,0">
@@ -1214,6 +1298,34 @@
                                             <TextBlock Grid.Row="1" 
                                                        Text="{Binding CompletedAt, StringFormat={}完了: {0:MM/dd HH:mm}}" 
                                                        FontSize="11" Foreground="Green" Margin="0,4,0,0"/>
+                                            
+                                            <!-- 画像表示 -->
+                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+                                                         Margin="0,4,0,0" MaxHeight="60"
+                                                         Visibility="{Binding HasImages, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl ItemsSource="{Binding ImageAttachments}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border CornerRadius="4" Margin="0,0,4,0" Background="White" BorderThickness="1" BorderBrush="#E5E7EB" Opacity="0.7">
+                                                                <Image Source="{Binding}" Width="50" Height="50" 
+                                                                       Stretch="UniformToFill" ToolTip="{Binding}"
+                                                                       Cursor="Hand">
+                                                                    <Image.InputBindings>
+                                                                        <MouseBinding MouseAction="LeftClick" 
+                                                                                    Command="{Binding DataContext.OpenImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                    CommandParameter="{Binding}"/>
+                                                                    </Image.InputBindings>
+                                                                </Image>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
                                             
                                             <!-- カテゴリとタグ -->
                                             <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,0">

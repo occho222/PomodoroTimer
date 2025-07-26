@@ -164,6 +164,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
@@ -345,8 +346,41 @@
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
                         
+                        <!-- 画像 -->
+                        <ScrollViewer Grid.Row="6" MaxHeight="200" Margin="0,12,0,0"
+                                      Visibility="{Binding CurrentTask.HasImages, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel>
+                                <TextBlock Text="📷 添付画像" FontSize="12" FontWeight="Bold" 
+                                           Foreground="#1F2937" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding CurrentTask.ImageAttachments}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="6" Margin="0,0,8,8" Padding="2" Background="White"
+                                                    BorderBrush="#E5E7EB" BorderThickness="1">
+                                                <Image Source="{Binding}" Width="80" Height="80" 
+                                                       Stretch="UniformToFill" ToolTip="{Binding}"
+                                                       Cursor="Hand">
+                                                    <Image.InputBindings>
+                                                        <MouseBinding MouseAction="LeftClick" 
+                                                                    Command="{Binding DataContext.OpenImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                    </Image.InputBindings>
+                                                </Image>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                        
                         <!-- 進捗と時間情報 -->
-                        <Grid Grid.Row="6" Margin="0,15,0,0">
+                        <Grid Grid.Row="7" Margin="0,15,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>

@@ -4,9 +4,13 @@ using PomodoroTimer.Models;
 using PomodoroTimer.Services;
 using PomodoroTimer.Views;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using TaskStatus = PomodoroTimer.Models.TaskStatus; // 名前空間の競合を解決
 
@@ -2886,6 +2890,57 @@ namespace PomodoroTimer.ViewModels
             catch (Exception ex)
             {
                 Console.WriteLine($"集中モード表示チェックでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 画像を別ウィンドウで開くコマンド
+        /// </summary>
+        [RelayCommand]
+        private void OpenImage(string imagePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath))
+                {
+                    System.Windows.MessageBox.Show("画像ファイルが見つかりません。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // 画像表示用の新しいウィンドウを作成
+                var imageWindow = new Window
+                {
+                    Title = Path.GetFileName(imagePath),
+                    Width = 800,
+                    Height = 600,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    SizeToContent = SizeToContent.WidthAndHeight,
+                    MaxWidth = SystemParameters.WorkArea.Width * 0.9,
+                    MaxHeight = SystemParameters.WorkArea.Height * 0.9
+                };
+
+                var image = new System.Windows.Controls.Image
+                {
+                    Source = new BitmapImage(new Uri(imagePath)),
+                    Stretch = Stretch.Uniform,
+                    MaxWidth = SystemParameters.WorkArea.Width * 0.8,
+                    MaxHeight = SystemParameters.WorkArea.Height * 0.8
+                };
+
+                // スクロールビューアーでラップして大きな画像でもスクロールできるようにする
+                var scrollViewer = new ScrollViewer
+                {
+                    Content = image,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+                };
+
+                imageWindow.Content = scrollViewer;
+                imageWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"画像を開く際にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
