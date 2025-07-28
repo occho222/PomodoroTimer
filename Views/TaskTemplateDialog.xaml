@@ -62,6 +62,7 @@
                         <TextBlock Text="{Binding Category, StringFormat='{}カテゴリ: {0}'}" FontSize="11" Foreground="DarkBlue" Margin="0,0,15,0"/>
                         <TextBlock Text="{Binding EstimatedPomodoros, StringFormat='{}ポモドーロ: {0}'}" FontSize="11" Foreground="DarkGreen" Margin="0,0,15,0"/>
                         <TextBlock Text="{Binding DefaultChecklist.Count, StringFormat='{}チェックリスト: {0}項目'}" FontSize="11" Foreground="Purple" Margin="0,0,15,0"/>
+                        <TextBlock Text="{Binding DefaultLinks.Count, StringFormat='{}リンク: {0}項目'}" FontSize="11" Foreground="DarkCyan" Margin="0,0,15,0"/>
                         <TextBlock Text="{Binding TagsText, StringFormat='{}タグ: {0}'}" FontSize="11" Foreground="DarkOrange"/>
                     </StackPanel>
                 </Grid>
@@ -167,6 +168,40 @@
                                        Command="{Binding AddChecklistItemCommand}" 
                                        HorizontalAlignment="Left" Margin="0,5,0,0"
                                        Background="LightBlue" Padding="5,2"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- リンク編集 -->
+                    <TextBlock Text="デフォルトリンク:" Style="{StaticResource LabelStyle}"/>
+                    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" MaxHeight="150" Margin="0,0,0,10">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="5">
+                                <ItemsControl ItemsSource="{Binding TemplateEditLinks}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="100"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" 
+                                                        BorderThickness="1" Margin="0,0,5,0" ToolTip="リンクタイトル"/>
+                                                <TextBox Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" 
+                                                        BorderThickness="1" Margin="0,0,5,0" ToolTip="URL"/>
+                                                <Button Grid.Column="2" Content="×" Width="20" Height="20" 
+                                                       Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.RemoveLinkItemCommand}"
+                                                       CommandParameter="{Binding}"
+                                                       Background="#EF4444" Foreground="White" FontSize="10"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button Content="+ リンク追加" 
+                                       Command="{Binding AddLinkItemCommand}" 
+                                       HorizontalAlignment="Left" Margin="0,5,0,0"
+                                       Background="LightGreen" Padding="5,2"/>
                             </StackPanel>
                         </ScrollViewer>
                     </Border>

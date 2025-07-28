@@ -19,6 +19,7 @@ namespace PomodoroTimer.Views
         public int EstimatedMinutes { get; set; } = 25;
         public string BackgroundColor { get; set; } = "#3B82F6";
         public List<ChecklistItem> DefaultChecklist { get; set; } = new();
+        public List<LinkItem> DefaultLinks { get; set; } = new();
 
         public QuickTemplateEditDialog()
         {
@@ -71,6 +72,10 @@ namespace PomodoroTimer.Views
             // チェックリストの設定
             DefaultChecklist = new List<ChecklistItem>(template.DefaultChecklist);
             RefreshChecklistUI();
+
+            // リンクの設定
+            DefaultLinks = new List<LinkItem>(template.DefaultLinks);
+            RefreshLinksUI();
         }
 
         private void SetBackgroundColorRadio(string color)
@@ -144,6 +149,9 @@ namespace PomodoroTimer.Views
 
             // チェックリストを更新
             UpdateChecklistFromUI();
+
+            // リンクを更新
+            UpdateLinksFromUI();
 
             DialogResult = true;
             Close();
@@ -220,6 +228,76 @@ namespace PomodoroTimer.Views
         }
 
         private void UpdateChecklistFromUI()
+        {
+            // UIから既に更新済みなので特に処理なし
+        }
+
+        private void AddLinkItemButton_Click(object sender, RoutedEventArgs e)
+        {
+            DefaultLinks.Add(new LinkItem("新しいリンク", "https://"));
+            RefreshLinksUI();
+        }
+
+        private void RefreshLinksUI()
+        {
+            LinksPanel.Children.Clear();
+            
+            for (int i = 0; i < DefaultLinks.Count; i++)
+            {
+                var item = DefaultLinks[i];
+                var itemPanel = new Grid();
+                itemPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+                itemPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                itemPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
+                itemPanel.Margin = new Thickness(0, 2, 0, 2);
+
+                var titleTextBox = new System.Windows.Controls.TextBox
+                {
+                    Text = item.Title,
+                    BorderThickness = new Thickness(1),
+                    Margin = new Thickness(0, 0, 5, 0),
+                    ToolTip = "リンクタイトル",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                titleTextBox.SetValue(Grid.ColumnProperty, 0);
+                var itemIndex = i;
+                titleTextBox.TextChanged += (s, e) => DefaultLinks[itemIndex].Title = titleTextBox.Text;
+
+                var urlTextBox = new System.Windows.Controls.TextBox
+                {
+                    Text = item.Url,
+                    BorderThickness = new Thickness(1),
+                    Margin = new Thickness(0, 0, 5, 0),
+                    ToolTip = "URL",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                urlTextBox.SetValue(Grid.ColumnProperty, 1);
+                urlTextBox.TextChanged += (s, e) => DefaultLinks[itemIndex].Url = urlTextBox.Text;
+
+                var deleteButton = new System.Windows.Controls.Button
+                {
+                    Content = "×",
+                    Width = 20,
+                    Height = 20,
+                    Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#EF4444")),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontSize = 10
+                };
+                deleteButton.SetValue(Grid.ColumnProperty, 2);
+                deleteButton.Click += (s, e) =>
+                {
+                    DefaultLinks.RemoveAt(itemIndex);
+                    RefreshLinksUI();
+                };
+
+                itemPanel.Children.Add(titleTextBox);
+                itemPanel.Children.Add(urlTextBox);
+                itemPanel.Children.Add(deleteButton);
+                LinksPanel.Children.Add(itemPanel);
+            }
+        }
+
+        private void UpdateLinksFromUI()
         {
             // UIから既に更新済みなので特に処理なし
         }

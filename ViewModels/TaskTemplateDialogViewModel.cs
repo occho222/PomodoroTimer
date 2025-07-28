@@ -62,6 +62,9 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private ObservableCollection<ChecklistItem> templateEditChecklist = new();
 
+        [ObservableProperty]
+        private ObservableCollection<LinkItem> templateEditLinks = new();
+
         public event Action<PomodoroTask>? TaskCreated;
 
         public TaskTemplateDialogViewModel(ITaskTemplateService templateService, IPomodoroService pomodoroService)
@@ -159,6 +162,13 @@ namespace PomodoroTimer.ViewModels
             {
                 TemplateEditChecklist.Add(new ChecklistItem(item.Text) { IsChecked = item.IsChecked });
             }
+
+            // リンクもロード
+            TemplateEditLinks.Clear();
+            foreach (var item in SelectedTemplate.DefaultLinks)
+            {
+                TemplateEditLinks.Add(new LinkItem(item.Title, item.Url) { CreatedAt = item.CreatedAt });
+            }
         }
 
         private void ClearEditFields()
@@ -172,6 +182,7 @@ namespace PomodoroTimer.ViewModels
             TemplateEditPriority = TaskPriority.Medium;
             TemplateEditTagsText = string.Empty;
             TemplateEditChecklist.Clear();
+            TemplateEditLinks.Clear();
         }
 
         [RelayCommand]
@@ -223,6 +234,13 @@ namespace PomodoroTimer.ViewModels
                 foreach (var item in TemplateEditChecklist)
                 {
                     template.DefaultChecklist.Add(new ChecklistItem(item.Text) { IsChecked = item.IsChecked });
+                }
+
+                // リンクも保存
+                template.DefaultLinks.Clear();
+                foreach (var item in TemplateEditLinks)
+                {
+                    template.DefaultLinks.Add(new LinkItem(item.Title, item.Url) { CreatedAt = item.CreatedAt });
                 }
 
                 if (SelectedTemplate == null)
@@ -433,6 +451,21 @@ namespace PomodoroTimer.ViewModels
             if (item != null)
             {
                 TemplateEditChecklist.Remove(item);
+            }
+        }
+
+        [RelayCommand]
+        private void AddLinkItem()
+        {
+            TemplateEditLinks.Add(new LinkItem("新しいリンク", "https://"));
+        }
+
+        [RelayCommand]
+        private void RemoveLinkItem(LinkItem item)
+        {
+            if (item != null)
+            {
+                TemplateEditLinks.Remove(item);
             }
         }
     }

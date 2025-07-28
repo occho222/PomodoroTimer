@@ -100,6 +100,21 @@
                            HorizontalAlignment="Left" Margin="0,5,0,0" Padding="8,4"
                            Background="#F0F9FF" BorderBrush="#3B82F6" Click="AddChecklistItemButton_Click"/>
                 </StackPanel>
+
+                <!-- デフォルトリンク -->
+                <StackPanel Margin="0,0,0,15">
+                    <TextBlock Text="デフォルトリンク" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                    <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="4" MaxHeight="120" Background="White">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="LinksPanel" Margin="8">
+                                <!-- リンクアイテムがここに動的に追加される -->
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                    <Button x:Name="AddLinkItemButton" Content="+ リンク追加" 
+                           HorizontalAlignment="Left" Margin="0,5,0,0" Padding="8,4"
+                           Background="#F0FDF4" BorderBrush="#10B981" Click="AddLinkItemButton_Click"/>
+                </StackPanel>
                 
                 <!-- 説明 -->
                 <StackPanel Margin="0,0,0,15">
