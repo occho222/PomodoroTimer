@@ -746,9 +746,7 @@
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="{x:Type GroupItem}">
                                                         <StackPanel>
-                                                            <ContentPresenter x:Name="PART_Header" 
-                                                                            ContentSource="Header" 
-                                                                            ContentTemplate="{Binding GroupStyle[0].HeaderTemplate, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                                            <ContentPresenter x:Name="PART_Header" ContentSource="Header"/>
                                                             <StackPanel x:Name="PART_Items">
                                                                 <ItemsPresenter />
                                                             </StackPanel>
