@@ -700,99 +700,62 @@
 
                     <!-- タスクリスト -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
-                        <ItemsControl ItemsSource="{Binding TodoTasksGrouped.View}">
-                            <ItemsControl.GroupStyle>
-                                <GroupStyle>
-                                    <GroupStyle.HeaderTemplate>
-                                        <DataTemplate>
-                                            <Border Background="#F1F5F9" CornerRadius="6" Margin="0,4,0,2" Padding="8,4">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    
-                                                    <Button Grid.Column="0" x:Name="ExpandCollapseButton"
-                                                            Content="▼" FontSize="10" FontWeight="Bold"
-                                                            Background="Transparent" BorderThickness="0"
-                                                            Width="16" Height="16" Padding="0" Margin="0,0,4,0"
-                                                            Click="GroupExpandCollapse_Click"
-                                                            Tag="{Binding Name}"/>
-                                                    
-                                                    <TextBlock Grid.Column="1" 
-                                                               Text="{Binding Name}" 
-                                                               FontSize="11" FontWeight="SemiBold" 
-                                                               Foreground="#475569" VerticalAlignment="Center"/>
-                                                    
-                                                    <TextBlock Grid.Column="2" 
-                                                               Text="{Binding ItemCount, StringFormat={}({0})}" 
-                                                               FontSize="10" Foreground="#64748B" 
-                                                               VerticalAlignment="Center"/>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </GroupStyle.HeaderTemplate>
-                                    <GroupStyle.Panel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel/>
-                                        </ItemsPanelTemplate>
-                                    </GroupStyle.Panel>
-                                </GroupStyle>
-                            </ItemsControl.GroupStyle>
+                        <!-- デバッグ用：直接TodoTasksをバインド -->
+                        <ItemsControl ItemsSource="{Binding TodoTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel>
-                                        <!-- コンパクトなタスクカード（タイトルと期限のみ） -->
-                                        <Border Style="{StaticResource KanbanTaskCard}" Margin="16,0,0,4" Padding="8"
-                                                MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
-                                                Tag="{Binding}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                
-                                                <!-- 優先度インジケーター -->
-                                                <Ellipse Grid.Column="0" Style="{StaticResource PriorityIndicator}"
-                                                         Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"
-                                                         Width="6" Height="6" Margin="0,0,6,0"/>
-                                                
-                                                <!-- タスク情報 -->
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
-                                                               TextWrapping="Wrap" LineHeight="16" Margin="0,0,4,0"/>
-                                                    <!-- 期限表示 -->
-                                                    <TextBlock Text="{Binding DueDateText}" FontSize="10" FontWeight="SemiBold"
-                                                               Foreground="{Binding DueDateColor}" Margin="0,2,0,0"
-                                                               Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
-                                                </StackPanel>
-                                                
-                                                <!-- 3点メニューボタン -->
-                                                <Button Grid.Column="2" Content="⋯" ToolTip="その他の操作" FontSize="12" FontWeight="Bold"
-                                                        Style="{StaticResource KanbanActionButton}"
-                                                        Background="#E5E7EB" Foreground="#374151" 
-                                                        Width="18" Height="18" VerticalAlignment="Top"
-                                                        Click="MenuButton_Click" Tag="{Binding}">
-                                                    <Button.ContextMenu>
-                                                        <ContextMenu>
-                                                            <MenuItem Header="▶ 開始"
-                                                                      Click="MenuItem_Click" Tag="StartTask"/>
-                                                            <Separator/>
-                                                            <MenuItem Header="📝 詳細を開く"
-                                                                      Click="MenuItem_Click" Tag="OpenTaskDetail"/>
-                                                            <MenuItem Header="📋 テンプレート作成"
-                                                                      Click="MenuItem_Click" Tag="CreateTemplateFromTask"/>
-                                                            <Separator/>
-                                                            <MenuItem Header="🗑 削除"
-                                                                      Click="MenuItem_Click" Tag="DeleteTask"/>
-                                                        </ContextMenu>
-                                                    </Button.ContextMenu>
-                                                </Button>
-                                            </Grid>
-                                        </Border>
-                                    </StackPanel>
+                                    <!-- コンパクトなタスクカード（タイトルと期限のみ） -->
+                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,4" Padding="8"
+                                            MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
+                                            Tag="{Binding}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <!-- 優先度インジケーター -->
+                                            <Ellipse Grid.Column="0" Style="{StaticResource PriorityIndicator}"
+                                                     Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"
+                                                     Width="6" Height="6" Margin="0,0,6,0"/>
+                                            
+                                            <!-- タスク情報 -->
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
+                                                           TextWrapping="Wrap" LineHeight="16" Margin="0,0,4,0"/>
+                                                <!-- 期限表示 -->
+                                                <TextBlock Text="{Binding DueDateText}" FontSize="10" FontWeight="SemiBold"
+                                                           Foreground="{Binding DueDateColor}" Margin="0,2,0,0"
+                                                           Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                <!-- デバッグ用：カテゴリ表示 -->
+                                                <TextBlock Text="{Binding Category, StringFormat={}カテゴリ: {0}}" FontSize="9" 
+                                                           Foreground="Gray" Margin="0,1,0,0"/>
+                                            </StackPanel>
+                                            
+                                            <!-- 3点メニューボタン -->
+                                            <Button Grid.Column="2" Content="⋯" ToolTip="その他の操作" FontSize="12" FontWeight="Bold"
+                                                    Style="{StaticResource KanbanActionButton}"
+                                                    Background="#E5E7EB" Foreground="#374151" 
+                                                    Width="18" Height="18" VerticalAlignment="Top"
+                                                    Click="MenuButton_Click" Tag="{Binding}">
+                                                <Button.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem Header="▶ 開始"
+                                                                  Click="MenuItem_Click" Tag="StartTask"/>
+                                                        <Separator/>
+                                                        <MenuItem Header="📝 詳細を開く"
+                                                                  Click="MenuItem_Click" Tag="OpenTaskDetail"/>
+                                                        <MenuItem Header="📋 テンプレート作成"
+                                                                  Click="MenuItem_Click" Tag="CreateTemplateFromTask"/>
+                                                        <Separator/>
+                                                        <MenuItem Header="🗑 削除"
+                                                                  Click="MenuItem_Click" Tag="DeleteTask"/>
+                                                    </ContextMenu>
+                                                </Button.ContextMenu>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
