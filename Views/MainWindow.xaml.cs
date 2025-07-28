@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.ComponentModel;
 using System.Reflection;
+using System.Windows.Media;
 using WpfMessageBox = System.Windows.MessageBox;
 using WpfApplication = System.Windows.Application;
 
@@ -678,25 +679,29 @@ namespace PomodoroTimer.Views
                 {
                     var normalizedCategory = string.IsNullOrWhiteSpace(categoryName) ? "その他" : categoryName;
                     
-                    // 折りたたみ状態を切り替え
-                    if (collapsedGroups.Contains(normalizedCategory))
+                    // ボタンのあるGroupItemを探す
+                    var groupItem = FindParent<GroupItem>(button);
+                    if (groupItem != null)
                     {
-                        collapsedGroups.Remove(normalizedCategory);
-                        button.Content = "▼";
-                    }
-                    else
-                    {
-                        collapsedGroups.Add(normalizedCategory);
-                        button.Content = "▶";
-                    }
-                    
-                    // CollectionViewSourceのフィルタを更新
-                    var cvs = (System.Windows.Data.CollectionViewSource)FindResource("TodoTasksGroupedSource");
-                    if (cvs?.View != null)
-                    {
-                        cvs.Filter -= TodoTasksGrouped_Filter;
-                        cvs.Filter += TodoTasksGrouped_Filter;
-                        cvs.View.Refresh();
+                        var itemsPanel = FindChild<StackPanel>(groupItem, "PART_Items");
+                        if (itemsPanel != null)
+                        {
+                            // 折りたたみ状態を切り替え
+                            if (collapsedGroups.Contains(normalizedCategory))
+                            {
+                                // 展開
+                                collapsedGroups.Remove(normalizedCategory);
+                                button.Content = "▼";
+                                itemsPanel.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                // 折りたたみ
+                                collapsedGroups.Add(normalizedCategory);
+                                button.Content = "▶";
+                                itemsPanel.Visibility = Visibility.Collapsed;
+                            }
+                        }
                     }
                 }
             }
@@ -707,21 +712,45 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// TodoTasksのグループフィルタ処理
+        /// 親要素を検索するヘルパーメソッド
         /// </summary>
-        private void TodoTasksGrouped_Filter(object sender, System.Windows.Data.FilterEventArgs e)
+        private T FindParent<T>(DependencyObject child) where T : DependencyObject
         {
-            if (e.Item is PomodoroTask task)
+            var parent = VisualTreeHelper.GetParent(child);
+            if (parent == null) return null;
+            
+            if (parent is T parentT)
+                return parentT;
+            
+            return FindParent<T>(parent);
+        }
+
+        /// <summary>
+        /// 子要素を検索するヘルパーメソッド
+        /// </summary>
+        private T FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            T foundChild = null;
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+            
+            for (int i = 0; i < childrenCount; i++)
             {
-                var category = string.IsNullOrWhiteSpace(task.Category) ? "その他" : task.Category;
+                var child = VisualTreeHelper.GetChild(parent, i);
                 
-                // 折りたたまれたグループのタスクを非表示にする
-                e.Accepted = !collapsedGroups.Contains(category);
+                if (child is T childType && (string.IsNullOrEmpty(childName) || 
+                    (child is FrameworkElement fe && fe.Name == childName)))
+                {
+                    foundChild = childType;
+                    break;
+                }
+                
+                foundChild = FindChild<T>(child, childName);
+                if (foundChild != null) break;
             }
-            else
-            {
-                e.Accepted = true;
-            }
+            
+            return foundChild;
         }
 
         /// <summary>
