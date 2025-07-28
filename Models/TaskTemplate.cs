@@ -35,6 +35,9 @@ namespace PomodoroTimer.Models
         private List<ChecklistItem> defaultChecklist = new();
 
         [ObservableProperty]
+        private List<LinkItem> defaultLinks = new();
+
+        [ObservableProperty]
         private DateTime createdAt = DateTime.Now;
 
         [ObservableProperty]
@@ -111,6 +114,15 @@ namespace PomodoroTimer.Models
                 });
             }
 
+            // リンクをコピー
+            foreach (var linkItem in DefaultLinks)
+            {
+                task.Links.Add(new LinkItem(linkItem.Title, linkItem.Url)
+                {
+                    CreatedAt = linkItem.CreatedAt
+                });
+            }
+
             UsageCount++;
             LastUsedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
@@ -146,6 +158,15 @@ namespace PomodoroTimer.Models
                 });
             }
 
+            // リンクもコピー
+            foreach (var linkItem in DefaultLinks)
+            {
+                clone.DefaultLinks.Add(new LinkItem(linkItem.Title, linkItem.Url)
+                {
+                    CreatedAt = linkItem.CreatedAt
+                });
+            }
+
             return clone;
         }
 
@@ -165,6 +186,16 @@ namespace PomodoroTimer.Models
                 DefaultChecklist.Add(new ChecklistItem(checklistItem.Text)
                 {
                     IsChecked = checklistItem.IsChecked
+                });
+            }
+
+            // リンクも更新
+            DefaultLinks.Clear();
+            foreach (var linkItem in task.Links)
+            {
+                DefaultLinks.Add(new LinkItem(linkItem.Title, linkItem.Url)
+                {
+                    CreatedAt = linkItem.CreatedAt
                 });
             }
 

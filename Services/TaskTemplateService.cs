@@ -134,6 +134,16 @@ namespace PomodoroTimer.Services
                 });
             }
 
+            // リンク情報をコピー
+            template.DefaultLinks.Clear();
+            foreach (var linkItem in task.Links)
+            {
+                template.DefaultLinks.Add(new LinkItem(linkItem.Title, linkItem.Url)
+                {
+                    CreatedAt = linkItem.CreatedAt
+                });
+            }
+
             AddTemplate(template);
             await SaveTemplatesAsync();
 

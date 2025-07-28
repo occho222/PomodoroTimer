@@ -2515,6 +2515,15 @@ namespace PomodoroTimer.ViewModels
                     });
                 }
 
+                // リンクをコピー
+                foreach (var linkItem in template.DefaultLinks)
+                {
+                    newTask.Links.Add(new LinkItem(linkItem.Title, linkItem.Url)
+                    {
+                        CreatedAt = linkItem.CreatedAt
+                    });
+                }
+
                 _pomodoroService.AddTask(newTask);
                 
                 // UI更新

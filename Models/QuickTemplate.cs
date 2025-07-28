@@ -45,6 +45,9 @@ namespace PomodoroTimer.Models
         [ObservableProperty]
         private List<ChecklistItem> defaultChecklist = new();
 
+        [ObservableProperty]
+        private List<LinkItem> defaultLinks = new();
+
         public QuickTemplate()
         {
             Id = Guid.NewGuid().ToString();
