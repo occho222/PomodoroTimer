@@ -124,6 +124,16 @@ namespace PomodoroTimer.Services
                 TagsText = task.TagsText
             };
 
+            // チェックリスト情報をコピー
+            template.DefaultChecklist.Clear();
+            foreach (var checklistItem in task.Checklist)
+            {
+                template.DefaultChecklist.Add(new ChecklistItem(checklistItem.Text)
+                {
+                    IsChecked = checklistItem.IsChecked
+                });
+            }
+
             AddTemplate(template);
             await SaveTemplatesAsync();
 
