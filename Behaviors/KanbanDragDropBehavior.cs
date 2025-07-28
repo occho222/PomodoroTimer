@@ -221,130 +221,77 @@ namespace PomodoroTimer.Behaviors
             {
                 var oldStatus = task.Status;
                 
-                // 完了状態から他の状態に変更する場合
-                if (oldStatus == TaskStatus.Completed && newStatus != TaskStatus.Completed)
+                // 同じ状態への移動は何もしない
+                if (oldStatus == newStatus)
                 {
-                    // 新しいコマンドを使用して適切に状態変更
-                    switch (newStatus)
-                    {
-                        case TaskStatus.Todo:
-                            viewModel.ResetTaskCommand.Execute(task);
-                            return; // コマンドが完全な処理を行うのでここで終了
-                            
-                        case TaskStatus.Waiting:
-                            viewModel.MoveCompletedTaskToWaitingCommand.Execute(task);
-                            return; // コマンドが完全な処理を行うのでここで終了
-                            
-                        case TaskStatus.Executing:
-                            viewModel.MoveCompletedTaskToExecutingCommand.Execute(task);
-                            return; // コマンドが完全な処理を行うのでここで終了
-                    }
+                    return;
                 }
                 
-                // 実行中タスクを他の状態に移動する場合の特別処理
-                if (oldStatus == TaskStatus.Executing && newStatus != TaskStatus.Executing)
-                {
-                    // 完了以外の場合のみCurrentTaskをクリア（完了の場合はCompleteTaskCommandに任せる）
-                    if (newStatus != TaskStatus.Completed)
-                    {
-                        // CurrentTaskからクリア
-                        if (viewModel.CurrentTask == task)
-                        {
-                            viewModel.CurrentTask = null;
-                        }
-                        
-                        // タスクの実行状態をリセット
-                        task.StopExecution();
-                    }
-                }
+                Console.WriteLine($"タスク「{task.Title}」のステータスを {oldStatus} から {newStatus} に変更します（ボタンクリックコマンドを使用）");
                 
-                // ステータス変更（完了の場合は後で処理するため、ここではスキップ）
-                if (newStatus != TaskStatus.Completed)
-                {
-                    task.Status = newStatus;
-                }
-                
-                // ステータスに応じて他のプロパティも更新
+                // 状態遷移に応じて適切なボタンクリックコマンドを呼び出す
                 switch (newStatus)
                 {
                     case TaskStatus.Todo:
-                        task.StartedAt = null;
-                        task.CompletedAt = null;
-                        task.IsCompleted = false;
+                        if (oldStatus == TaskStatus.Completed)
+                        {
+                            viewModel.ResetTaskCommand.Execute(task);
+                        }
+                        else if (oldStatus == TaskStatus.Waiting)
+                        {
+                            viewModel.MoveTaskToTodoCommand.Execute(task);
+                        }
+                        // 実行中から未開始への移動は通常ないが、必要であればStopTaskExecutionを呼んでからMoveTaskToTodoを呼ぶ
+                        else if (oldStatus == TaskStatus.Executing)
+                        {
+                            viewModel.StopTaskExecutionCommand.Execute(task);
+                            viewModel.MoveTaskToTodoCommand.Execute(task);
+                        }
                         break;
                         
                     case TaskStatus.Waiting:
-                        if (task.StartedAt == null)
-                            task.StartedAt = DateTime.Now;
-                        task.CompletedAt = null;
-                        task.IsCompleted = false;
+                        if (oldStatus == TaskStatus.Todo)
+                        {
+                            viewModel.StartTaskCommand.Execute(task);
+                        }
+                        else if (oldStatus == TaskStatus.Completed)
+                        {
+                            viewModel.MoveCompletedTaskToWaitingCommand.Execute(task);
+                        }
+                        else if (oldStatus == TaskStatus.Executing)
+                        {
+                            viewModel.StopTaskExecutionCommand.Execute(task);
+                        }
                         break;
                         
                     case TaskStatus.Executing:
-                        if (task.StartedAt == null)
-                            task.StartedAt = DateTime.Now;
-                        task.CompletedAt = null;
-                        task.IsCompleted = false;
-                        
-                        // 実行中タスクに設定
-                        if (viewModel.CurrentTask != null && viewModel.CurrentTask != task)
+                        if (oldStatus == TaskStatus.Waiting)
                         {
-                            // 既存の実行中タスクを待機中に戻す
-                            viewModel.CurrentTask.StopExecution();
+                            viewModel.ExecuteTaskCommand.Execute(task);
                         }
-                        
-                        // タスクを実行中に設定
-                        task.StartExecution();
-                        viewModel.CurrentTask = task;
-                        
-                        // セッション開始時刻を記録
-                        task.CurrentSessionStartTime = DateTime.Now;
+                        else if (oldStatus == TaskStatus.Completed)
+                        {
+                            viewModel.MoveCompletedTaskToExecutingCommand.Execute(task);
+                        }
+                        else if (oldStatus == TaskStatus.Todo)
+                        {
+                            // 未開始から実行中への直接移動の場合は、まず待機中にしてから実行中にする
+                            viewModel.StartTaskCommand.Execute(task);
+                            viewModel.ExecuteTaskCommand.Execute(task);
+                        }
                         break;
                         
                     case TaskStatus.Completed:
-                        // 実行中タスクからの完了の場合（現在のタスクステータスをチェック）
-                        if (task.Status == TaskStatus.Executing || oldStatus == TaskStatus.Executing)
-                        {
-                            // CurrentTaskを確実にドラッグされたタスクに設定してからCompleteTaskCommandを実行
-                            // これにより、CompleteTaskCommandが正しいタスクを完了させる
-                            viewModel.CurrentTask = task;
-                            viewModel.CompleteTaskCommand.Execute(task);
-                            return; // CompleteTaskCommandが完全な処理を行うのでここで終了
-                        }
-                        else
-                        {
-                            // 待機中からの完了の場合は直接CompleteTaskCommandを使用
-                            viewModel.CompleteTaskCommand.Execute(task);
-                            return; // CompleteTaskCommandが完全な処理を行うのでここで終了
-                        }
+                        // 完了への移動は常にCompleteTaskCommandを使用
+                        viewModel.CompleteTaskCommand.Execute(task);
+                        break;
+                        
+                    default:
+                        Console.WriteLine($"未対応の状態遷移: {oldStatus} → {newStatus}");
+                        break;
                 }
                 
-                // UIを更新
-                Application.Current.Dispatcher.BeginInvoke(() =>
-                {
-                    viewModel.UpdateKanbanColumns();
-                    
-                    // 実行中に移動した場合はリアルタイム更新も開始
-                    if (newStatus == TaskStatus.Executing)
-                    {
-                        viewModel.NotifyTaskExecutionStarted();
-                    }
-                    
-                    // データを保存
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await viewModel.SaveTasksAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"タスクの保存に失敗しました: {ex.Message}");
-                        }
-                    });
-                });
-
-                Console.WriteLine($"タスク「{task.Title}」のステータスを {oldStatus} から {newStatus} に変更しました");
+                Console.WriteLine($"タスク「{task.Title}」のステータス変更が完了しました");
             }
             catch (Exception ex)
             {
