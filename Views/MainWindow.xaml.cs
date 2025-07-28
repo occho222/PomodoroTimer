@@ -613,14 +613,18 @@ namespace PomodoroTimer.Views
                     {
                         // サイドバーを折りたたむ
                         sidebarColumn.Width = new GridLength(0);
+                        sidebarColumn.MinWidth = 0;
                         sidebarPanel.Visibility = Visibility.Collapsed;
+                        sidebarPanel.Margin = new Thickness(0);
                         toggleIcon.Text = "▶";
                     }
                     else
                     {
                         // サイドバーを展開
                         sidebarColumn.Width = new GridLength(250);
+                        sidebarColumn.MinWidth = 200;
                         sidebarPanel.Visibility = Visibility.Visible;
+                        sidebarPanel.Margin = new Thickness(10, 10, 0, 10);
                         toggleIcon.Text = "◀";
                     }
                 }
