@@ -597,6 +597,41 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
+        /// サイドバーの折りたたみ/展開を切り替える
+        /// </summary>
+        private void SidebarToggle_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var sidebarColumn = FindName("SidebarColumn") as ColumnDefinition;
+                var sidebarPanel = FindName("SidebarPanel") as Border;
+                var toggleIcon = FindName("SidebarToggleIcon") as TextBlock;
+
+                if (sidebarColumn != null && sidebarPanel != null && toggleIcon != null)
+                {
+                    if (sidebarColumn.Width.Value > 50)
+                    {
+                        // サイドバーを折りたたむ
+                        sidebarColumn.Width = new GridLength(0);
+                        sidebarPanel.Visibility = Visibility.Collapsed;
+                        toggleIcon.Text = "▶";
+                    }
+                    else
+                    {
+                        // サイドバーを展開
+                        sidebarColumn.Width = new GridLength(250);
+                        sidebarPanel.Visibility = Visibility.Visible;
+                        toggleIcon.Text = "◀";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"サイドバー切り替えでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// ウィンドウが閉じられる時の処理
         /// </summary>
         protected override async void OnClosed(EventArgs e)

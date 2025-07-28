@@ -25,18 +25,29 @@
         </Grid.RowDefinitions>
         
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250" MinWidth="200" MaxWidth="350"/>
+            <ColumnDefinition x:Name="SidebarColumn" Width="250" MinWidth="200" MaxWidth="350"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- サイドバー折りたたみボタン -->
+        <Button x:Name="SidebarToggleButton" Grid.Row="0" Grid.Column="1" 
+                VerticalAlignment="Top" HorizontalAlignment="Left" 
+                Width="24" Height="40" Margin="-12,15,0,0" 
+                Style="{StaticResource RoundButton}" Background="#3B82F6" Foreground="White"
+                Click="SidebarToggle_Click" ToolTip="サイドバーの表示/非表示" Panel.ZIndex="100">
+            <TextBlock x:Name="SidebarToggleIcon" Text="◀" FontSize="12" FontWeight="Bold"/>
+        </Button>
+        
         <!-- サイドパネル（フィルター・検索のみ） -->
-        <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="White" Margin="10,10,0,10" CornerRadius="12" Padding="15">
+        <Border x:Name="SidebarPanel" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="White" Margin="10,10,0,10" CornerRadius="12" Padding="15">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <!-- サイドバータイトル -->
-                    <TextBlock Text="🔍 検索・フィルター" FontSize="16" FontWeight="Bold" 
-                               Foreground="#1F2937" Margin="0,0,0,16"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="🔍 検索・フィルター" FontSize="16" FontWeight="Bold" 
+                                   Foreground="#1F2937" VerticalAlignment="Center"/>
+                    </StackPanel>
                     
                     <!-- クイックタスク追加エリア -->
                     <StackPanel Margin="0,0,0,16">
