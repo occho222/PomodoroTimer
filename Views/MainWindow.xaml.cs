@@ -475,13 +475,124 @@ namespace PomodoroTimer.Views
             {
                 if (e.ClickCount == 2 && sender is Border border && border.Tag is PomodoroTask task && _viewModel != null)
                 {
-                    _viewModel.OpenTaskDetailCommand?.Execute(task);
+                    Console.WriteLine($"[TaskCard_MouseLeftButtonDown] ダブルクリック: タスク「{task.Title}」の詳細を開きます");
+                    ExecuteTaskAction("OpenTaskDetail", task);
                     e.Handled = true;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"タスクカードダブルクリックでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 3点メニューボタンのクリックイベントハンドラー
+        /// </summary>
+        private void MenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is System.Windows.Controls.Button button && button.ContextMenu != null)
+                {
+                    button.ContextMenu.PlacementTarget = button;
+                    button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                    button.ContextMenu.IsOpen = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"メニューボタンクリックでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// メニュー項目のクリックイベントハンドラー
+        /// </summary>
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is MenuItem menuItem && _viewModel != null)
+                {
+                    var action = menuItem.Tag?.ToString();
+                    if (string.IsNullOrEmpty(action)) return;
+
+                    // ContextMenuから親のButtonを取得してTaskを特定
+                    var contextMenu = menuItem.Parent as ContextMenu;
+                    var button = contextMenu?.PlacementTarget as System.Windows.Controls.Button;
+                    var task = button?.Tag as PomodoroTask;
+
+                    if (task == null)
+                    {
+                        Console.WriteLine($"[MenuItem_Click] タスクが見つかりません。Action: {action}");
+                        return;
+                    }
+
+                    Console.WriteLine($"[MenuItem_Click] アクション: {action}, タスク: {task.Title}");
+
+                    // 共通化されたタスクアクション実行
+                    ExecuteTaskAction(action, task);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"メニュー項目クリックでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// タスクアクションを実行する共通メソッド
+        /// </summary>
+        private void ExecuteTaskAction(string action, PomodoroTask task)
+        {
+            if (_viewModel == null) return;
+
+            try
+            {
+                switch (action)
+                {
+                    case "StartTask":
+                        _viewModel.StartTaskCommand?.Execute(task);
+                        break;
+                    case "ExecuteTask":
+                        _viewModel.ExecuteTaskCommand?.Execute(task);
+                        break;
+                    case "CompleteTask":
+                        _viewModel.CompleteTaskCommand?.Execute(task);
+                        break;
+                    case "StopTaskExecution":
+                        _viewModel.StopTaskExecutionCommand?.Execute(task);
+                        break;
+                    case "MoveTaskToTodo":
+                        _viewModel.MoveTaskToTodoCommand?.Execute(task);
+                        break;
+                    case "MoveCompletedTaskToExecuting":
+                        _viewModel.MoveCompletedTaskToExecutingCommand?.Execute(task);
+                        break;
+                    case "MoveCompletedTaskToWaiting":
+                        _viewModel.MoveCompletedTaskToWaitingCommand?.Execute(task);
+                        break;
+                    case "ResetTask":
+                        _viewModel.ResetTaskCommand?.Execute(task);
+                        break;
+                    case "OpenTaskDetail":
+                        _viewModel.OpenTaskDetailCommand?.Execute(task);
+                        break;
+                    case "CreateTemplateFromTask":
+                        _viewModel.CreateTemplateFromTaskCommand?.Execute(task);
+                        break;
+                    case "DeleteTask":
+                        _viewModel.DeleteTaskCommand?.Execute(task);
+                        break;
+                    default:
+                        Console.WriteLine($"未知のアクション: {action}");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"タスクアクション実行でエラー: {ex.Message}");
             }
         }
 
