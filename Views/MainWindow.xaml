@@ -700,149 +700,99 @@
 
                     <!-- タスクリスト -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
-                        <ItemsControl ItemsSource="{Binding TodoTasks}">
+                        <ItemsControl ItemsSource="{Binding TodoTasksGrouped}">
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#F1F5F9" CornerRadius="6" Margin="0,4,0,2" Padding="8,4">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <Button Grid.Column="0" x:Name="ExpandCollapseButton"
+                                                            Content="▼" FontSize="10" FontWeight="Bold"
+                                                            Background="Transparent" BorderThickness="0"
+                                                            Width="16" Height="16" Padding="0" Margin="0,0,4,0"
+                                                            Click="GroupExpandCollapse_Click"
+                                                            Tag="{Binding Name}"/>
+                                                    
+                                                    <TextBlock Grid.Column="1" 
+                                                               Text="{Binding Name}" 
+                                                               FontSize="11" FontWeight="SemiBold" 
+                                                               Foreground="#475569" VerticalAlignment="Center"/>
+                                                    
+                                                    <TextBlock Grid.Column="2" 
+                                                               Text="{Binding ItemCount, StringFormat={}({0})}" 
+                                                               FontSize="10" Foreground="#64748B" 
+                                                               VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                    <GroupStyle.Panel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </GroupStyle.Panel>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8"
-                                            MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
-                                            Tag="{Binding}">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            
-                                            <!-- タスクヘッダー -->
-                                            <Grid Grid.Row="0">
+                                    <StackPanel>
+                                        <!-- コンパクトなタスクカード（タイトルと期限のみ） -->
+                                        <Border Style="{StaticResource KanbanTaskCard}" Margin="16,0,0,4" Padding="8"
+                                                MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
+                                                Tag="{Binding}">
+                                            <Grid>
                                                 <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                                        <Ellipse Style="{StaticResource PriorityIndicator}"
-                                                                 Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
-                                                    </StackPanel>
-                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                                               TextWrapping="Wrap" LineHeight="18" Margin="0,0,8,0"/>
+                                                <!-- 優先度インジケーター -->
+                                                <Ellipse Grid.Column="0" Style="{StaticResource PriorityIndicator}"
+                                                         Fill="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"
+                                                         Width="6" Height="6" Margin="0,0,6,0"/>
+                                                
+                                                <!-- タスク情報 -->
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
+                                                               TextWrapping="Wrap" LineHeight="16" Margin="0,0,4,0"/>
                                                     <!-- 期限表示 -->
-                                                    <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
+                                                    <TextBlock Text="{Binding DueDateText}" FontSize="10" FontWeight="SemiBold"
                                                                Foreground="{Binding DueDateColor}" Margin="0,2,0,0"
                                                                Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
                                                 </StackPanel>
                                                 
-                                                <StackPanel Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                                    <!-- 3点メニューボタン -->
-                                                    <Button Content="⋯" ToolTip="その他の操作" FontSize="16" FontWeight="Bold"
-                                                            Style="{StaticResource KanbanActionButton}"
-                                                            Background="#E5E7EB" Foreground="#374151" Margin="1"
-                                                            Click="MenuButton_Click" Tag="{Binding}">
-                                                        <Button.ContextMenu>
-                                                            <ContextMenu>
-                                                                <MenuItem Header="▶ 開始"
-                                                                          Click="MenuItem_Click" Tag="StartTask"/>
-                                                                <Separator/>
-                                                                <MenuItem Header="📝 詳細を開く"
-                                                                          Click="MenuItem_Click" Tag="OpenTaskDetail"/>
-                                                                <MenuItem Header="📋 テンプレート作成"
-                                                                          Click="MenuItem_Click" Tag="CreateTemplateFromTask"/>
-                                                                <Separator/>
-                                                                <MenuItem Header="🗑 削除"
-                                                                          Click="MenuItem_Click" Tag="DeleteTask"/>
-                                                            </ContextMenu>
-                                                        </Button.ContextMenu>
-                                                    </Button>
-                                                </StackPanel>
+                                                <!-- 3点メニューボタン -->
+                                                <Button Grid.Column="2" Content="⋯" ToolTip="その他の操作" FontSize="12" FontWeight="Bold"
+                                                        Style="{StaticResource KanbanActionButton}"
+                                                        Background="#E5E7EB" Foreground="#374151" 
+                                                        Width="18" Height="18" VerticalAlignment="Top"
+                                                        Click="MenuButton_Click" Tag="{Binding}">
+                                                    <Button.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="▶ 開始"
+                                                                      Click="MenuItem_Click" Tag="StartTask"/>
+                                                            <Separator/>
+                                                            <MenuItem Header="📝 詳細を開く"
+                                                                      Click="MenuItem_Click" Tag="OpenTaskDetail"/>
+                                                            <MenuItem Header="📋 テンプレート作成"
+                                                                      Click="MenuItem_Click" Tag="CreateTemplateFromTask"/>
+                                                            <Separator/>
+                                                            <MenuItem Header="🗑 削除"
+                                                                      Click="MenuItem_Click" Tag="DeleteTask"/>
+                                                        </ContextMenu>
+                                                    </Button.ContextMenu>
+                                                </Button>
                                             </Grid>
-                                            
-                                            <!-- 説明 -->
-                                            <TextBlock Grid.Row="1" Text="{Binding Description}" 
-                                                       FontSize="12" Foreground="Gray" TextWrapping="Wrap" Margin="0,8,0,0"
-                                                       Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                            
-                                            <!-- 画像表示 -->
-                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
-                                                         Margin="0,4,0,0" MaxHeight="80"
-                                                         Visibility="{Binding HasImages, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                <ItemsControl ItemsSource="{Binding ImageAttachments}">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <StackPanel Orientation="Horizontal"/>
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border CornerRadius="4" Margin="0,0,4,0" Background="White" BorderThickness="1" BorderBrush="#E5E7EB">
-                                                                <Image Source="{Binding}" Width="60" Height="60" 
-                                                                       Stretch="UniformToFill" ToolTip="{Binding}"
-                                                                       Cursor="Hand">
-                                                                    <Image.InputBindings>
-                                                                        <MouseBinding MouseAction="LeftClick" 
-                                                                                    Command="{Binding DataContext.OpenImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                                    CommandParameter="{Binding}"/>
-                                                                    </Image.InputBindings>
-                                                                </Image>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </ScrollViewer>
-                                            
-                                            <!-- カテゴリとタグ -->
-                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
-                                                <Border Background="{StaticResource SecondaryBrush}" CornerRadius="3" Margin="0,0,4,0"
-                                                        Visibility="{Binding Category, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                    <TextBlock Text="{Binding Category}" FontSize="10" 
-                                                               Foreground="White" Padding="4,2"/>
-                                                </Border>
-                                                <TextBlock Text="{Binding TagsText, Mode=OneWay}" FontSize="10" 
-                                                           Foreground="Gray" VerticalAlignment="Center"
-                                                           Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
-                                            </StackPanel>
-                                            
-                                            <!-- リンク -->
-                                            <ItemsControl Grid.Row="3" ItemsSource="{Binding Links}" Margin="0,6,0,0"
-                                                         Visibility="{Binding Links.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Horizontal"/>
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Background="#F3E8FF" CornerRadius="3" Margin="0,0,3,0" Padding="6,2">
-                                                            <Button Content="{Binding Title}" FontSize="9" 
-                                                                    Command="{Binding DataContext.OpenLinkItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                    CommandParameter="{Binding}"
-                                                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                                                                    Foreground="#7C3AED" Background="Transparent" BorderThickness="0" 
-                                                                    Cursor="Hand" ToolTip="{Binding Url}"/>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                            
-                                            <!-- 実行時間と進捗 -->
-                                            <Grid Grid.Row="4" Margin="0,8,0,0">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                
-                                                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}⏱ {0}}" 
-                                                               FontSize="11" Foreground="#4A90E2" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}/ {0}}" 
-                                                               FontSize="11" Foreground="Gray" VerticalAlignment="Center" Margin="2,0,0,0"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Grid>
-                                    </Border>
+                                        </Border>
+                                    </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

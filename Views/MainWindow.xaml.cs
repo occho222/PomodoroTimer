@@ -665,6 +665,28 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
+        /// プロジェクトグループの展開・折りたたみを切り替える
+        /// </summary>
+        private void GroupExpandCollapse_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is System.Windows.Controls.Button button && button.Tag is string categoryName && _viewModel != null)
+                {
+                    _viewModel.ToggleProjectGroupExpansion(categoryName);
+                    
+                    // ボタンのアイコンを更新
+                    var isExpanded = _viewModel.IsProjectGroupExpanded(categoryName);
+                    button.Content = isExpanded ? "▼" : "▶";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"プロジェクトグループ切り替えでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// ウィンドウが閉じられる時の処理
         /// </summary>
         protected override async void OnClosed(EventArgs e)

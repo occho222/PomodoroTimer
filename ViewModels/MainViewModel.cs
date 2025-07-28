@@ -96,6 +96,32 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private ObservableCollection<PomodoroTask> doneTasksCollection = new();
 
+        // グループ化されたTodoタスクコレクション
+        private System.Windows.Data.CollectionViewSource? todoTasksGrouped;
+        public System.Windows.Data.CollectionViewSource? TodoTasksGrouped
+        {
+            get
+            {
+                if (todoTasksGrouped == null)
+                {
+                    todoTasksGrouped = new System.Windows.Data.CollectionViewSource
+                    {
+                        Source = TodoTasks
+                    };
+                    
+                    // カテゴリでグループ化
+                    todoTasksGrouped.GroupDescriptions.Add(new System.Windows.Data.PropertyGroupDescription("Category"));
+                    
+                    // フィルターを設定してグループの折りたたみ状態を反映
+                    todoTasksGrouped.Filter += TodoTasksGrouped_Filter;
+                }
+                return todoTasksGrouped;
+            }
+        }
+
+        // プロジェクトグループの折りたたみ状態を管理
+        private readonly Dictionary<string, bool> collapsedGroups = new();
+
         // 完了タスクフィルタ関連プロパティ
         [ObservableProperty]
         private bool showTodayCompletedOnly = false;
@@ -3059,6 +3085,73 @@ namespace PomodoroTimer.ViewModels
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show($"画像を開く際にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Todoタスクのグループフィルタ処理
+        /// </summary>
+        private void TodoTasksGrouped_Filter(object sender, System.Windows.Data.FilterEventArgs e)
+        {
+            if (e.Item is PomodoroTask task)
+            {
+                var category = string.IsNullOrWhiteSpace(task.Category) ? "その他" : task.Category;
+                
+                // 折りたたまれたグループのタスクを非表示にする
+                if (collapsedGroups.ContainsKey(category) && collapsedGroups[category])
+                {
+                    e.Accepted = false;
+                    return;
+                }
+                
+                e.Accepted = true;
+            }
+        }
+
+        /// <summary>
+        /// プロジェクトグループの展開・折りたたみ状態を切り替える
+        /// </summary>
+        public void ToggleProjectGroupExpansion(string categoryName)
+        {
+            var normalizedCategory = string.IsNullOrWhiteSpace(categoryName) ? "その他" : categoryName;
+            
+            if (collapsedGroups.ContainsKey(normalizedCategory))
+            {
+                collapsedGroups[normalizedCategory] = !collapsedGroups[normalizedCategory];
+            }
+            else
+            {
+                collapsedGroups[normalizedCategory] = true; // 初回は折りたたむ
+            }
+            
+            // フィルタを再適用
+            TodoTasksGrouped?.View?.Refresh();
+        }
+
+        /// <summary>
+        /// プロジェクトグループが展開されているかどうかを確認
+        /// </summary>
+        public bool IsProjectGroupExpanded(string categoryName)
+        {
+            var normalizedCategory = string.IsNullOrWhiteSpace(categoryName) ? "その他" : categoryName;
+            
+            if (collapsedGroups.ContainsKey(normalizedCategory))
+            {
+                return !collapsedGroups[normalizedCategory];
+            }
+            
+            return true; // デフォルトは展開状態
+        }
+
+        /// <summary>
+        /// TodoTasksが変更された時の処理
+        /// </summary>
+        partial void OnTodoTasksChanged(ObservableCollection<PomodoroTask> value)
+        {
+            // TodoTasksGroupedのSourceを更新
+            if (todoTasksGrouped != null)
+            {
+                todoTasksGrouped.Source = value;
             }
         }
     }
