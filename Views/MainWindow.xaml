@@ -316,8 +316,15 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
-            <!-- タイマーエリア -->
-            <Border Grid.Row="0" Grid.Column="0" Background="White" Margin="0,0,5,5" CornerRadius="12" Padding="15">
+            <!-- タイマーとタスク詳細エリア -->
+            <Grid Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- タイマーエリア -->
+                <Border Grid.Row="0" Background="White" Margin="0,0,5,5" CornerRadius="12" Padding="15">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -428,6 +435,220 @@
                     </Grid>
                 </Grid>
             </Border>
+                
+                <!-- タスク詳細表示エリア -->
+                <Border Grid.Row="1" Background="White" Margin="0,5,5,0" CornerRadius="12" Padding="15"
+                        Visibility="{Binding SelectedTaskDetail, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- ヘッダー -->
+                            <Grid Grid.Row="0" Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="📋 タスク詳細" FontSize="16" FontWeight="Bold" 
+                                               Foreground="#1F2937" Margin="0,0,0,5"/>
+                                    <TextBlock Text="{Binding SelectedTaskDetail.Title}" FontSize="18" FontWeight="Bold" 
+                                               Foreground="#3B82F6" TextWrapping="Wrap" LineHeight="22"/>
+                                </StackPanel>
+                                
+                                <Button Grid.Column="1" Content="✕" ToolTip="詳細を閉じる" 
+                                        Style="{StaticResource RoundButton}" Background="#9CA3AF" Foreground="White"
+                                        Width="28" Height="28" FontSize="12" FontWeight="Bold"
+                                        Click="CloseTaskDetail_Click"/>
+                            </Grid>
+                            
+                            <!-- ステータス・優先度 -->
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+                                <Border Background="{StaticResource PrimaryBrush}" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                    <TextBlock Text="{Binding SelectedTaskDetail.Status}" 
+                                               FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                </Border>
+                                <Ellipse Width="16" Height="16" 
+                                         Fill="{Binding SelectedTaskDetail.Priority, Converter={StaticResource PriorityToColorConverter}}"
+                                         Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding SelectedTaskDetail.Priority, Converter={StaticResource PriorityToStringConverter}}" 
+                                           FontSize="12" FontWeight="SemiBold" Foreground="#374151" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- 時間情報 -->
+                            <Grid Grid.Row="2" Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                    <TextBlock Text="⏱️" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <TextBlock Text="実績時間:" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <TextBlock Text="{Binding SelectedTaskDetail.ActualMinutes, Converter={StaticResource MinutesToTimeFormatConverter}}" 
+                                               FontSize="12" FontWeight="Bold" Foreground="#4A90E2" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <TextBlock Text="📊" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <TextBlock Text="見積時間:" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <TextBlock Text="{Binding SelectedTaskDetail.EstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}}" 
+                                               FontSize="12" FontWeight="Bold" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <!-- 期限 -->
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12"
+                                        Visibility="{Binding SelectedTaskDetail.DueDate, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="⏰" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="期限:" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding SelectedTaskDetail.DueDate, StringFormat='{}{0:yyyy/MM/dd HH:mm}'}" 
+                                           FontSize="12" FontWeight="Bold" 
+                                           Foreground="{Binding SelectedTaskDetail.DueDateColor}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- カテゴリ・タグ -->
+                            <StackPanel Grid.Row="4" Margin="0,0,0,12">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
+                                            Visibility="{Binding SelectedTaskDetail.Category, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="🏷️" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <TextBlock Text="カテゴリ:" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <Border Background="{StaticResource SecondaryBrush}" CornerRadius="4" Padding="8,4">
+                                        <TextBlock Text="{Binding SelectedTaskDetail.Category}" FontSize="11" 
+                                                   FontWeight="SemiBold" Foreground="White"/>
+                                    </Border>
+                                </StackPanel>
+                                
+                                <StackPanel Orientation="Horizontal"
+                                            Visibility="{Binding SelectedTaskDetail.TagsText, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="🏷️" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <TextBlock Text="タグ:" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="{Binding SelectedTaskDetail.TagsText}" FontSize="12" 
+                                               Foreground="#374151" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </StackPanel>
+                            
+                            <!-- チェックリスト -->
+                            <StackPanel Grid.Row="5" Margin="0,0,0,12"
+                                        Visibility="{Binding SelectedTaskDetail.Checklist.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="✅ チェックリスト" FontSize="14" FontWeight="Bold" 
+                                               Foreground="#374151" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding SelectedTaskDetail.ChecklistProgress, StringFormat='({0})'}" 
+                                               FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <ItemsControl ItemsSource="{Binding SelectedTaskDetail.Checklist}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#F9FAFB" CornerRadius="4" Margin="0,2" Padding="8,6"
+                                                    BorderThickness="1" BorderBrush="#E5E7EB">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding IsChecked, Converter={StaticResource BooleanToCheckConverter}}" 
+                                                               FontSize="12" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                                    <TextBlock Text="{Binding Text}" FontSize="12" TextWrapping="Wrap" 
+                                                               VerticalAlignment="Top" Foreground="#374151">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                                        <Setter Property="Foreground" Value="#9CA3AF"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                            
+                            <!-- 説明 -->
+                            <StackPanel Grid.Row="6" Margin="0,0,0,12"
+                                        Visibility="{Binding SelectedTaskDetail.Description, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="📝 説明" FontSize="14" FontWeight="Bold" 
+                                           Foreground="#374151" Margin="0,0,0,6"/>
+                                <Border Background="#F9FAFB" CornerRadius="6" Padding="12">
+                                    <TextBlock Text="{Binding SelectedTaskDetail.Description}" 
+                                               FontSize="12" Foreground="#374151" TextWrapping="Wrap" LineHeight="18"/>
+                                </Border>
+                            </StackPanel>
+                            
+                            <!-- 画像・リンク -->
+                            <StackPanel Grid.Row="7">
+                                <!-- 画像 -->
+                                <StackPanel Margin="0,0,0,12"
+                                            Visibility="{Binding SelectedTaskDetail.HasImages, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="🖼️ 画像" FontSize="14" FontWeight="Bold" 
+                                               Foreground="#374151" Margin="0,0,0,8"/>
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                        <ItemsControl ItemsSource="{Binding SelectedTaskDetail.ImageAttachments}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="6" Margin="0,0,8,0" Background="White" 
+                                                            BorderThickness="1" BorderBrush="#E5E7EB">
+                                                        <Image Source="{Binding}" Width="100" Height="100" 
+                                                               Stretch="UniformToFill" ToolTip="{Binding}"
+                                                               Cursor="Hand">
+                                                            <Image.InputBindings>
+                                                                <MouseBinding MouseAction="LeftClick" 
+                                                                            Command="{Binding DataContext.OpenImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                            CommandParameter="{Binding}"/>
+                                                            </Image.InputBindings>
+                                                        </Image>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
+                                
+                                <!-- リンク -->
+                                <StackPanel Visibility="{Binding SelectedTaskDetail.Links.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="🔗 リンク" FontSize="14" FontWeight="Bold" 
+                                               Foreground="#374151" Margin="0,0,0,8"/>
+                                    <ItemsControl ItemsSource="{Binding SelectedTaskDetail.Links}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#F3E8FF" CornerRadius="6" Margin="0,0,0,4" Padding="10,6">
+                                                    <StackPanel>
+                                                        <Button Content="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                                                Command="{Binding DataContext.OpenLinkItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                                                                Foreground="#7C3AED" Background="Transparent" BorderThickness="0" 
+                                                                Cursor="Hand" HorizontalAlignment="Left"/>
+                                                        <TextBlock Text="{Binding Url}" FontSize="10" Foreground="#9CA3AF" 
+                                                                   TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
             
             <!-- タイマーエリアリサイザー -->
             <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" 

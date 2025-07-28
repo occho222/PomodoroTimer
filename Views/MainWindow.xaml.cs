@@ -467,22 +467,51 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
-        /// タスクカードのダブルクリックイベントハンドラー
+        /// タスクカードのクリックイベントハンドラー
         /// </summary>
         private void TaskCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             try
             {
-                if (e.ClickCount == 2 && sender is Border border && border.Tag is PomodoroTask task && _viewModel != null)
+                if (sender is Border border && border.Tag is PomodoroTask task && _viewModel != null)
                 {
-                    Console.WriteLine($"[TaskCard_MouseLeftButtonDown] ダブルクリック: タスク「{task.Title}」の詳細を開きます");
-                    ExecuteTaskAction("OpenTaskDetail", task);
-                    e.Handled = true;
+                    if (e.ClickCount == 1)
+                    {
+                        // シングルクリック: タスク詳細をサイドパネルに表示
+                        Console.WriteLine($"[TaskCard_MouseLeftButtonDown] シングルクリック: タスク「{task.Title}」の詳細を表示します");
+                        _viewModel.SelectedTaskDetail = task;
+                        e.Handled = true;
+                    }
+                    else if (e.ClickCount == 2)
+                    {
+                        // ダブルクリック: 詳細ダイアログを開く
+                        Console.WriteLine($"[TaskCard_MouseLeftButtonDown] ダブルクリック: タスク「{task.Title}」の詳細ダイアログを開きます");
+                        ExecuteTaskAction("OpenTaskDetail", task);
+                        e.Handled = true;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"タスクカードダブルクリックでエラー: {ex.Message}");
+                Console.WriteLine($"タスクカードクリックでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// タスク詳細を閉じるボタンのクリックイベントハンドラー
+        /// </summary>
+        private void CloseTaskDetail_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (_viewModel != null)
+                {
+                    _viewModel.SelectedTaskDetail = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"タスク詳細を閉じる際にエラー: {ex.Message}");
             }
         }
 

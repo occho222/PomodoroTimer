@@ -39,6 +39,48 @@ namespace PomodoroTimer.ViewModels
         private PomodoroTask? currentTask;
 
         [ObservableProperty]
+        private PomodoroTask? selectedTaskDetail;
+
+        /// <summary>
+        /// SelectedTaskDetailプロパティ変更時の処理
+        /// </summary>
+        partial void OnSelectedTaskDetailChanged(PomodoroTask? oldValue, PomodoroTask? newValue)
+        {
+            // タスク詳細が変更された場合、カンバンボードを更新
+            if (newValue != null)
+            {
+                // タスクの変更を検知してカンバンボードに反映
+                var existingTask = Tasks.FirstOrDefault(t => t.Id == newValue.Id);
+                if (existingTask != null)
+                {
+                    // 既存のタスクオブジェクトのプロパティを更新されたタスクと同期
+                    SyncTaskProperties(existingTask, newValue);
+                    
+                    // カンバンボードのコレクションを更新
+                    UpdateKanbanColumns();
+                }
+            }
+        }
+
+        /// <summary>
+        /// タスクのプロパティを同期する
+        /// </summary>
+        private void SyncTaskProperties(PomodoroTask target, PomodoroTask source)
+        {
+            target.Title = source.Title;
+            target.Description = source.Description;
+            target.Category = source.Category;
+            target.Tags = source.Tags;
+            target.Priority = source.Priority;
+            target.EstimatedMinutes = source.EstimatedMinutes;
+            target.DueDate = source.DueDate;
+            target.Status = source.Status;
+            target.Checklist = source.Checklist;
+            target.Links = source.Links;
+            target.Attachments = source.Attachments; // ImageAttachmentsは計算プロパティなのでAttachmentsを同期
+        }
+
+        [ObservableProperty]
         private ObservableCollection<PomodoroTask> filteredTasks = new();
 
         // カンバンボード用のタスクコレクション
@@ -798,6 +840,16 @@ namespace PomodoroTimer.ViewModels
                 {
                     // タスクが更新された場合、UIを更新
                     RefreshUI();
+                    
+                    // 現在選択中のタスク詳細も更新
+                    if (SelectedTaskDetail != null && SelectedTaskDetail.Id == task.Id)
+                    {
+                        var updatedTask = Tasks.FirstOrDefault(t => t.Id == task.Id);
+                        if (updatedTask != null)
+                        {
+                            SelectedTaskDetail = updatedTask;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
