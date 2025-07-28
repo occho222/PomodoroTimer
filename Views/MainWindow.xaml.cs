@@ -69,6 +69,10 @@ namespace PomodoroTimer.Views
                     cvs.Filter += TodoTasksGrouped_Filter;
                 }
 
+                // GroupCollapseVisibilityConverterに関数を設定
+                PomodoroTimer.Converters.GroupCollapseVisibilityConverter.IsGroupCollapsed = 
+                    (category) => collapsedGroups.Contains(category);
+
                 // ホットキーの登録
                 RegisterHotKeys();
                 
@@ -700,7 +704,7 @@ namespace PomodoroTimer.Views
                         button.Content = "▶";
                     }
                     
-                    // CollectionViewSourceのフィルタを更新
+                    // CollectionViewSourceを更新してVisibilityConverterを再評価
                     var cvs = (System.Windows.Data.CollectionViewSource)FindResource("TodoTasksGroupedSource");
                     if (cvs?.View != null)
                     {
@@ -719,17 +723,9 @@ namespace PomodoroTimer.Views
         /// </summary>
         private void TodoTasksGrouped_Filter(object sender, System.Windows.Data.FilterEventArgs e)
         {
-            if (e.Item is PomodoroTask task)
-            {
-                var category = string.IsNullOrWhiteSpace(task.Category) ? "その他" : task.Category;
-                
-                // 折りたたまれたグループのタスクを非表示にする
-                e.Accepted = !collapsedGroups.Contains(category);
-            }
-            else
-            {
-                e.Accepted = true;
-            }
+            // フィルタを使わずに、すべてのアイテムを表示
+            // 折りたたみはItemTemplateのVisibilityで制御
+            e.Accepted = true;
         }
 
         /// <summary>

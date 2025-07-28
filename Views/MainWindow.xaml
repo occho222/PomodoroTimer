@@ -16,6 +16,7 @@
 
     <Window.Resources>
         <converters:MinutesToTimeFormatConverter x:Key="MinutesToTimeFormatConverter"/>
+        <converters:GroupCollapseVisibilityConverter x:Key="GroupCollapseVisibilityConverter"/>
         
         <!-- TodoTasks用のCollectionViewSource -->
         <CollectionViewSource x:Key="TodoTasksGroupedSource" Source="{Binding TodoTasks}">
@@ -749,7 +750,8 @@
                                     <!-- コンパクトなタスクカード（タイトルと期限のみ） -->
                                     <Border Style="{StaticResource KanbanTaskCard}" Margin="16,0,0,4" Padding="8"
                                             MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
-                                            Tag="{Binding}">
+                                            Tag="{Binding}"
+                                            Visibility="{Binding Category, Converter={StaticResource GroupCollapseVisibilityConverter}}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
