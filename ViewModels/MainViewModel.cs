@@ -104,19 +104,27 @@ namespace PomodoroTimer.ViewModels
             {
                 if (todoTasksGrouped == null)
                 {
-                    todoTasksGrouped = new System.Windows.Data.CollectionViewSource
-                    {
-                        Source = TodoTasks
-                    };
-                    
-                    // カテゴリでグループ化
-                    todoTasksGrouped.GroupDescriptions.Add(new System.Windows.Data.PropertyGroupDescription("Category"));
-                    
-                    // フィルターを設定してグループの折りたたみ状態を反映
-                    todoTasksGrouped.Filter += TodoTasksGrouped_Filter;
+                    InitializeTodoTasksGrouped();
                 }
                 return todoTasksGrouped;
             }
+        }
+
+        private void InitializeTodoTasksGrouped()
+        {
+            todoTasksGrouped = new System.Windows.Data.CollectionViewSource
+            {
+                Source = TodoTasks
+            };
+            
+            // カテゴリでグループ化
+            todoTasksGrouped.GroupDescriptions.Add(new System.Windows.Data.PropertyGroupDescription("Category"));
+            
+            // フィルターを設定してグループの折りたたみ状態を反映
+            todoTasksGrouped.Filter += TodoTasksGrouped_Filter;
+            
+            // プロパティ変更通知
+            OnPropertyChanged(nameof(TodoTasksGrouped));
         }
 
         // プロジェクトグループの折りたたみ状態を管理
@@ -3093,6 +3101,11 @@ namespace PomodoroTimer.ViewModels
         /// </summary>
         private void TodoTasksGrouped_Filter(object sender, System.Windows.Data.FilterEventArgs e)
         {
+            // デバッグ用: 最初はすべて表示（フィルタリングを無効化）
+            e.Accepted = true;
+            return;
+            
+            /*
             if (e.Item is PomodoroTask task)
             {
                 var category = string.IsNullOrWhiteSpace(task.Category) ? "その他" : task.Category;
@@ -3106,6 +3119,7 @@ namespace PomodoroTimer.ViewModels
                 
                 e.Accepted = true;
             }
+            */
         }
 
         /// <summary>
@@ -3152,6 +3166,12 @@ namespace PomodoroTimer.ViewModels
             if (todoTasksGrouped != null)
             {
                 todoTasksGrouped.Source = value;
+                todoTasksGrouped.View?.Refresh();
+            }
+            else
+            {
+                // まだ初期化されていない場合は初期化
+                InitializeTodoTasksGrouped();
             }
         }
     }

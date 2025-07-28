@@ -700,7 +700,7 @@
 
                     <!-- タスクリスト -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
-                        <ItemsControl ItemsSource="{Binding TodoTasksGrouped}">
+                        <ItemsControl ItemsSource="{Binding TodoTasksGrouped.View}">
                             <ItemsControl.GroupStyle>
                                 <GroupStyle>
                                     <GroupStyle.HeaderTemplate>
