@@ -86,11 +86,22 @@
                                 </Border>
                             </Popup>
                         </Grid>
+                        
+                        <!-- タスク追加ボタン -->
+                        <Button Command="{Binding AddTaskCommand}" Margin="0,8,0,0"
+                                Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="新しいタスクを追加" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="➕" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="タスク追加" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                     
-                    <!-- 検索・フィルターエリア -->
-                    <StackPanel Margin="0,16,0,16">
-                        <TextBlock Text="🔍 検索・絞り込み" FontSize="12" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
+                    <!-- 検索・フィルターエリア（折りたたみ） -->
+                    <Expander Header="🔍 検索・絞り込み" FontSize="12" FontWeight="Bold" 
+                              Foreground="#374151" Margin="0,16,0,16" IsExpanded="False">
+                        <StackPanel Margin="0,8,0,0">
                         
                         <!-- 検索ボックス -->
                         <StackPanel Margin="0,0,0,8">
@@ -153,7 +164,8 @@
                                 Style="{StaticResource RoundButton}" Background="#EF4444" Foreground="White"
                                 FontSize="11" Padding="8,6" ToolTip="全ての検索・フィルター条件をクリア"
                                 HorizontalAlignment="Stretch"/>
-                    </StackPanel>
+                        </StackPanel>
+                    </Expander>
                     
                     <!-- 管理機能 -->
                     <StackPanel>
@@ -161,15 +173,6 @@
                         
                         <!-- タスク操作 -->
                         <TextBlock Text="タスク操作" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
-                        <Button Command="{Binding AddTaskCommand}" Margin="0,0,0,4"
-                                Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
-                                Height="32" Padding="8,6" ToolTip="新しいタスクを追加" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock Text="➕" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="タスク追加" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                        
                         <Button Command="{Binding CreateTaskFromTaskTemplateCommand}" Margin="0,0,0,4"
                                 Style="{StaticResource RoundButton}" Background="#6366F1" Foreground="White"
                                 Height="32" Padding="8,6" ToolTip="テンプレート選択" HorizontalAlignment="Stretch">
@@ -190,30 +193,12 @@
                         
                         <!-- カンバン操作 -->
                         <TextBlock Text="カンバン操作" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
-                        <Button Command="{Binding RefreshAllCommand}" Margin="0,0,0,4"
-                                Style="{StaticResource RoundButton}" Background="#6B7280" Foreground="White"
-                                Height="32" Padding="8,6" ToolTip="全て更新" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock Text="🔄" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="全て更新" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                        
-                        <Button Command="{Binding OpenBulkOperationCommand}" Margin="0,0,0,4"
+                        <Button Command="{Binding OpenBulkOperationCommand}" Margin="0,0,0,8"
                                 Style="{StaticResource RoundButton}" Background="#3B82F6" Foreground="White"
                                 Height="32" Padding="8,6" ToolTip="一括操作" HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <TextBlock Text="📋" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
                                 <TextBlock Text="一括操作" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                        
-                        <Button Command="{Binding OpenSortOptionsCommand}" Margin="0,0,0,8"
-                                Style="{StaticResource RoundButton}" Background="#8B5CF6" Foreground="White"
-                                Height="32" Padding="8,6" ToolTip="並び替え" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock Text="🗂️" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="並び替え" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
