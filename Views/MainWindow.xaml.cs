@@ -664,6 +664,9 @@ namespace PomodoroTimer.Views
             }
         }
 
+        // 折りたたまれたグループを管理
+        private readonly HashSet<string> collapsedGroups = new();
+
         /// <summary>
         /// プロジェクトグループの展開・折りたたみを切り替える
         /// </summary>
@@ -671,18 +674,53 @@ namespace PomodoroTimer.Views
         {
             try
             {
-                if (sender is System.Windows.Controls.Button button && button.Tag is string categoryName && _viewModel != null)
+                if (sender is System.Windows.Controls.Button button && button.Tag is string categoryName)
                 {
-                    _viewModel.ToggleProjectGroupExpansion(categoryName);
+                    var normalizedCategory = string.IsNullOrWhiteSpace(categoryName) ? "その他" : categoryName;
                     
-                    // ボタンのアイコンを更新
-                    var isExpanded = _viewModel.IsProjectGroupExpanded(categoryName);
-                    button.Content = isExpanded ? "▼" : "▶";
+                    // 折りたたみ状態を切り替え
+                    if (collapsedGroups.Contains(normalizedCategory))
+                    {
+                        collapsedGroups.Remove(normalizedCategory);
+                        button.Content = "▼";
+                    }
+                    else
+                    {
+                        collapsedGroups.Add(normalizedCategory);
+                        button.Content = "▶";
+                    }
+                    
+                    // CollectionViewSourceのフィルタを更新
+                    var cvs = (System.Windows.Data.CollectionViewSource)FindResource("TodoTasksGroupedSource");
+                    if (cvs?.View != null)
+                    {
+                        cvs.Filter -= TodoTasksGrouped_Filter;
+                        cvs.Filter += TodoTasksGrouped_Filter;
+                        cvs.View.Refresh();
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"プロジェクトグループ切り替えでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// TodoTasksのグループフィルタ処理
+        /// </summary>
+        private void TodoTasksGrouped_Filter(object sender, System.Windows.Data.FilterEventArgs e)
+        {
+            if (e.Item is PomodoroTask task)
+            {
+                var category = string.IsNullOrWhiteSpace(task.Category) ? "その他" : task.Category;
+                
+                // 折りたたまれたグループのタスクを非表示にする
+                e.Accepted = !collapsedGroups.Contains(category);
+            }
+            else
+            {
+                e.Accepted = true;
             }
         }
 
