@@ -487,7 +487,9 @@
                         <ItemsControl ItemsSource="{Binding TodoTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8">
+                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8"
+                                            MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
+                                            Tag="{Binding}">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -669,7 +671,9 @@
                         <ItemsControl ItemsSource="{Binding WaitingTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#3B82F6">
+                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#3B82F6"
+                                            MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
+                                            Tag="{Binding}">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -861,7 +865,9 @@
                         <StackPanel>
                             <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#F59E0B" 
                                     Background="#FFFBF0" Padding="15"
-                                    Visibility="{Binding CurrentTask, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    Visibility="{Binding CurrentTask, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
+                                    Tag="{Binding CurrentTask}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -1230,7 +1236,9 @@
                         <ItemsControl ItemsSource="{Binding FilteredDoneTasksCollection}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#10B981" Opacity="0.8">
+                                    <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#10B981" Opacity="0.8"
+                                            MouseLeftButtonDown="TaskCard_MouseLeftButtonDown"
+                                            Tag="{Binding}">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>

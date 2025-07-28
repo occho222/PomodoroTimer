@@ -467,6 +467,25 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
+        /// タスクカードのダブルクリックイベントハンドラー
+        /// </summary>
+        private void TaskCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (e.ClickCount == 2 && sender is Border border && border.Tag is PomodoroTask task && _viewModel != null)
+                {
+                    _viewModel.OpenTaskDetailCommand?.Execute(task);
+                    e.Handled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"タスクカードダブルクリックでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// ウィンドウが閉じられる時の処理
         /// </summary>
         protected override async void OnClosed(EventArgs e)
