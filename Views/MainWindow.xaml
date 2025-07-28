@@ -304,124 +304,150 @@
                       HorizontalAlignment="Center" VerticalAlignment="Stretch"
                       ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"/>
 
-        <!-- メインエリアヘッダー（タイマー・クイックアクション） -->
-        <Border Grid.Row="0" Grid.Column="2" Background="White" Margin="5,10,10,5" CornerRadius="12" Padding="20">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- タイマー表示 -->
-                <Border Grid.Row="0" Grid.Column="0" Background="#F8FAFC" CornerRadius="12" Padding="25,15" Margin="0,0,20,0">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,20,0">
-                            <TextBlock Text="{Binding TimeRemaining}" FontSize="36" FontWeight="Bold" 
-                                       Foreground="{StaticResource PrimaryBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding SessionTypeText}" FontSize="14" Foreground="Gray" 
-                                       HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                            <ProgressBar Value="{Binding ProgressValue, Mode=OneWay}" Maximum="100" 
-                                         Height="8" Width="200" Margin="0,8,0,0"/>
-                        </StackPanel>
-                        <StackPanel VerticalAlignment="Center">
-                            <Button Content="{Binding StartPauseButtonText}" Command="{Binding StartPauseCommand}"
-                                    Style="{StaticResource RoundButton}" Height="40" FontSize="14" Margin="0,0,0,8" Width="100"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                <Button Content="停止" Command="{Binding StopCommand}"
-                                        Style="{StaticResource RoundButton}" Background="Gray" Height="32" FontSize="12" 
-                                        Width="60" Margin="0,0,4,0"/>
-                                <Button Content="スキップ" Command="{Binding SkipCommand}"
-                                        Style="{StaticResource RoundButton}" Background="{StaticResource SecondaryBrush}" 
-                                        Height="32" FontSize="12" Width="60" Margin="4,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                <Button Content="+1分" Command="{Binding AddOneMinuteCommand}"
-                                        Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
-                                        Height="28" FontSize="11" Width="60" Margin="0,0,4,0" 
-                                        ToolTip="タイマーに1分追加"/>
-                                <Button Content="+10秒" Command="{Binding AddTenSecondsCommand}"
-                                        Style="{StaticResource RoundButton}" Background="#059669" Foreground="White"
-                                        Height="28" FontSize="11" Width="60" Margin="4,0,0,0"
-                                        ToolTip="タイマーに10秒追加"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="-1分" Command="{Binding SubtractOneMinuteCommand}"
-                                        Style="{StaticResource RoundButton}" Background="#EF4444" Foreground="White"
-                                        Height="28" FontSize="11" Width="60" Margin="0,0,4,0" 
-                                        ToolTip="タイマーから1分減らす"/>
-                                <Button Content="-10秒" Command="{Binding SubtractTenSecondsCommand}"
-                                        Style="{StaticResource RoundButton}" Background="#DC2626" Foreground="White"
-                                        Height="28" FontSize="11" Width="60" Margin="4,0,0,0"
-                                        ToolTip="タイマーから10秒減らす"/>
-                            </StackPanel>
-                            <!-- 集中モードトグルボタン -->
-                            <ToggleButton x:Name="FocusModeToggle" 
-                                          IsChecked="{Binding EnableFocusMode, Mode=TwoWay}" 
-                                          Click="FocusModeToggle_Click"
-                                          Height="32" Width="124" Margin="0,8,0,0"
-                                          ToolTip="集中モードのON/OFF切り替え"
-                                          BorderThickness="0" Cursor="Hand">
-                                <ToggleButton.Style>
-                                    <Style TargetType="ToggleButton">
-                                        <Setter Property="Background" Value="#E5E7EB"/>
-                                        <Setter Property="Foreground" Value="#374151"/>
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="ToggleButton">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="6"
-                                                            Padding="8,4"
-                                                            BorderThickness="0">
-                                                        <ContentPresenter HorizontalAlignment="Center"
-                                                                          VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsChecked" Value="True">
-                                                            <Setter Property="Background" Value="#6366F1"/>
-                                                            <Setter Property="Foreground" Value="White"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="#D1D5DB"/>
-                                                        </Trigger>
-                                                        <MultiTrigger>
-                                                            <MultiTrigger.Conditions>
-                                                                <Condition Property="IsChecked" Value="True"/>
-                                                                <Condition Property="IsMouseOver" Value="True"/>
-                                                            </MultiTrigger.Conditions>
-                                                            <Setter Property="Background" Value="#5B5FC7"/>
-                                                        </MultiTrigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ToggleButton.Style>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🔒" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                    <TextBlock Text="集中モード" FontSize="11" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </ToggleButton>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-                
-                
-            </Grid>
-        </Border>
-
-        <!-- カンバンボード -->
-        <Grid Grid.Row="1" Grid.Column="2" Margin="5,5,10,10">
+        <!-- メインエリア（タイマーとカンバンボード） -->
+        <Grid Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Margin="5,10,10,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="TimerColumn" Width="320" MinWidth="280" MaxWidth="400"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            
+            <!-- タイマーエリア -->
+            <Border Grid.Row="0" Grid.Column="0" Background="White" Margin="0,0,5,5" CornerRadius="12" Padding="15">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- タイマー表示部分 -->
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,15">
+                        <TextBlock Text="{Binding TimeRemaining}" FontSize="32" FontWeight="Bold" 
+                                   Foreground="{StaticResource PrimaryBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding SessionTypeText}" FontSize="13" Foreground="Gray" 
+                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        <ProgressBar Value="{Binding ProgressValue, Mode=OneWay}" Maximum="100" 
+                                     Height="6" Width="180" Margin="0,8,0,0"/>
+                    </StackPanel>
+                    
+                    <!-- メイン操作ボタン -->
+                    <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,0,12">
+                        <Button Content="{Binding StartPauseButtonText}" Command="{Binding StartPauseCommand}"
+                                Style="{StaticResource RoundButton}" Height="36" FontSize="13" Width="120" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="停止" Command="{Binding StopCommand}"
+                                    Style="{StaticResource RoundButton}" Background="Gray" Height="28" FontSize="11" 
+                                    Width="55" Margin="0,0,5,0"/>
+                            <Button Content="スキップ" Command="{Binding SkipCommand}"
+                                    Style="{StaticResource RoundButton}" Background="{StaticResource SecondaryBrush}" 
+                                    Height="28" FontSize="11" Width="55" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <!-- 微調整ボタンと集中モード -->
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- 時間調整ボタン -->
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
+                            <Button Content="+1分" Command="{Binding AddOneMinuteCommand}"
+                                    Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
+                                    Height="24" FontSize="10" Width="45" Margin="0,0,3,0" 
+                                    ToolTip="タイマーに1分追加"/>
+                            <Button Content="+10秒" Command="{Binding AddTenSecondsCommand}"
+                                    Style="{StaticResource RoundButton}" Background="#059669" Foreground="White"
+                                    Height="24" FontSize="10" Width="45" Margin="3,0,6,0"
+                                    ToolTip="タイマーに10秒追加"/>
+                            <Button Content="-1分" Command="{Binding SubtractOneMinuteCommand}"
+                                    Style="{StaticResource RoundButton}" Background="#EF4444" Foreground="White"
+                                    Height="24" FontSize="10" Width="45" Margin="6,0,3,0" 
+                                    ToolTip="タイマーから1分減らす"/>
+                            <Button Content="-10秒" Command="{Binding SubtractTenSecondsCommand}"
+                                    Style="{StaticResource RoundButton}" Background="#DC2626" Foreground="White"
+                                    Height="24" FontSize="10" Width="45" Margin="3,0,0,0"
+                                    ToolTip="タイマーから10秒減らす"/>
+                        </StackPanel>
+                        
+                        <!-- 集中モードトグルボタン -->
+                        <ToggleButton Grid.Row="1" x:Name="FocusModeToggle" 
+                                      IsChecked="{Binding EnableFocusMode, Mode=TwoWay}" 
+                                      Click="FocusModeToggle_Click"
+                                      Height="28" Width="110" Margin="0,6,0,0"
+                                      ToolTip="集中モードのON/OFF切り替え"
+                                      BorderThickness="0" Cursor="Hand"
+                                      HorizontalAlignment="Center">
+                            <ToggleButton.Style>
+                                <Style TargetType="ToggleButton">
+                                    <Setter Property="Background" Value="#E5E7EB"/>
+                                    <Setter Property="Foreground" Value="#374151"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="6"
+                                                        Padding="8,4"
+                                                        BorderThickness="0">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="#6366F1"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#D1D5DB"/>
+                                                    </Trigger>
+                                                    <MultiTrigger>
+                                                        <MultiTrigger.Conditions>
+                                                            <Condition Property="IsChecked" Value="True"/>
+                                                            <Condition Property="IsMouseOver" Value="True"/>
+                                                        </MultiTrigger.Conditions>
+                                                        <Setter Property="Background" Value="#5B5FC7"/>
+                                                    </MultiTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ToggleButton.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔒" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="集中モード" FontSize="10" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ToggleButton>
+                    </Grid>
+                </Grid>
+            </Border>
+            
+            <!-- タイマーエリアリサイザー -->
+            <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" 
+                          Width="6" Background="#E5E7EB" 
+                          HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                          ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"
+                          Margin="0,0,0,5"/>
+            
+            <!-- カンバンボードエリア -->
+            <ScrollViewer Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" 
+                         HorizontalScrollBarVisibility="Auto" 
+                         VerticalScrollBarVisibility="Disabled"
+                         Margin="5,0,0,0">
+                <Grid MinWidth="1200">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
 
             <!-- 未開始タスク列 -->
             <Border Grid.Column="0" Background="White" Margin="0,0,3,0" CornerRadius="12">
@@ -1331,6 +1357,8 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
+                </Grid>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Window>
