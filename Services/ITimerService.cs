@@ -56,6 +56,11 @@
         bool IsRunning { get; }
 
         /// <summary>
+        /// タイマーが一時停止中かどうか
+        /// </summary>
+        bool IsPaused { get; }
+
+        /// <summary>
         /// 現在の残り時間
         /// </summary>
         TimeSpan RemainingTime { get; }

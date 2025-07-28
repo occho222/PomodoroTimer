@@ -15,6 +15,7 @@ namespace PomodoroTimer.Services
         private SessionType _currentSessionType;
         private int _completedPomodoros;
         private int _currentCycleCount;
+        private bool _isPaused;
 
         public event Action? TimerStarted;
         public event Action? TimerStopped;
@@ -25,6 +26,7 @@ namespace PomodoroTimer.Services
         public event Action<SessionType>? SessionTypeChanged;
 
         public bool IsRunning => _timer?.IsEnabled ?? false;
+        public bool IsPaused => _isPaused;
         public TimeSpan RemainingTime => _remainingTime;
         public TimeSpan SessionDuration => _sessionDuration;
         public SessionType CurrentSessionType => _currentSessionType;
@@ -42,12 +44,14 @@ namespace PomodoroTimer.Services
             _sessionDuration = _remainingTime;
             _completedPomodoros = 0;
             _currentCycleCount = 0;
+            _isPaused = false;
         }
 
         public void Start(TimeSpan duration)
         {
             _sessionDuration = duration;
             _remainingTime = duration;
+            _isPaused = false;
             _timer.Start();
             TimerStarted?.Invoke();
         }
@@ -58,6 +62,7 @@ namespace PomodoroTimer.Services
             var duration = TimeSpan.FromMinutes(_settings.WorkSessionMinutes);
             _sessionDuration = duration;
             _remainingTime = duration;
+            _isPaused = false;
             _timer.Start();
             TimerStarted?.Invoke();
             SessionTypeChanged?.Invoke(_currentSessionType);
@@ -67,24 +72,28 @@ namespace PomodoroTimer.Services
         {
             _timer.Stop();
             _remainingTime = _sessionDuration;
+            _isPaused = false;
             TimerStopped?.Invoke();
         }
 
         public void Pause()
         {
             _timer.Stop();
+            _isPaused = true;
             TimerPaused?.Invoke();
         }
 
         public void Resume()
         {
             _timer.Start();
+            _isPaused = false;
             TimerResumed?.Invoke();
         }
 
         public void Skip()
         {
             _timer.Stop();
+            _isPaused = false;
             OnSessionCompleted();
         }
 

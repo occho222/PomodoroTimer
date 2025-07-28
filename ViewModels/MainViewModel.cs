@@ -845,6 +845,18 @@ namespace PomodoroTimer.ViewModels
             {
                 // タスク完了時の経過時間を記録
                 RecordCurrentTaskElapsedTimeInternal();
+                
+                // タイマーを一時停止状態にする（完全停止ではなく）
+                if (IsRunning)
+                {
+                    _timerService.Pause();
+                    Console.WriteLine("[CompleteTask] 実行中タスクの完了によりタイマーを一時停止状態にしました");
+                }
+                else
+                {
+                    Console.WriteLine("[CompleteTask] タイマーは既に停止中でした");
+                }
+                
                 CurrentTask = null;
             }
 
@@ -929,6 +941,10 @@ namespace PomodoroTimer.ViewModels
         {
             if (task.Status == TaskStatus.Completed)
             {
+                // タイマーの動作状態を事前に記録（重要：タスクの切り替え前に記録）
+                bool wasRunning = IsRunning;
+                Console.WriteLine($"[MoveCompletedTaskToExecuting] タイマー状態: wasRunning={wasRunning}, CurrentTask={CurrentTask?.Title ?? "null"}");
+                
                 // 現在実行中のタスクがある場合は停止
                 if (CurrentTask != null)
                 {
@@ -954,8 +970,16 @@ namespace PomodoroTimer.ViewModels
                 // 現在のタスクとして設定
                 CurrentTask = task;
                 
-                // タイマーを開始（25分）
-                _timerService.Start(TimeSpan.FromMinutes(25));
+                // タイマーが停止中だった場合のみ開始
+                if (!wasRunning)
+                {
+                    Console.WriteLine("[MoveCompletedTaskToExecuting] タイマーが停止中だったため、25分タイマーを開始します");
+                    _timerService.Start(TimeSpan.FromMinutes(25));
+                }
+                else
+                {
+                    Console.WriteLine("[MoveCompletedTaskToExecuting] タイマーが動作中だったため、タイマーを開始しません");
+                }
                 
                 UpdateKanbanColumns();
                 SaveDataAsync();
@@ -2114,6 +2138,10 @@ namespace PomodoroTimer.ViewModels
         {
             if (task.Status == TaskStatus.Waiting)
             {
+                // タイマーの動作状態を事前に記録（重要：タスクの切り替え前に記録）
+                bool wasRunning = IsRunning;
+                Console.WriteLine($"[ExecuteTask] タイマー状態: wasRunning={wasRunning}, CurrentTask={CurrentTask?.Title ?? "null"}");
+                
                 // 既に実行中のタスクがある場合は停止
                 var currentExecutingTask = ExecutingTasks.FirstOrDefault();
                 if (currentExecutingTask != null)
@@ -2123,11 +2151,6 @@ namespace PomodoroTimer.ViewModels
 
                 // 現在実行中のタスクの経過時間を記録してから新しいタスクを開始
                 RecordCurrentTaskElapsedTimeInternal();
-                
-                if (IsRunning)
-                {
-                    Stop();
-                }
 
                 // 新しいタスクを実行中に移行
                 task.StartExecution();
@@ -2136,8 +2159,16 @@ namespace PomodoroTimer.ViewModels
                 // セッション開始時刻を記録
                 CurrentTask.CurrentSessionStartTime = DateTime.Now;
                 
-                // タイマーを開始
-                StartPause();
+                // タイマーが停止中だった場合のみ開始
+                if (!wasRunning)
+                {
+                    Console.WriteLine("[ExecuteTask] タイマーが停止中だったため、タイマーを開始します");
+                    StartPause();
+                }
+                else
+                {
+                    Console.WriteLine("[ExecuteTask] タイマーが動作中だったため、タイマーを開始しません");
+                }
                 
                 // リアルタイム更新を開始
                 UpdateRealTimeElapsedTime();
@@ -2168,10 +2199,15 @@ namespace PomodoroTimer.ViewModels
                 
                 task.StopExecution();
                 
-                // タイマーも停止
+                // タイマーを一時停止状態にする（完全停止ではなく）
                 if (IsRunning)
                 {
-                    _timerService.Stop();
+                    _timerService.Pause();
+                    Console.WriteLine("[StopTaskExecution] タイマーを一時停止状態にしました");
+                }
+                else
+                {
+                    Console.WriteLine("[StopTaskExecution] タイマーは既に停止中でした");
                 }
 
                 // 実行中画面をクリア
@@ -2698,8 +2734,11 @@ namespace PomodoroTimer.ViewModels
                             case TaskSelectionResult.ContinueWithTask:
                                 if (viewModel.SelectedTaskResult != null)
                                 {
-                                    // 選択されたタスクを実行中に移行
+                                    // 選択されたタスクを実行中に移行（タイマーは継続）
                                     var selectedTask = viewModel.SelectedTaskResult;
+                                    Console.WriteLine($"[ContinueWithTask] 選択されたタスク「{selectedTask.Title}」でセッションを継続します");
+                                    
+                                    // タスクの状態を適切に変更
                                     if (selectedTask.Status == TaskStatus.Waiting)
                                     {
                                         selectedTask.StartExecution();
@@ -2710,9 +2749,36 @@ namespace PomodoroTimer.ViewModels
                                         selectedTask.StartExecution();
                                     }
                                     
+                                    // セッション開始時刻を記録
+                                    selectedTask.CurrentSessionStartTime = DateTime.Now;
+                                    
+                                    // 新しいタスクをCurrentTaskに設定
                                     CurrentTask = selectedTask;
+                                    
+                                    // タイマーが一時停止状態の場合は再開する
+                                    if (_timerService.IsPaused)
+                                    {
+                                        _timerService.Resume();
+                                        Console.WriteLine($"[ContinueWithTask] 一時停止中のタイマーを再開しました");
+                                    }
+                                    else if (!IsRunning)
+                                    {
+                                        // タイマーが完全に停止している場合は残り時間で再開始
+                                        var remainingTime = _timerService.RemainingTime;
+                                        if (remainingTime > TimeSpan.Zero)
+                                        {
+                                            _timerService.Start(remainingTime);
+                                            Console.WriteLine($"[ContinueWithTask] タイマーを残り時間{remainingTime}で再開始しました");
+                                        }
+                                    }
+                                    
+                                    // リアルタイム更新を開始
+                                    UpdateRealTimeElapsedTime();
+                                    
                                     UpdateKanbanColumns();
                                     SaveDataAsync();
+                                    
+                                    Console.WriteLine($"[ContinueWithTask] タスク「{selectedTask.Title}」でセッション継続完了。タイマー状態: IsRunning={IsRunning}, IsPaused={_timerService.IsPaused}");
                                 }
                                 break;
                                 
