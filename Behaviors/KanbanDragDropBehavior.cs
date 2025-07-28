@@ -64,6 +64,15 @@ namespace PomodoroTimer.Behaviors
         {
             _startPoint = e.GetPosition(null);
             _draggedTask = GetTaskFromElement(e.OriginalSource as FrameworkElement);
+            
+            if (_draggedTask != null)
+            {
+                Console.WriteLine($"[ドラッグ開始] タスク「{_draggedTask.Title}」（状態: {_draggedTask.Status}）");
+            }
+            else
+            {
+                Console.WriteLine("[ドラッグ開始] ドラッグ可能なタスクが見つかりませんでした");
+            }
         }
 
         private void OnPreviewMouseMove(object sender, MouseEventArgs e)
@@ -176,10 +185,18 @@ namespace PomodoroTimer.Behaviors
         {
             while (element != null)
             {
+                // DataContextがPomodoroTaskの場合（通常のカード）
                 if (element.DataContext is PomodoroTask task)
                 {
                     return task;
                 }
+                
+                // TagがPomodoroTaskの場合（実行中カードなど）
+                if (element is FrameworkElement frameworkElement && frameworkElement.Tag is PomodoroTask tagTask)
+                {
+                    return tagTask;
+                }
+                
                 element = VisualTreeHelper.GetParent(element) as FrameworkElement;
             }
             return null;
@@ -189,30 +206,44 @@ namespace PomodoroTimer.Behaviors
         {
             // 同じ状態への移動は不要
             if (task.Status == targetStatus)
+            {
+                Console.WriteLine($"[CanDropTask] 同じ状態への移動をスキップ: {task.Status} -> {targetStatus}");
                 return false;
+            }
+                
+            Console.WriteLine($"[CanDropTask] タスク「{task.Title}」の状態遷移をチェック: {task.Status} -> {targetStatus}");
                 
             // ドロップのルールを定義
+            bool canDrop = false;
             switch (targetStatus)
             {
                 case TaskStatus.Todo:
                     // 待機中や完了からは戻せる
-                    return task.Status == TaskStatus.Waiting || task.Status == TaskStatus.Completed;
+                    canDrop = task.Status == TaskStatus.Waiting || task.Status == TaskStatus.Completed;
+                    break;
                 
                 case TaskStatus.Waiting:
-                    // 未開始、実行中、完了から移動可能
-                    return task.Status == TaskStatus.Todo || task.Status == TaskStatus.Executing || task.Status == TaskStatus.Completed;
+                    // 未開始、実行中、完了から移動可能（実行中から待機中への遷移を確実に許可）
+                    canDrop = task.Status == TaskStatus.Todo || task.Status == TaskStatus.Executing || task.Status == TaskStatus.Completed;
+                    break;
                 
                 case TaskStatus.Executing:
                     // 待機中、完了から移動可能
-                    return task.Status == TaskStatus.Waiting || task.Status == TaskStatus.Completed;
+                    canDrop = task.Status == TaskStatus.Waiting || task.Status == TaskStatus.Completed;
+                    break;
                 
                 case TaskStatus.Completed:
                     // 実行中や待機中からは完了にできる
-                    return task.Status == TaskStatus.Executing || task.Status == TaskStatus.Waiting;
+                    canDrop = task.Status == TaskStatus.Executing || task.Status == TaskStatus.Waiting;
+                    break;
                 
                 default:
-                    return false;
+                    canDrop = false;
+                    break;
             }
+            
+            Console.WriteLine($"[CanDropTask] 結果: {canDrop}");
+            return canDrop;
         }
 
         private void ChangeTaskStatus(PomodoroTask task, TaskStatus newStatus, MainViewModel viewModel)
