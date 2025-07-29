@@ -61,6 +61,24 @@ namespace PomodoroTimer.Views
             
             // 初期ドキュメント設定
             RichEditor.Document = new FlowDocument();
+            
+            // Loadedイベントでツールバーの初期状態を設定
+            Loaded += RichMarkdownEditor_Loaded;
+        }
+
+        private void RichMarkdownEditor_Loaded(object sender, RoutedEventArgs e)
+        {
+            // ツールバーの初期表示状態を設定
+            UpdateToolbarVisibility();
+        }
+
+        private void UpdateToolbarVisibility()
+        {
+            var toolbar = FindName("ToolbarBorder") as Border;
+            if (toolbar != null)
+            {
+                toolbar.Visibility = ShowToolbar ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
 
         private static void OnPlainTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -89,6 +107,12 @@ namespace PomodoroTimer.Views
                 {
                     var paragraph = new Paragraph(new Run(text));
                     document.Blocks.Add(paragraph);
+                }
+                else
+                {
+                    // 空のテキストでも空のParagraphを追加
+                    var emptyParagraph = new Paragraph(new Run(""));
+                    document.Blocks.Add(emptyParagraph);
                 }
                 
                 RichEditor.Document = document;
@@ -550,11 +574,7 @@ namespace PomodoroTimer.Views
         {
             if (d is RichMarkdownEditor editor)
             {
-                var toolbar = editor.FindName("ToolbarBorder") as Border;
-                if (toolbar != null)
-                {
-                    toolbar.Visibility = (bool)e.NewValue ? Visibility.Visible : Visibility.Collapsed;
-                }
+                editor.UpdateToolbarVisibility();
             }
         }
     }
