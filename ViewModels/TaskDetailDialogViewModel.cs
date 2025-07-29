@@ -71,8 +71,6 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private DateTime? startedAt;
 
-        [ObservableProperty]
-        private MarkdownEditorViewModel markdownEditorViewModel = new();
 
         [RelayCommand]
         private void SetToday()
@@ -150,7 +148,6 @@ namespace PomodoroTimer.ViewModels
         {
             TaskTitle = _originalTask.Title;
             Description = _originalTask.Description;
-            MarkdownEditorViewModel.MarkdownText = _originalTask.Description;
             TaskCategory = _originalTask.Category;
             TaskTags = _originalTask.TagsText;
             Url = _originalTask.Url;
@@ -407,7 +404,7 @@ namespace PomodoroTimer.ViewModels
 
                 // タスクデータを更新
                 _originalTask.Title = TaskTitle;
-                _originalTask.Description = MarkdownEditorViewModel.MarkdownText;
+                _originalTask.Description = Description;
                 _originalTask.Category = TaskCategory;
                 _originalTask.TagsText = TaskTags;
                 _originalTask.Url = Url;

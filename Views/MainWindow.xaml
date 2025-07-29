@@ -547,8 +547,19 @@
                                 </StackPanel>
                             </StackPanel>
                             
-                            <!-- チェックリスト -->
+                            <!-- 説明 -->
                             <StackPanel Grid.Row="5" Margin="0,0,0,12"
+                                        Visibility="{Binding SelectedTaskDetail.Description, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="📝 説明" FontSize="14" FontWeight="Bold" 
+                                           Foreground="#374151" Margin="0,0,0,6"/>
+                                <Border Background="#F9FAFB" CornerRadius="6" Padding="6">
+                                    <views:RichMarkdownEditor PlainText="{Binding SelectedTaskDetail.Description, Mode=OneWay}" 
+                                                              IsReadOnly="True" Height="150"/>
+                                </Border>
+                            </StackPanel>
+                            
+                            <!-- チェックリスト -->
+                            <StackPanel Grid.Row="6" Margin="0,0,0,12"
                                         Visibility="{Binding SelectedTaskDetail.Checklist.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                     <TextBlock Text="✅ チェックリスト" FontSize="14" FontWeight="Bold" 
@@ -583,17 +594,6 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                            </StackPanel>
-                            
-                            <!-- 説明 -->
-                            <StackPanel Grid.Row="6" Margin="0,0,0,12"
-                                        Visibility="{Binding SelectedTaskDetail.Description, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <TextBlock Text="📝 説明" FontSize="14" FontWeight="Bold" 
-                                           Foreground="#374151" Margin="0,0,0,6"/>
-                                <Border Background="#F9FAFB" CornerRadius="6" Padding="6">
-                                    <views:RichMarkdownEditor PlainText="{Binding SelectedTaskDetail.Description, Mode=OneWay}" 
-                                                              IsReadOnly="True" Height="100"/>
-                                </Border>
                             </StackPanel>
                             
                             <!-- 画像・リンク -->
@@ -899,9 +899,9 @@
                                             </Grid>
                                             
                                             <!-- 説明 -->
-                                            <TextBlock Grid.Row="1" Text="{Binding Description}" 
-                                                       FontSize="12" Foreground="Gray" TextWrapping="Wrap" Margin="0,8,0,0"
-                                                       Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            <views:RichMarkdownEditor Grid.Row="1" PlainText="{Binding Description, Mode=OneWay}" 
+                                                                      IsReadOnly="True" Height="80" Margin="0,8,0,0"
+                                                                      Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                             
                                             <!-- 画像表示 -->
                                             <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
