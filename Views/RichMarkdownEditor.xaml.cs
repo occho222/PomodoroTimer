@@ -26,6 +26,10 @@ namespace PomodoroTimer.Views
             DependencyProperty.Register(nameof(IsReadOnly), typeof(bool), typeof(RichMarkdownEditor),
                 new FrameworkPropertyMetadata(false, OnIsReadOnlyChanged));
 
+        public static readonly DependencyProperty ShowToolbarProperty =
+            DependencyProperty.Register(nameof(ShowToolbar), typeof(bool), typeof(RichMarkdownEditor),
+                new FrameworkPropertyMetadata(true, OnShowToolbarChanged));
+
         public string PlainText
         {
             get => (string)GetValue(PlainTextProperty);
@@ -36,6 +40,12 @@ namespace PomodoroTimer.Views
         {
             get => (bool)GetValue(IsReadOnlyProperty);
             set => SetValue(IsReadOnlyProperty, value);
+        }
+
+        public bool ShowToolbar
+        {
+            get => (bool)GetValue(ShowToolbarProperty);
+            set => SetValue(ShowToolbarProperty, value);
         }
 
         public RichMarkdownEditor()
@@ -530,6 +540,21 @@ namespace PomodoroTimer.Views
                 
                 // エディターにフォーカスを戻す
                 RichEditor.Focus();
+            }
+        }
+
+        /// <summary>
+        /// ShowToolbarプロパティが変更された時の処理
+        /// </summary>
+        private static void OnShowToolbarChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is RichMarkdownEditor editor)
+            {
+                var toolbar = editor.FindName("ToolbarBorder") as Border;
+                if (toolbar != null)
+                {
+                    toolbar.Visibility = (bool)e.NewValue ? Visibility.Visible : Visibility.Collapsed;
+                }
             }
         }
     }

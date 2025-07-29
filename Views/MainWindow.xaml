@@ -554,7 +554,7 @@
                                            Foreground="#374151" Margin="0,0,0,6"/>
                                 <Border Background="#F9FAFB" CornerRadius="6" Padding="6">
                                     <views:RichMarkdownEditor PlainText="{Binding SelectedTaskDetail.Description, Mode=OneWay}" 
-                                                              IsReadOnly="True" Height="150"/>
+                                                              IsReadOnly="True" ShowToolbar="False" Height="150"/>
                                 </Border>
                             </StackPanel>
                             
@@ -900,7 +900,7 @@
                                             
                                             <!-- 説明 -->
                                             <views:RichMarkdownEditor Grid.Row="1" PlainText="{Binding Description, Mode=OneWay}" 
-                                                                      IsReadOnly="True" Height="80" Margin="0,8,0,0"
+                                                                      IsReadOnly="True" ShowToolbar="False" Height="80" Margin="0,8,0,0"
                                                                       Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                             
                                             <!-- 画像表示 -->
@@ -1181,7 +1181,7 @@
                                     
                                     <!-- 説明 -->
                                     <views:RichMarkdownEditor Grid.Row="3" PlainText="{Binding CurrentTask.Description, Mode=OneWay}" 
-                                                              IsReadOnly="True" Height="100" Margin="0,12,0,0"
+                                                              IsReadOnly="True" ShowToolbar="False" Height="100" Margin="0,12,0,0"
                                                               Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     
                                     <!-- 画像表示 -->
