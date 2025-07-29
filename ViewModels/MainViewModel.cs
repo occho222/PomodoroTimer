@@ -41,6 +41,19 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private PomodoroTask? selectedTaskDetail;
 
+        [ObservableProperty]
+        private MarkdownEditorViewModel currentTaskMarkdownViewer = new();
+
+        /// <summary>
+        /// CurrentTaskプロパティ変更時の処理
+        /// </summary>
+        partial void OnCurrentTaskChanged(PomodoroTask? oldValue, PomodoroTask? newValue)
+        {
+            // マークダウンビューアのテキストを更新
+            CurrentTaskMarkdownViewer.MarkdownText = newValue?.Description ?? string.Empty;
+            CurrentTaskMarkdownViewer.IsEditorMode = false; // 表示はビューアモードで
+        }
+
         /// <summary>
         /// SelectedTaskDetailプロパティ変更時の処理
         /// </summary>

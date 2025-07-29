@@ -302,4 +302,84 @@ namespace PomodoroTimer.Converters
         }
     }
 
+    /// <summary>
+    /// ブール値をタブの背景色に変換するコンバーター
+    /// </summary>
+    public class BooleanToTabBackgroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return boolValue ? "White" : "#F8FAFC";
+            }
+            return "#F8FAFC";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// ブール値をタブの文字色に変換するコンバーター
+    /// </summary>
+    public class BooleanToTabForegroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return boolValue ? "#1F2937" : "#6B7280";
+            }
+            return "#6B7280";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// ブール値を反転してタブの背景色に変換するコンバーター
+    /// </summary>
+    public class InverseBooleanToTabBackgroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return !boolValue ? "White" : "#F8FAFC";
+            }
+            return "White";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// ブール値を反転してタブの文字色に変換するコンバーター
+    /// </summary>
+    public class InverseBooleanToTabForegroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return !boolValue ? "#1F2937" : "#6B7280";
+            }
+            return "#1F2937";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }

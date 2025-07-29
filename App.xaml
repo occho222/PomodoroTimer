@@ -18,6 +18,10 @@
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
             <converters:PriorityToStringConverter x:Key="PriorityToStringConverter"/>
+            <converters:BooleanToTabBackgroundConverter x:Key="BooleanToTabBackgroundConverter"/>
+            <converters:BooleanToTabForegroundConverter x:Key="BooleanToTabForegroundConverter"/>
+            <converters:InverseBooleanToTabBackgroundConverter x:Key="InverseBooleanToTabBackgroundConverter"/>
+            <converters:InverseBooleanToTabForegroundConverter x:Key="InverseBooleanToTabForegroundConverter"/>
 
             <!-- カラーパレット -->
             <Color x:Key="PrimaryColor">#6366F1</Color>
@@ -226,6 +230,34 @@
                                 <DropShadowEffect BlurRadius="4" ShadowDepth="2" Opacity="0.2"/>
                             </Setter.Value>
                         </Setter>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Opacity" Value="0.6"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- タブボタンスタイル -->
+            <Style x:Key="TabButton" TargetType="Button">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="FontWeight" Value="Medium"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Opacity" Value="0.8"/>
                     </Trigger>
                     <Trigger Property="IsPressed" Value="True">
                         <Setter Property="Opacity" Value="0.6"/>

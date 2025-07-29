@@ -6,6 +6,11 @@
     public class AppSettings
     {
         /// <summary>
+        /// データフォーマットのバージョン
+        /// </summary>
+        public string DataVersion { get; set; } = "1.4.8";
+
+        /// <summary>
         /// 作業セッション時間（分）
         /// </summary>
         public int WorkSessionMinutes { get; set; } = 25;

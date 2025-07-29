@@ -6,6 +6,7 @@
         xmlns:behaviors="clr-namespace:PomodoroTimer.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:converters="clr-namespace:PomodoroTimer.Converters"
+        xmlns:views="clr-namespace:PomodoroTimer.Views"
         Title="ポモドーロタイマー - カンバンボード" 
         Height="900" Width="1600"
         MinHeight="800" MinWidth="1400"
@@ -1034,6 +1035,7 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
                                     
@@ -1178,12 +1180,12 @@
                                     </StackPanel>
                                     
                                     <!-- 説明 -->
-                                    <TextBlock Grid.Row="3" Text="{Binding CurrentTask.Description}" 
-                                               FontSize="12" Foreground="Gray" TextWrapping="Wrap" Margin="0,12,0,0"
-                                               Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <views:MarkdownEditor Grid.Row="3" DataContext="{Binding CurrentTaskMarkdownViewer}" 
+                                                         Height="100" Margin="0,12,0,0"
+                                                         Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     
                                     <!-- 画像表示 -->
-                                    <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+                                    <ScrollViewer Grid.Row="4" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
                                                  Margin="0,6,0,0" MaxHeight="100"
                                                  Visibility="{Binding CurrentTask.HasImages, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <ItemsControl ItemsSource="{Binding CurrentTask.ImageAttachments}">
@@ -1211,7 +1213,7 @@
                                     </ScrollViewer>
                                     
                                     <!-- カテゴリとタグ -->
-                                    <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,12,0,0">
+                                    <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,12,0,0">
                                         <Border Background="{StaticResource SecondaryBrush}" CornerRadius="4" Margin="0,0,8,0" Padding="8,4"
                                                 Visibility="{Binding CurrentTask.Category, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             <TextBlock Text="{Binding CurrentTask.Category}" FontSize="11" 
@@ -1223,7 +1225,7 @@
                                     </StackPanel>
                                     
                                     <!-- リンク -->
-                                    <ItemsControl Grid.Row="5" ItemsSource="{Binding CurrentTask.Links}" Margin="0,12,0,0"
+                                    <ItemsControl Grid.Row="6" ItemsSource="{Binding CurrentTask.Links}" Margin="0,12,0,0"
                                                  Visibility="{Binding CurrentTask.Links.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -1245,7 +1247,7 @@
                                     </ItemsControl>
                                     
                                     <!-- 進捗とポモドーロ情報 -->
-                                    <Grid Grid.Row="6" Margin="0,15,0,0">
+                                    <Grid Grid.Row="7" Margin="0,15,0,0">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
