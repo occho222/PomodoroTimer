@@ -1,0 +1,116 @@
+<UserControl x:Class="PomodoroTimer.Views.RichMarkdownEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="500">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- ツールバー -->
+        <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" CornerRadius="6,6,0,0" Padding="8,4">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="HeaderButton" Content="# H1" ToolTip="ヘッダー1 (# テキスト)"
+                        Click="HeaderButton_Click" Tag="1"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Margin="2" Padding="6,2" FontSize="11" FontWeight="Bold"/>
+                <Button x:Name="Header2Button" Content="## H2" ToolTip="ヘッダー2 (## テキスト)"
+                        Click="HeaderButton_Click" Tag="2"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Margin="2" Padding="6,2" FontSize="11" FontWeight="Bold"/>
+                <Button x:Name="Header3Button" Content="### H3" ToolTip="ヘッダー3 (### テキスト)"
+                        Click="HeaderButton_Click" Tag="3"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Margin="2" Padding="6,2" FontSize="11" FontWeight="Bold"/>
+                
+                <Separator Margin="4,0"/>
+                
+                <Button x:Name="BoldButton" Content="B" ToolTip="太字 (**テキスト**)"
+                        Click="BoldButton_Click"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Margin="2" Padding="6,2" FontWeight="Bold"/>
+                <Button x:Name="ItalicButton" Content="I" ToolTip="斜体 (*テキスト*)"
+                        Click="ItalicButton_Click"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Margin="2" Padding="6,2" FontStyle="Italic"/>
+                <Button x:Name="CodeButton" Content="{}{&lt; &gt;}" ToolTip="インラインコード (`コード`)"
+                        Click="CodeButton_Click"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Margin="2" Padding="6,2" FontFamily="Consolas"/>
+                
+                <Separator Margin="4,0"/>
+                
+                <Button x:Name="ListButton" Content="• List" ToolTip="リスト (- アイテム)"
+                        Click="ListButton_Click"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Margin="2" Padding="6,2"/>
+                <Button x:Name="QuoteButton" Content="❝ Quote" ToolTip="引用 (> テキスト)"
+                        Click="QuoteButton_Click"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Margin="2" Padding="6,2"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- エディター -->
+        <Border Grid.Row="1" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="0,0,6,6">
+            <RichTextBox x:Name="RichEditor"
+                         VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled"
+                         AcceptsReturn="True"
+                         AcceptsTab="True"
+                         FontFamily="Segoe UI"
+                         FontSize="14"
+                         BorderThickness="0"
+                         Padding="16"
+                         TextChanged="RichEditor_TextChanged"
+                         SelectionChanged="RichEditor_SelectionChanged"
+                         PreviewKeyDown="RichEditor_PreviewKeyDown">
+                <RichTextBox.Resources>
+                    <!-- ヘッダースタイル -->
+                    <Style x:Key="Heading1Style" TargetType="Paragraph">
+                        <Setter Property="FontSize" Value="24"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Margin" Value="0,16,0,8"/>
+                        <Setter Property="Foreground" Value="#1F2937"/>
+                    </Style>
+                    <Style x:Key="Heading2Style" TargetType="Paragraph">
+                        <Setter Property="FontSize" Value="20"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Margin" Value="0,14,0,6"/>
+                        <Setter Property="Foreground" Value="#1F2937"/>
+                    </Style>
+                    <Style x:Key="Heading3Style" TargetType="Paragraph">
+                        <Setter Property="FontSize" Value="16"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Margin" Value="0,12,0,4"/>
+                        <Setter Property="Foreground" Value="#1F2937"/>
+                    </Style>
+                    <!-- リストスタイル -->
+                    <Style x:Key="ListItemStyle" TargetType="Paragraph">
+                        <Setter Property="Margin" Value="16,2,0,2"/>
+                        <Setter Property="Foreground" Value="#374151"/>
+                    </Style>
+                    <!-- コードスタイル -->
+                    <Style x:Key="CodeStyle" TargetType="Run">
+                        <Setter Property="FontFamily" Value="Cascadia Code, Consolas, Courier New"/>
+                        <Setter Property="Background" Value="#F3F4F6"/>
+                        <Setter Property="Foreground" Value="#DC2626"/>
+                    </Style>
+                    <!-- 引用スタイル -->
+                    <Style x:Key="QuoteStyle" TargetType="Paragraph">
+                        <Setter Property="Margin" Value="16,4,0,4"/>
+                        <Setter Property="Padding" Value="8,4,8,4"/>
+                        <Setter Property="Background" Value="#F9FAFB"/>
+                        <Setter Property="BorderBrush" Value="#6B7280"/>
+                        <Setter Property="BorderThickness" Value="2,0,0,0"/>
+                        <Setter Property="FontStyle" Value="Italic"/>
+                    </Style>
+                </RichTextBox.Resources>
+            </RichTextBox>
+        </Border>
+    </Grid>
+</UserControl>

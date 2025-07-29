@@ -591,8 +591,8 @@
                                 <TextBlock Text="📝 説明" FontSize="14" FontWeight="Bold" 
                                            Foreground="#374151" Margin="0,0,0,6"/>
                                 <Border Background="#F9FAFB" CornerRadius="6" Padding="6">
-                                    <views:MarkdownEditor DataContext="{Binding SelectedTaskDetailMarkdownViewer}" 
-                                                         Height="100"/>
+                                    <views:RichMarkdownEditor PlainText="{Binding SelectedTaskDetail.Description, Mode=OneWay}" 
+                                                              IsReadOnly="True" Height="100"/>
                                 </Border>
                             </StackPanel>
                             
@@ -1180,9 +1180,9 @@
                                     </StackPanel>
                                     
                                     <!-- 説明 -->
-                                    <views:MarkdownEditor Grid.Row="3" DataContext="{Binding CurrentTaskMarkdownViewer}" 
-                                                         Height="100" Margin="0,12,0,0"
-                                                         Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <views:RichMarkdownEditor Grid.Row="3" PlainText="{Binding CurrentTask.Description, Mode=OneWay}" 
+                                                              IsReadOnly="True" Height="100" Margin="0,12,0,0"
+                                                              Visibility="{Binding CurrentTask.Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     
                                     <!-- 画像表示 -->
                                     <ScrollViewer Grid.Row="4" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
