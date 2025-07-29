@@ -27,6 +27,12 @@ namespace PomodoroTimer.ViewModels
         private string markdownText = string.Empty;
 
         /// <summary>
+        /// タブを表示するかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool showTabs = true;
+
+        /// <summary>
         /// レンダリングされたマークダウン（FlowDocument）
         /// </summary>
         public FlowDocument RenderedMarkdown

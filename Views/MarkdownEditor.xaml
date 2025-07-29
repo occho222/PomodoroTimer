@@ -12,7 +12,8 @@
         </Grid.RowDefinitions>
 
         <!-- タブヘッダー -->
-        <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1"
+                Visibility="{Binding ShowTabs, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal" Margin="0">
                 <Button x:Name="EditorTab" Content="エディタ" 
                         Command="{Binding SwitchToEditorCommand}"
@@ -47,14 +48,13 @@
                      Visibility="{Binding IsEditorMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
             <!-- プレビューモード -->
-            <ScrollViewer x:Name="MarkdownViewer"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled"
-                          Background="White"
-                          Padding="16"
-                          Visibility="{Binding IsEditorMode, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
-                <ContentPresenter Content="{Binding RenderedMarkdown}"/>
-            </ScrollViewer>
+            <FlowDocumentScrollViewer x:Name="MarkdownViewer"
+                                      Document="{Binding RenderedMarkdown}"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Background="White"
+                                      Margin="16"
+                                      Visibility="{Binding IsEditorMode, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
         </Grid>
     </Grid>
 </UserControl>

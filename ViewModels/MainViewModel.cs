@@ -44,6 +44,9 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private MarkdownEditorViewModel currentTaskMarkdownViewer = new();
 
+        [ObservableProperty]
+        private MarkdownEditorViewModel selectedTaskDetailMarkdownViewer = new();
+
         /// <summary>
         /// CurrentTaskプロパティ変更時の処理
         /// </summary>
@@ -52,6 +55,7 @@ namespace PomodoroTimer.ViewModels
             // マークダウンビューアのテキストを更新
             CurrentTaskMarkdownViewer.MarkdownText = newValue?.Description ?? string.Empty;
             CurrentTaskMarkdownViewer.IsEditorMode = false; // 表示はビューアモードで
+            CurrentTaskMarkdownViewer.ShowTabs = false; // メインWindowではタブを非表示
         }
 
         /// <summary>
@@ -73,6 +77,11 @@ namespace PomodoroTimer.ViewModels
                     UpdateKanbanColumns();
                 }
             }
+            
+            // マークダウンビューアのテキストを更新
+            SelectedTaskDetailMarkdownViewer.MarkdownText = newValue?.Description ?? string.Empty;
+            SelectedTaskDetailMarkdownViewer.IsEditorMode = false; // 表示はビューアモードで
+            SelectedTaskDetailMarkdownViewer.ShowTabs = false; // タブを非表示
         }
 
         /// <summary>
@@ -345,6 +354,12 @@ namespace PomodoroTimer.ViewModels
 
                 // カンバンボードを初期化
                 UpdateKanbanColumns();
+
+                // マークダウンビューアの初期設定
+                CurrentTaskMarkdownViewer.IsEditorMode = false;
+                CurrentTaskMarkdownViewer.ShowTabs = false;
+                SelectedTaskDetailMarkdownViewer.IsEditorMode = false;
+                SelectedTaskDetailMarkdownViewer.ShowTabs = false;
 
                 // 統計情報を読み込み
                 LoadTodayStatistics();

@@ -590,9 +590,9 @@
                                         Visibility="{Binding SelectedTaskDetail.Description, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <TextBlock Text="📝 説明" FontSize="14" FontWeight="Bold" 
                                            Foreground="#374151" Margin="0,0,0,6"/>
-                                <Border Background="#F9FAFB" CornerRadius="6" Padding="12">
-                                    <TextBlock Text="{Binding SelectedTaskDetail.Description}" 
-                                               FontSize="12" Foreground="#374151" TextWrapping="Wrap" LineHeight="18"/>
+                                <Border Background="#F9FAFB" CornerRadius="6" Padding="6">
+                                    <views:MarkdownEditor DataContext="{Binding SelectedTaskDetailMarkdownViewer}" 
+                                                         Height="100"/>
                                 </Border>
                             </StackPanel>
                             
