@@ -848,6 +848,7 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             
                                             <!-- タスクヘッダー -->
@@ -904,7 +905,7 @@
                                                                       Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                             
                                             <!-- 画像表示 -->
-                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+                                            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
                                                          Margin="0,4,0,0" MaxHeight="80"
                                                          Visibility="{Binding HasImages, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                 <ItemsControl ItemsSource="{Binding ImageAttachments}">
@@ -932,7 +933,7 @@
                                             </ScrollViewer>
                                             
                                             <!-- カテゴリとタグ -->
-                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
                                                 <Border Background="{StaticResource SecondaryBrush}" CornerRadius="3" Margin="0,0,4,0"
                                                         Visibility="{Binding Category, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                     <TextBlock Text="{Binding Category}" FontSize="10" 
@@ -944,7 +945,7 @@
                                             </StackPanel>
                                             
                                             <!-- リンク -->
-                                            <ItemsControl Grid.Row="3" ItemsSource="{Binding Links}" Margin="0,6,0,0"
+                                            <ItemsControl Grid.Row="4" ItemsSource="{Binding Links}" Margin="0,6,0,0"
                                                          Visibility="{Binding Links.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
@@ -966,7 +967,7 @@
                                             </ItemsControl>
                                             
                                             <!-- 実行時間と進捗 -->
-                                            <Grid Grid.Row="4" Margin="0,8,0,0">
+                                            <Grid Grid.Row="5" Margin="0,8,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
