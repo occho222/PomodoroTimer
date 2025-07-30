@@ -75,9 +75,17 @@ namespace PomodoroTimer.Views
         private void UpdateToolbarVisibility()
         {
             var toolbar = FindName("ToolbarBorder") as Border;
+            var editorBorder = FindName("EditorBorder") as Border;
+            
             if (toolbar != null)
             {
                 toolbar.Visibility = ShowToolbar ? Visibility.Visible : Visibility.Collapsed;
+            }
+            
+            if (editorBorder != null)
+            {
+                // ツールバーが非表示の場合、エディターボーダーを全体に適用
+                editorBorder.CornerRadius = ShowToolbar ? new CornerRadius(0, 0, 6, 6) : new CornerRadius(6);
             }
         }
 

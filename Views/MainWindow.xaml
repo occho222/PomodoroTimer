@@ -899,11 +899,6 @@
                                                 </StackPanel>
                                             </Grid>
                                             
-                                            <!-- 説明 -->
-                                            <views:RichMarkdownEditor Grid.Row="1" PlainText="{Binding Description, Mode=OneWay}" 
-                                                                      IsReadOnly="True" ShowToolbar="False" Height="80" Margin="0,8,0,0"
-                                                                      Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                            
                                             <!-- 画像表示 -->
                                             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
                                                          Margin="0,4,0,0" MaxHeight="80"

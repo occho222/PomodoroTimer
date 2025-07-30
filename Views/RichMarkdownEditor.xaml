@@ -51,7 +51,7 @@
         </Border>
         
         <!-- エディター -->
-        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="0,0,6,6">
+        <Border x:Name="EditorBorder" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="0,0,6,6">
             <RichTextBox x:Name="RichEditor"
                          VerticalScrollBarVisibility="Auto"
                          HorizontalScrollBarVisibility="Disabled"
