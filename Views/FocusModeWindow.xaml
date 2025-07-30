@@ -10,9 +10,9 @@
         Width="480"
         MinHeight="400"
         MinWidth="320"
-        WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
+        WindowStyle="ToolWindow"
+        AllowsTransparency="False"
+        Background="White"
         ResizeMode="CanResize"
         ShowInTaskbar="False"
         WindowStartupLocation="Manual"
@@ -85,16 +85,9 @@
     </Window.Resources>
 
     <Border Background="White"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="#E5E7EB"
             BorderThickness="1">
-        <Border.Effect>
-            <DropShadowEffect Color="Black"
-                              Direction="270"
-                              ShadowDepth="4"
-                              Opacity="0.1"
-                              BlurRadius="8"/>
-        </Border.Effect>
 
         <Grid Margin="16">
             <Grid.RowDefinitions>
@@ -104,7 +97,9 @@
             </Grid.RowDefinitions>
 
             <!-- ヘッダー -->
-            <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid Grid.Row="0" Margin="0,0,0,12" 
+                  MouseLeftButtonDown="Header_MouseLeftButtonDown" 
+                  Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -191,17 +186,17 @@
                                 <Button Content="⏸" x:Name="PlayPauseButton" ToolTip="一時停止/再開"
                                         Click="PlayPauseButton_Click"
                                         Style="{StaticResource ModernButton}" 
-                                        Width="36" Height="32" FontSize="16" Margin="3,0"/>
+                                        Width="36" Height="32" FontSize="12" Margin="3,0"/>
                                 <Button Content="⏹" x:Name="StopButton" ToolTip="停止"
                                         Click="StopButton_Click"
                                         Style="{StaticResource ModernButton}"
                                         Background="#EF4444" 
-                                        Width="36" Height="32" FontSize="16" Margin="3,0"/>
+                                        Width="36" Height="32" FontSize="12" Margin="3,0"/>
                                 <Button Content="✓" x:Name="CompleteButton" ToolTip="タスク完了"
                                         Click="CompleteButton_Click"
                                         Style="{StaticResource ModernButton}"
                                         Background="#10B981" 
-                                        Width="36" Height="32" FontSize="16" Margin="3,0"/>
+                                        Width="36" Height="32" FontSize="12" Margin="3,0"/>
                             </StackPanel>
                         </Grid>
                         

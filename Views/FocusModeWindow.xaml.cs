@@ -413,12 +413,10 @@ namespace PomodoroTimer.Views
             base.OnClosing(e);
         }
 
-        // ウィンドウのドラッグ移動を可能にする
-        protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
+        // ヘッダー部分のマウスダウンイベントハンドラー
+        private void Header_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            base.OnMouseLeftButtonDown(e);
-            
-            // タイトルバーがないので、ウィンドウ全体をドラッグ可能にする
+            // ヘッダー部分のみドラッグ移動を可能にする
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
                 DragMove();
