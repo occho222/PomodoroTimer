@@ -769,10 +769,19 @@
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
                                                            TextWrapping="Wrap" LineHeight="16" Margin="0,0,4,0"/>
-                                                <!-- 期限表示 -->
-                                                <TextBlock Text="{Binding DueDateText}" FontSize="10" FontWeight="SemiBold"
-                                                           Foreground="{Binding DueDateColor}" Margin="0,2,0,0"
-                                                           Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                <!-- 期限・優先度表示 -->
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="{Binding DueDateText}" FontSize="10" FontWeight="SemiBold"
+                                                               Foreground="{Binding DueDateColor}" 
+                                                               Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                    <Border Background="{Binding PriorityColor}" CornerRadius="2" 
+                                                            Padding="4,1" Margin="4,0,0,0"
+                                                            VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                            ToolTip="{Binding Priority}">
+                                                        <TextBlock Text="{Binding PriorityText}" FontSize="9" FontWeight="Bold"
+                                                                   Foreground="White"/>
+                                                    </Border>
+                                                </StackPanel>
                                             </StackPanel>
                                             
                                             <!-- 3点メニューボタン -->
@@ -865,10 +874,19 @@
                                                     </StackPanel>
                                                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
                                                                TextWrapping="Wrap" LineHeight="18" Margin="0,0,8,0"/>
-                                                    <!-- 期限表示 -->
-                                                    <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
-                                                               Foreground="{Binding DueDateColor}" Margin="0,2,0,0"
-                                                               Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                    <!-- 期限・優先度表示 -->
+                                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                        <TextBlock Text="{Binding DueDateText}" FontSize="11" FontWeight="SemiBold"
+                                                                   Foreground="{Binding DueDateColor}" 
+                                                                   Visibility="{Binding DueDateText, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                        <Border Background="{Binding PriorityColor}" CornerRadius="3" 
+                                                                Padding="5,2" Margin="6,0,0,0"
+                                                                VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                                ToolTip="{Binding Priority}">
+                                                            <TextBlock Text="{Binding PriorityText}" FontSize="10" FontWeight="Bold"
+                                                                       Foreground="White"/>
+                                                        </Border>
+                                                    </StackPanel>
                                                 </StackPanel>
                                                 
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right">

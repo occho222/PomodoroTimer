@@ -265,11 +265,11 @@ namespace PomodoroTimer.Models
         /// </summary>
         public string PriorityColor => Priority switch
         {
-            TaskPriority.Low => "Green",
-            TaskPriority.Medium => "Orange",
-            TaskPriority.High => "Red",
-            TaskPriority.Urgent => "DarkRed",
-            _ => "Orange"
+            TaskPriority.Low => "#10B981",      // グリーン（低優先度）
+            TaskPriority.Medium => "#F59E0B",   // オレンジ（中優先度）
+            TaskPriority.High => "#EF4444",     // レッド（高優先度）
+            TaskPriority.Urgent => "#7C2D12",   // ダークレッド（緊急）
+            _ => "#F59E0B"
         };
 
         /// <summary>

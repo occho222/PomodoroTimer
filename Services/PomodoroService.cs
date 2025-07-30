@@ -150,7 +150,10 @@ namespace PomodoroTimer.Services
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            task.ActualMinutes += 25; // 25分セッション完了時に実際の作業時間を追加
+            // ポモドーロ数のみをインクリメント
+            // 実際の作業時間（ActualMinutes）は既にMainViewModelで正確に記録されているため、
+            // ここでは追加の時間加算は行わない
+            task.CompletedPomodoros++;
             
             // タスクは手動完了のみとする（自動完了は削除）
             _ = Task.Run(SaveTasksAsync);

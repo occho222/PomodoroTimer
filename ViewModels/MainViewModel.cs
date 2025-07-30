@@ -1734,6 +1734,13 @@ namespace PomodoroTimer.ViewModels
             StartPauseButtonText = "一時停止";
             _systemTrayService.UpdateTimerStatus(true, _timerService.RemainingTime);
             
+            // 現在のタスクが実行中で、セッション開始時刻が設定されていない場合は設定
+            if (CurrentTask != null && CurrentTask.Status == TaskStatus.Executing && !CurrentTask.CurrentSessionStartTime.HasValue)
+            {
+                CurrentTask.CurrentSessionStartTime = DateTime.Now;
+                Console.WriteLine($"[DEBUG] CurrentSessionStartTime を設定しました: {CurrentTask.CurrentSessionStartTime}");
+            }
+            
             Console.WriteLine("[DEBUG] 集中モードチェックを実行します。");
             
             // 集中モードが有効な場合、集中モードウィンドウを表示
@@ -1761,6 +1768,13 @@ namespace PomodoroTimer.ViewModels
             IsRunning = true;
             StartPauseButtonText = "一時停止";
             _systemTrayService.UpdateTimerStatus(true, _timerService.RemainingTime);
+            
+            // 現在のタスクが実行中で、セッション開始時刻が設定されていない場合は設定
+            if (CurrentTask != null && CurrentTask.Status == TaskStatus.Executing && !CurrentTask.CurrentSessionStartTime.HasValue)
+            {
+                CurrentTask.CurrentSessionStartTime = DateTime.Now;
+                Console.WriteLine($"[DEBUG] OnTimerResumed: CurrentSessionStartTime を設定しました: {CurrentTask.CurrentSessionStartTime}");
+            }
             
             Console.WriteLine("[DEBUG] 集中モードチェックを実行します（Resume）。");
             
@@ -1806,6 +1820,9 @@ namespace PomodoroTimer.ViewModels
                 
                 if (CurrentTask != null)
                 {
+                    // タイマー満了時の実際の経過時間を記録
+                    RecordCurrentTaskElapsedTimeInternal();
+                    
                     _pomodoroService.IncrementTaskPomodoro(CurrentTask);
                     
                     // ポモドーロ完了を統計に記録
