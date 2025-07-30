@@ -673,10 +673,13 @@
                          Margin="5,0,0,0">
                 <Grid MinWidth="1200">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="300" MinWidth="200"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="300" MinWidth="200"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="300" MinWidth="200"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="300" MinWidth="200"/>
                     </Grid.ColumnDefinitions>
 
             <!-- 未開始タスク列 -->
@@ -815,7 +818,7 @@
             </Border>
 
             <!-- 待機中タスク列 -->
-            <Border Grid.Column="1" Background="White" Margin="3,0" CornerRadius="12">
+            <Border Grid.Column="2" Background="White" Margin="3,0" CornerRadius="12">
                 <i:Interaction.Behaviors>
                     <behaviors:KanbanDragDropBehavior TargetStatus="Waiting"/>
                 </i:Interaction.Behaviors>
@@ -1008,7 +1011,7 @@
             </Border>
 
             <!-- 実行中タスク列 -->
-            <Border Grid.Column="2" Background="White" Margin="3,0" CornerRadius="12">
+            <Border Grid.Column="4" Background="White" Margin="3,0" CornerRadius="12">
                 <i:Interaction.Behaviors>
                     <behaviors:KanbanDragDropBehavior TargetStatus="Executing"/>
                 </i:Interaction.Behaviors>
@@ -1329,8 +1332,35 @@
                 </Grid>
             </Border>
 
+            <!-- GridSplitter 1: 未開始 ⟷ 待機中 -->
+            <GridSplitter Grid.Column="1" 
+                          Width="6" 
+                          Background="#E5E7EB" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Stretch" 
+                          ResizeBehavior="PreviousAndNext" 
+                          ShowsPreview="True"/>
+
+            <!-- GridSplitter 2: 待機中 ⟷ 実行中 -->
+            <GridSplitter Grid.Column="3" 
+                          Width="6" 
+                          Background="#E5E7EB" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Stretch" 
+                          ResizeBehavior="PreviousAndNext" 
+                          ShowsPreview="True"/>
+
+            <!-- GridSplitter 3: 実行中 ⟷ 完了 -->
+            <GridSplitter Grid.Column="5" 
+                          Width="6" 
+                          Background="#E5E7EB" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Stretch" 
+                          ResizeBehavior="PreviousAndNext" 
+                          ShowsPreview="True"/>
+
             <!-- 完了タスク列 -->
-            <Border Grid.Column="3" Background="White" Margin="3,0,0,0" CornerRadius="12">
+            <Border Grid.Column="6" Background="White" Margin="3,0,0,0" CornerRadius="12">
                 <i:Interaction.Behaviors>
                     <behaviors:KanbanDragDropBehavior TargetStatus="Completed"/>
                 </i:Interaction.Behaviors>
