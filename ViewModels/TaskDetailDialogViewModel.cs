@@ -39,10 +39,10 @@ namespace PomodoroTimer.ViewModels
         private ObservableCollection<LinkItem> linkItems = new();
 
         [ObservableProperty]
-        private TaskStatus selectedStatus = TaskStatus.Todo;
+        private StatusDisplayItem? selectedStatusDisplay;
 
         [ObservableProperty]
-        private TaskPriority selectedPriority = TaskPriority.Medium;
+        private PriorityDisplayItem? selectedPriorityDisplay;
 
         [ObservableProperty]
         private DateTime? dueDate;
@@ -107,20 +107,20 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
-        public ObservableCollection<TaskStatus> AvailableStatuses { get; } = new()
+        public ObservableCollection<StatusDisplayItem> AvailableStatuses { get; } = new()
         {
-            TaskStatus.Todo,
-            TaskStatus.Waiting,
-            TaskStatus.Executing,
-            TaskStatus.Completed
+            new StatusDisplayItem(TaskStatus.Todo, "未開始"),
+            new StatusDisplayItem(TaskStatus.Waiting, "待機中"),
+            new StatusDisplayItem(TaskStatus.Executing, "実行中"),
+            new StatusDisplayItem(TaskStatus.Completed, "完了")
         };
 
-        public ObservableCollection<TaskPriority> AvailablePriorities { get; } = new()
+        public ObservableCollection<PriorityDisplayItem> AvailablePriorities { get; } = new()
         {
-            TaskPriority.Low,
-            TaskPriority.Medium,
-            TaskPriority.High,
-            TaskPriority.Urgent
+            new PriorityDisplayItem(TaskPriority.Low, "低"),
+            new PriorityDisplayItem(TaskPriority.Medium, "中"),
+            new PriorityDisplayItem(TaskPriority.High, "高"),
+            new PriorityDisplayItem(TaskPriority.Urgent, "緊急")
         };
 
         [ObservableProperty]
@@ -151,8 +151,8 @@ namespace PomodoroTimer.ViewModels
             TaskCategory = _originalTask.Category;
             TaskTags = _originalTask.TagsText;
             Url = _originalTask.Url;
-            SelectedStatus = _originalTask.Status;
-            SelectedPriority = _originalTask.Priority;
+            SelectedStatusDisplay = AvailableStatuses.FirstOrDefault(s => s.Status == _originalTask.Status);
+            SelectedPriorityDisplay = AvailablePriorities.FirstOrDefault(p => p.Priority == _originalTask.Priority);
             DueDate = _originalTask.DueDate;
             EstimatedMinutes = _originalTask.EstimatedMinutes;
             ActualMinutes = _originalTask.ActualMinutes;
@@ -414,8 +414,8 @@ namespace PomodoroTimer.ViewModels
                 _originalTask.Category = TaskCategory;
                 _originalTask.TagsText = TaskTags;
                 _originalTask.Url = Url;
-                _originalTask.Status = SelectedStatus;
-                _originalTask.Priority = SelectedPriority;
+                _originalTask.Status = SelectedStatusDisplay?.Status ?? TaskStatus.Todo;
+                _originalTask.Priority = SelectedPriorityDisplay?.Priority ?? TaskPriority.Medium;
                 _originalTask.DueDate = DueDate;
                 _originalTask.EstimatedMinutes = EstimatedMinutes;
                 _originalTask.ActualMinutes = ActualMinutes;
@@ -569,5 +569,52 @@ namespace PomodoroTimer.ViewModels
             }
             return $"{len:0.##} {sizes[order]}";
         }
+    }
+
+    public class StatusDisplayItem
+    {
+        public TaskStatus Status { get; }
+        public string DisplayText { get; }
+        public string Color { get; }
+
+        public StatusDisplayItem(TaskStatus status, string displayText)
+        {
+            Status = status;
+            DisplayText = displayText;
+            Color = status switch
+            {
+                TaskStatus.Todo => "#6B7280",      // グレー
+                TaskStatus.Waiting => "#F59E0B",   // オレンジ
+                TaskStatus.Executing => "#3B82F6", // ブルー
+                TaskStatus.Completed => "#10B981", // グリーン
+                _ => "#6B7280"
+            };
+        }
+
+        public override string ToString() => DisplayText;
+    }
+
+    public class PriorityDisplayItem
+    {
+        public TaskPriority Priority { get; }
+        public string DisplayText { get; }
+        public string Color { get; }
+        public string Icon { get; }
+
+        public PriorityDisplayItem(TaskPriority priority, string displayText)
+        {
+            Priority = priority;
+            DisplayText = displayText;
+            (Color, Icon) = priority switch
+            {
+                TaskPriority.Low => ("#10B981", "🔵"),      // グリーン + 青丸
+                TaskPriority.Medium => ("#F59E0B", "🟡"),   // オレンジ + 黄丸
+                TaskPriority.High => ("#EF4444", "🟠"),     // レッド + オレンジ丸
+                TaskPriority.Urgent => ("#DC2626", "🔴"),   // ダークレッド + 赤丸
+                _ => ("#F59E0B", "🟡")
+            };
+        }
+
+        public override string ToString() => DisplayText;
     }
 }

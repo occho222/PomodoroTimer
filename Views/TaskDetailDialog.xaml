@@ -32,12 +32,131 @@
                              TextWrapping="Wrap" Padding="8,4"/>
                     
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <!-- 状態選択 -->
                         <ComboBox ItemsSource="{Binding AvailableStatuses}"
-                                  SelectedItem="{Binding SelectedStatus, Mode=TwoWay}"
-                                  Style="{StaticResource FilterComboBox}" Width="100" Margin="0,0,10,0"/>
+                                  SelectedItem="{Binding SelectedStatusDisplay, Mode=TwoWay}"
+                                  Width="120" Height="36" MinHeight="36" Margin="0,0,10,0"
+                                  Background="White" BorderBrush="#E0E0E0" BorderThickness="1"
+                                  FontSize="12" FontWeight="SemiBold"
+                                  ToolTip="タスクの状態を選択">
+                            <ComboBox.Style>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ComboBox">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8" Padding="8,6">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <ContentPresenter Grid.Column="0" 
+                                                                        Content="{TemplateBinding SelectionBoxItem}"
+                                                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                                        VerticalAlignment="Center"
+                                                                        Margin="0,0,8,0"/>
+                                                        <ToggleButton Grid.Column="1" Width="20" Height="20"
+                                                                    Background="Transparent" BorderThickness="0"
+                                                                    IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                                    ClickMode="Press" VerticalAlignment="Center">
+                                                            <Path Data="M7,10L12,15L17,10H7Z" Fill="#6B7280" Width="10" Height="6"/>
+                                                        </ToggleButton>
+                                                        <Popup IsOpen="{TemplateBinding IsDropDownOpen}" 
+                                                               Placement="Bottom" StaysOpen="False">
+                                                            <Border Background="White" BorderBrush="#E0E0E0" 
+                                                                    BorderThickness="1" CornerRadius="8">
+                                                                <Border.Effect>
+                                                                    <DropShadowEffect BlurRadius="8" ShadowDepth="4" Opacity="0.1"/>
+                                                                </Border.Effect>
+                                                                <ScrollViewer MaxHeight="200">
+                                                                    <ItemsPresenter/>
+                                                                </ScrollViewer>
+                                                            </Border>
+                                                        </Popup>
+                                                    </Grid>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ComboBox.Style>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="Transparent" Padding="8,6" CornerRadius="4" MinHeight="32">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Ellipse Width="8" Height="8" Fill="{Binding Color}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding DisplayText}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        
+                        <!-- 優先度選択 -->
                         <ComboBox ItemsSource="{Binding AvailablePriorities}"
-                                  SelectedItem="{Binding SelectedPriority, Mode=TwoWay}"
-                                  Style="{StaticResource FilterComboBox}" Width="100" Margin="0,0,10,0"/>
+                                  SelectedItem="{Binding SelectedPriorityDisplay, Mode=TwoWay}"
+                                  Width="120" Height="36" MinHeight="36" Margin="0,0,10,0"
+                                  Background="White" BorderBrush="#E0E0E0" BorderThickness="1"
+                                  FontSize="12" FontWeight="SemiBold"
+                                  ToolTip="タスクの優先度を選択">
+                            <ComboBox.Style>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ComboBox">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8" Padding="8,6">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <ContentPresenter Grid.Column="0" 
+                                                                        Content="{TemplateBinding SelectionBoxItem}"
+                                                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                                        VerticalAlignment="Center"
+                                                                        Margin="0,0,8,0"/>
+                                                        <ToggleButton Grid.Column="1" Width="20" Height="20"
+                                                                    Background="Transparent" BorderThickness="0"
+                                                                    IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                                    ClickMode="Press" VerticalAlignment="Center">
+                                                            <Path Data="M7,10L12,15L17,10H7Z" Fill="#6B7280" Width="10" Height="6"/>
+                                                        </ToggleButton>
+                                                        <Popup IsOpen="{TemplateBinding IsDropDownOpen}" 
+                                                               Placement="Bottom" StaysOpen="False">
+                                                            <Border Background="White" BorderBrush="#E0E0E0" 
+                                                                    BorderThickness="1" CornerRadius="8">
+                                                                <Border.Effect>
+                                                                    <DropShadowEffect BlurRadius="8" ShadowDepth="4" Opacity="0.1"/>
+                                                                </Border.Effect>
+                                                                <ScrollViewer MaxHeight="200">
+                                                                    <ItemsPresenter/>
+                                                                </ScrollViewer>
+                                                            </Border>
+                                                        </Popup>
+                                                    </Grid>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ComboBox.Style>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="Transparent" Padding="8,6" CornerRadius="4" MinHeight="32">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding DisplayText}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                         <Grid Width="140" Margin="0,0,10,0">
                             <ComboBox x:Name="ProjectComboBox"
                                       Text="{Binding TaskCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
