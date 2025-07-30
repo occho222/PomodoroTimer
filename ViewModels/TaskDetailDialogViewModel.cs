@@ -159,6 +159,9 @@ namespace PomodoroTimer.ViewModels
             CreatedAt = _originalTask.CreatedAt;
             StartedAt = _originalTask.StartedAt;
 
+            // デバッグ用：タスクのDescriptionを確認
+            System.Diagnostics.Debug.WriteLine($"TaskDetailDialog LoadTaskData: Description = '{_originalTask.Description}'");
+
             // チェックリストをコピー
             ChecklistItems.Clear();
             foreach (var item in _originalTask.Checklist)
@@ -401,6 +404,9 @@ namespace PomodoroTimer.ViewModels
                     MessageBox.Show("タイトルを入力してください。", "入力エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
+
+                // デバッグ用：保存時のDescriptionを確認
+                System.Diagnostics.Debug.WriteLine($"TaskDetailDialog Save: Description = '{Description}'");
 
                 // タスクデータを更新
                 _originalTask.Title = TaskTitle;

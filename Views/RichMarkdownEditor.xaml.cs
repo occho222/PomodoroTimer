@@ -93,7 +93,14 @@ namespace PomodoroTimer.Views
         {
             if (d is RichMarkdownEditor editor && !editor._isUpdating)
             {
-                editor.SetTextFromPlainText((string)e.NewValue);
+                var newValue = (string)e.NewValue ?? string.Empty;
+                var oldValue = (string)e.OldValue ?? string.Empty;
+                
+                // 値が実際に変更された場合のみ処理
+                if (!string.Equals(oldValue.Trim(), newValue.Trim(), StringComparison.Ordinal))
+                {
+                    editor.SetTextFromPlainText(newValue);
+                }
             }
         }
 
@@ -110,6 +117,13 @@ namespace PomodoroTimer.Views
             _isUpdating = true;
             try
             {
+                // 現在のテキストと同じ場合は何もしない
+                var currentText = new TextRange(RichEditor.Document.ContentStart, RichEditor.Document.ContentEnd).Text;
+                if (string.Equals(currentText?.Trim(), text?.Trim(), StringComparison.Ordinal))
+                {
+                    return;
+                }
+
                 var document = new FlowDocument();
                 if (!string.IsNullOrEmpty(text))
                 {
@@ -125,8 +139,11 @@ namespace PomodoroTimer.Views
                 
                 RichEditor.Document = document;
                 
-                // フォーマットを適用
-                ApplyMarkdownFormatting();
+                // フォーマットを適用（次のDispatcherサイクルで実行）
+                Dispatcher.BeginInvoke(() => 
+                {
+                    ApplyMarkdownFormatting();
+                }, DispatcherPriority.Loaded);
             }
             finally
             {
@@ -138,11 +155,16 @@ namespace PomodoroTimer.Views
         {
             if (_isUpdating) return;
 
-            // プレーンテキストを更新
+            // プレーンテキストを更新（マークダウン構文を保持）
             _isUpdating = true;
             try
             {
-                PlainText = new TextRange(RichEditor.Document.ContentStart, RichEditor.Document.ContentEnd).Text;
+                var newText = ExtractMarkdownText();
+                // 実際にテキストが変更された場合のみプロパティを更新
+                if (!string.Equals(PlainText?.Trim(), newText?.Trim(), StringComparison.Ordinal))
+                {
+                    PlainText = newText;
+                }
             }
             finally
             {
@@ -572,6 +594,136 @@ namespace PomodoroTimer.Views
                 
                 // エディターにフォーカスを戻す
                 RichEditor.Focus();
+            }
+        }
+
+        /// <summary>
+        /// RichTextBoxの内容からマークダウンテキストを抽出する
+        /// </summary>
+        private string ExtractMarkdownText()
+        {
+            try
+            {
+                if (RichEditor.Document == null) return string.Empty;
+
+                var result = new List<string>();
+                
+                foreach (var block in RichEditor.Document.Blocks.OfType<Paragraph>())
+                {
+                    var paragraphText = ExtractParagraphMarkdown(block);
+                    if (!string.IsNullOrEmpty(paragraphText))
+                    {
+                        result.Add(paragraphText);
+                    }
+                }
+
+                return string.Join("\r\n", result);
+            }
+            catch
+            {
+                // エラーが発生した場合はプレーンテキストを返す
+                return new TextRange(RichEditor.Document.ContentStart, RichEditor.Document.ContentEnd).Text;
+            }
+        }
+
+        /// <summary>
+        /// 段落からマークダウンテキストを抽出する
+        /// </summary>
+        private string ExtractParagraphMarkdown(Paragraph paragraph)
+        {
+            try
+            {
+                var text = new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text.TrimEnd('\r', '\n');
+                
+                if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+                // フォーマットから逆算してマークダウン構文を復元
+                if (paragraph.FontWeight == FontWeights.Bold && paragraph.FontSize > 14)
+                {
+                    // ヘッダーの場合
+                    if (paragraph.FontSize >= 24) return "# " + text;
+                    if (paragraph.FontSize >= 20) return "## " + text;
+                    if (paragraph.FontSize >= 16) return "### " + text;
+                    return "#### " + text;
+                }
+                else if (paragraph.Margin.Left > 10)
+                {
+                    // インデントがある場合（リストまたは引用）
+                    if (paragraph.FontStyle == FontStyles.Italic)
+                    {
+                        return "> " + text; // 引用
+                    }
+                    else
+                    {
+                        // リストの場合
+                        if (text.StartsWith("• "))
+                        {
+                            return "- " + text.Substring(2);
+                        }
+                        else if (System.Text.RegularExpressions.Regex.IsMatch(text, @"^\d+\."))
+                        {
+                            return text; // 番号付きリストはそのまま
+                        }
+                        else
+                        {
+                            return "- " + text; // デフォルトでリスト扱い
+                        }
+                    }
+                }
+                else
+                {
+                    // インライン要素の処理
+                    return ExtractInlineMarkdown(paragraph);
+                }
+            }
+            catch
+            {
+                // エラーが発生した場合はプレーンテキストを返す
+                return new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text.TrimEnd('\r', '\n');
+            }
+        }
+
+        /// <summary>
+        /// インライン要素からマークダウンテキストを抽出する
+        /// </summary>
+        private string ExtractInlineMarkdown(Paragraph paragraph)
+        {
+            try
+            {
+                var result = new System.Text.StringBuilder();
+                
+                foreach (var inline in paragraph.Inlines)
+                {
+                    if (inline is Run run)
+                    {
+                        var text = run.Text;
+                        
+                        // フォーマットに基づいてマークダウン構文を追加
+                        if (run.FontWeight == FontWeights.Bold)
+                        {
+                            text = "**" + text + "**";
+                        }
+                        else if (run.FontStyle == FontStyles.Italic)
+                        {
+                            text = "*" + text + "*";
+                        }
+                        else if (run.FontFamily?.Source.Contains("Consolas") == true || 
+                                 run.FontFamily?.Source.Contains("Courier") == true ||
+                                 run.FontFamily?.Source.Contains("Cascadia") == true)
+                        {
+                            text = "`" + text + "`";
+                        }
+                        
+                        result.Append(text);
+                    }
+                }
+                
+                return result.ToString();
+            }
+            catch
+            {
+                // エラーが発生した場合はプレーンテキストを返す
+                return new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text.TrimEnd('\r', '\n');
             }
         }
 
