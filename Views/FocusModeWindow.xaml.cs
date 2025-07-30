@@ -392,6 +392,9 @@ namespace PomodoroTimer.Views
                 _ = _mainViewModel.SaveSettingsAsync();
             }
 
+            // 集中モード表示フラグをリセット
+            _mainViewModel.ResetFocusModeShowingFlag();
+
             // このウィンドウを閉じる
             Close();
         }
@@ -403,6 +406,9 @@ namespace PomodoroTimer.Views
             
             // タイマーを停止
             _uiUpdateTimer?.Stop();
+
+            // 集中モード表示フラグをリセット
+            _mainViewModel.ResetFocusModeShowingFlag();
 
             base.OnClosing(e);
         }

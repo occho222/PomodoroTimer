@@ -30,6 +30,7 @@ namespace PomodoroTimer.ViewModels
         private readonly ITaskTemplateService _taskTemplateService;
         private readonly INotificationService _notificationService;
         private AppSettings _settings;
+        private bool _isFocusModeWindowShowing = false;
 
         // タスク関連プロパティ
         [ObservableProperty]
@@ -3016,9 +3017,9 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                Console.WriteLine($"[DEBUG] CheckAndShowFocusMode called - EnableFocusMode: {_settings?.EnableFocusMode}");
+                Console.WriteLine($"[DEBUG] CheckAndShowFocusMode called - EnableFocusMode: {_settings?.EnableFocusMode}, IsShowing: {_isFocusModeWindowShowing}");
                 
-                if (_settings?.EnableFocusMode == true)
+                if (_settings?.EnableFocusMode == true && !_isFocusModeWindowShowing)
                 {
                     Console.WriteLine("[DEBUG] 集中モードが有効です。メインウィンドウを取得中...");
                     
@@ -3027,6 +3028,8 @@ namespace PomodoroTimer.ViewModels
                     if (mainWindow != null)
                     {
                         Console.WriteLine("[DEBUG] メインウィンドウが見つかりました。集中モードウィンドウを表示します。");
+                        
+                        _isFocusModeWindowShowing = true;
                         
                         // メイン画面から集中モードに切り替え
                         System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
@@ -3038,17 +3041,33 @@ namespace PomodoroTimer.ViewModels
                     else
                     {
                         Console.WriteLine("[DEBUG] メインウィンドウが見つかりませんでした。");
+                        _isFocusModeWindowShowing = false;
                     }
+                }
+                else if (_settings?.EnableFocusMode != true)
+                {
+                    Console.WriteLine("[DEBUG] 集中モードが無効になっています。");
+                    _isFocusModeWindowShowing = false;
                 }
                 else
                 {
-                    Console.WriteLine("[DEBUG] 集中モードが無効になっています。");
+                    Console.WriteLine("[DEBUG] 集中モードウィンドウは既に表示されています。");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"集中モード表示チェックでエラー: {ex.Message}");
+                _isFocusModeWindowShowing = false;
             }
+        }
+
+        /// <summary>
+        /// 集中モードウィンドウの表示状態をリセット
+        /// </summary>
+        public void ResetFocusModeShowingFlag()
+        {
+            _isFocusModeWindowShowing = false;
+            Console.WriteLine("[DEBUG] 集中モード表示フラグをリセットしました。");
         }
 
         /// <summary>

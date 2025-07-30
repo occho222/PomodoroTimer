@@ -177,28 +177,40 @@ namespace PomodoroTimer.Views
 
                 Console.WriteLine("[DEBUG] サービスインスタンスを取得しました。");
 
-                // 既存の集中モードウィンドウがあれば閉じる
-                _focusModeWindow?.Close();
+                // 既存の集中モードウィンドウがあるかチェック
+                if (_focusModeWindow == null || !_focusModeWindow.IsVisible)
+                {
+                    Console.WriteLine("[DEBUG] 新しい集中モードウィンドウを作成中...");
 
-                Console.WriteLine("[DEBUG] 新しい集中モードウィンドウを作成中...");
+                    // 既存のウィンドウがあれば閉じる
+                    _focusModeWindow?.Close();
 
-                // 新しい集中モードウィンドウを作成
-                _focusModeWindow = new FocusModeWindow(
-                    pomodoroService,
-                    timerService,
-                    _viewModel,
-                    this
-                );
+                    // 新しい集中モードウィンドウを作成
+                    _focusModeWindow = new FocusModeWindow(
+                        pomodoroService,
+                        timerService,
+                        _viewModel,
+                        this
+                    );
 
-                Console.WriteLine("[DEBUG] メインウィンドウを非表示にします。");
+                    Console.WriteLine("[DEBUG] メインウィンドウを非表示にします。");
 
-                // メインウィンドウを非表示
-                Hide();
+                    // メインウィンドウを非表示
+                    Hide();
 
-                Console.WriteLine("[DEBUG] 集中モードウィンドウを表示します。");
+                    Console.WriteLine("[DEBUG] 集中モードウィンドウを表示します。");
 
-                // 集中モードウィンドウを表示
-                _focusModeWindow.Show();
+                    // 集中モードウィンドウを表示
+                    _focusModeWindow.Show();
+                }
+                else
+                {
+                    Console.WriteLine("[DEBUG] 既存の集中モードウィンドウを再利用します。");
+                    // 既存のウィンドウを前面に表示
+                    _focusModeWindow.Activate();
+                    _focusModeWindow.Topmost = true;
+                    _focusModeWindow.Topmost = _focusModeWindow.AlwaysOnTopToggle.IsChecked == true;
+                }
                 
                 Console.WriteLine("[DEBUG] 集中モードウィンドウが正常に表示されました。");
             }
@@ -220,6 +232,9 @@ namespace PomodoroTimer.Views
                 // 集中モードウィンドウを閉じる
                 _focusModeWindow?.Close();
                 _focusModeWindow = null;
+
+                // 集中モード表示フラグをリセット
+                _viewModel?.ResetFocusModeShowingFlag();
 
                 // メインウィンドウを表示
                 Show();
