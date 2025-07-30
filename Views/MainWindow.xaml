@@ -52,11 +52,6 @@
         <Border x:Name="SidebarPanel" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="White" Margin="10,10,0,10" CornerRadius="12" Padding="15">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel>
-                    <!-- サイドバータイトル -->
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <TextBlock Text="🔍 検索・フィルター" FontSize="16" FontWeight="Bold" 
-                                   Foreground="#1F2937" VerticalAlignment="Center"/>
-                    </StackPanel>
                     
                     <!-- クイックタスク追加エリア -->
                     <StackPanel Margin="0,0,0,16">
@@ -106,6 +101,16 @@
                                 </Border>
                             </Popup>
                         </Grid>
+                        
+                        <!-- カテゴリ選択 -->
+                        <StackPanel Margin="0,8,0,0">
+                            <TextBlock Text="カテゴリ" FontSize="10" Foreground="#6B7280" Margin="0,0,0,2"/>
+                            <ComboBox ItemsSource="{Binding AvailableCategories}"
+                                      SelectedItem="{Binding QuickTaskCategory, Mode=TwoWay}"
+                                      Style="{StaticResource FilterComboBox}"
+                                      Height="28" FontSize="11"
+                                      ToolTip="タスクのカテゴリを選択"/>
+                        </StackPanel>
                         
                         <!-- タスク追加ボタン -->
                         <Button Command="{Binding AddTaskCommand}" Margin="0,8,0,0"

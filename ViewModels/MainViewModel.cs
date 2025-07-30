@@ -134,6 +134,9 @@ namespace PomodoroTimer.ViewModels
         private string quickTaskText = string.Empty;
 
         [ObservableProperty]
+        private string quickTaskCategory = string.Empty;
+
+        [ObservableProperty]
         private ObservableCollection<string> taskHistory = new();
 
         [ObservableProperty]
@@ -759,7 +762,7 @@ namespace PomodoroTimer.ViewModels
                 var newTask = new PomodoroTask(taskTitle)
                 {
                     Description = string.Empty,
-                    Category = "クイック登録",
+                    Category = string.IsNullOrWhiteSpace(QuickTaskCategory) ? "クイック登録" : QuickTaskCategory,
                     Priority = TaskPriority.Medium,
                     DisplayOrder = Tasks.Count,
                     DueDate = DateTime.Today,
