@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using PomodoroTimer.Helpers;
 using PomodoroTimer.Models;
 using PomodoroTimer.Services;
 using System.Collections.ObjectModel;
@@ -347,7 +348,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"画像の貼り付けに失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorHandler.ShowError("画像の貼り付けに失敗しました", ex);
             }
         }
 
@@ -366,7 +367,7 @@ namespace PomodoroTimer.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"ファイルを開けませんでした: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ErrorHandler.ShowError("ファイルを開けませんでした", ex);
                 }
             }
         }
@@ -388,7 +389,7 @@ namespace PomodoroTimer.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"ファイルの削除に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ErrorHandler.ShowError("ファイルの削除に失敗しました", ex);
                     }
                 }
             }
@@ -401,7 +402,7 @@ namespace PomodoroTimer.ViewModels
             {
                 if (string.IsNullOrWhiteSpace(TaskTitle))
                 {
-                    MessageBox.Show("タイトルを入力してください。", "入力エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ErrorHandler.ShowWarning("タイトルを入力してください。");
                     return;
                 }
 
@@ -454,7 +455,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorHandler.ShowError("保存に失敗しました", ex);
             }
         }
 
@@ -478,7 +479,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ファイルのコピーに失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorHandler.ShowError("ファイルのコピーに失敗しました", ex);
                 return string.Empty;
             }
         }
@@ -502,7 +503,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"画像の保存に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorHandler.ShowError("画像の保存に失敗しました", ex);
                 return string.Empty;
             }
         }

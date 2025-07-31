@@ -6,7 +6,6 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.ComponentModel;
 using System.Reflection;
-using System.Windows.Media;
 using WpfMessageBox = System.Windows.MessageBox;
 using WpfApplication = System.Windows.Application;
 

@@ -2,7 +2,6 @@ using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using PomodoroTimer.Models;
 using Azure.Identity;
-using System.Diagnostics;
 
 namespace PomodoroTimer.Services
 {

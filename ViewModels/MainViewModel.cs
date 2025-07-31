@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PomodoroTimer.Helpers;
 using PomodoroTimer.Models;
 using PomodoroTimer.Services;
 using PomodoroTimer.Views;
@@ -683,13 +684,13 @@ namespace PomodoroTimer.ViewModels
                         url = "https://" + url;
                         if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
                         {
-                            System.Windows.MessageBox.Show("無効なURLです。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ErrorHandler.ShowWarning("無効なURLです。");
                             return;
                         }
                     }
                     else
                     {
-                        System.Windows.MessageBox.Show("無効なURLです。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ErrorHandler.ShowWarning("無効なURLです。");
                         return;
                     }
                 }
@@ -784,8 +785,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"クイックタスクの追加中にエラーが発生しました: {ex.Message}", "エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorHandler.ShowError("クイックタスクの追加中にエラーが発生しました", ex);
             }
         }
 
@@ -812,8 +812,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"タスクの追加中にエラーが発生しました: {ex.Message}", "エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorHandler.ShowError("タスクの追加中にエラーが発生しました", ex);
             }
         }
 
@@ -872,8 +871,7 @@ namespace PomodoroTimer.ViewModels
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"タスク詳細の表示に失敗しました: {ex.Message}", "エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorHandler.ShowError("タスク詳細の表示に失敗しました", ex);
             }
         }
 

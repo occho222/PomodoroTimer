@@ -4,8 +4,6 @@ using PomodoroTimer.Models;
 using PomodoroTimer.Services;
 using System.Collections.ObjectModel;
 using System.Windows;
-using Microsoft.Win32;
-using System.Text.Json;
 using TaskStatus = PomodoroTimer.Models.TaskStatus;
 using MessageBox = System.Windows.MessageBox;
 
