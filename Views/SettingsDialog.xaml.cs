@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.IO;
+using PomodoroTimer.Helpers;
 using PomodoroTimer.Models;
 using PomodoroTimer.Services;
 using System.Diagnostics;
@@ -69,8 +70,7 @@ namespace PomodoroTimer.Views
         {
             try
             {
-                var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                var dataPath = Path.Combine(appDataPath, "PomodoroTimer");
+                var dataPath = AppPaths.AppDataDirectory;
                 var dataFolderText = FindName("DataFolderPath") as System.Windows.Controls.TextBlock;
                 if (dataFolderText != null)
                 {
@@ -292,8 +292,7 @@ namespace PomodoroTimer.Views
         /// <param name="backupPath">バックアップファイルのパス</param>
         private async Task CreateBackupAsync(string backupPath)
         {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var dataPath = Path.Combine(appDataPath, "PomodoroTimer");
+            var dataPath = AppPaths.AppDataDirectory;
 
             if (!Directory.Exists(dataPath))
             {
@@ -313,8 +312,7 @@ namespace PomodoroTimer.Views
         /// <param name="backupPath">バックアップファイルのパス</param>
         private async Task RestoreBackupAsync(string backupPath)
         {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var dataPath = Path.Combine(appDataPath, "PomodoroTimer");
+            var dataPath = AppPaths.AppDataDirectory;
 
             await Task.Run(() =>
             {

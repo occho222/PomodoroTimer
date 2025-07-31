@@ -1,4 +1,5 @@
-﻿using PomodoroTimer.Models;
+﻿using PomodoroTimer.Helpers;
+using PomodoroTimer.Models;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
@@ -11,24 +12,10 @@ namespace PomodoroTimer.Services
     /// </summary>
     public class JsonDataPersistenceService : IDataPersistenceService
     {
-        private readonly string _dataDirectory;
-        private readonly string _tasksFilePath;
-        private readonly string _settingsFilePath;
-        private readonly string _statisticsFilePath;
-
         private readonly JsonSerializerOptions _jsonOptions;
 
         public JsonDataPersistenceService()
         {
-            // アプリケーションデータ用のディレクトリを設定
-            _dataDirectory = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "PomodoroTimer");
-
-            _tasksFilePath = Path.Combine(_dataDirectory, "tasks.json");
-            _settingsFilePath = Path.Combine(_dataDirectory, "settings.json");
-            _statisticsFilePath = Path.Combine(_dataDirectory, "statistics.json");
-
             // JSON設定
             _jsonOptions = new JsonSerializerOptions
             {
@@ -37,11 +24,8 @@ namespace PomodoroTimer.Services
                 Converters = { new JsonStringEnumConverter() }
             };
 
-            // ディレクトリが存在しない場合は作成
-            if (!Directory.Exists(_dataDirectory))
-            {
-                Directory.CreateDirectory(_dataDirectory);
-            }
+            // 必要なディレクトリを作成
+            AppPaths.EnsureDirectoriesExist();
         }
 
         public async Task SaveDataAsync(ObservableCollection<PomodoroTask> tasks, AppSettings settings, SessionStatistics statistics)
@@ -50,15 +34,15 @@ namespace PomodoroTimer.Services
             {
                 // タスクを保存
                 var tasksJson = JsonSerializer.Serialize(tasks.ToList(), _jsonOptions);
-                await File.WriteAllTextAsync(_tasksFilePath, tasksJson);
+                await File.WriteAllTextAsync(AppPaths.TasksFilePath, tasksJson);
 
                 // 設定を保存
                 var settingsJson = JsonSerializer.Serialize(settings, _jsonOptions);
-                await File.WriteAllTextAsync(_settingsFilePath, settingsJson);
+                await File.WriteAllTextAsync(AppPaths.SettingsFilePath, settingsJson);
 
                 // 統計を保存
                 var statisticsJson = JsonSerializer.Serialize(statistics, _jsonOptions);
-                await File.WriteAllTextAsync(_statisticsFilePath, statisticsJson);
+                await File.WriteAllTextAsync(AppPaths.StatisticsFilePath, statisticsJson);
             }
             catch (Exception ex)
             {
@@ -72,9 +56,9 @@ namespace PomodoroTimer.Services
             {
                 // タスクを読み込み
                 var tasks = new ObservableCollection<PomodoroTask>();
-                if (File.Exists(_tasksFilePath))
+                if (File.Exists(AppPaths.TasksFilePath))
                 {
-                    var tasksJson = await File.ReadAllTextAsync(_tasksFilePath);
+                    var tasksJson = await File.ReadAllTextAsync(AppPaths.TasksFilePath);
                     if (!string.IsNullOrWhiteSpace(tasksJson))
                     {
                         var tasksList = JsonSerializer.Deserialize<List<PomodoroTask>>(tasksJson, _jsonOptions) ?? new List<PomodoroTask>();
@@ -84,9 +68,9 @@ namespace PomodoroTimer.Services
 
                 // 設定を読み込み
                 var settings = new AppSettings();
-                if (File.Exists(_settingsFilePath))
+                if (File.Exists(AppPaths.SettingsFilePath))
                 {
-                    var settingsJson = await File.ReadAllTextAsync(_settingsFilePath);
+                    var settingsJson = await File.ReadAllTextAsync(AppPaths.SettingsFilePath);
                     if (!string.IsNullOrWhiteSpace(settingsJson))
                     {
                         settings = JsonSerializer.Deserialize<AppSettings>(settingsJson, _jsonOptions) ?? new AppSettings();
@@ -95,9 +79,9 @@ namespace PomodoroTimer.Services
 
                 // 統計を読み込み
                 var statistics = new SessionStatistics();
-                if (File.Exists(_statisticsFilePath))
+                if (File.Exists(AppPaths.StatisticsFilePath))
                 {
-                    var statisticsJson = await File.ReadAllTextAsync(_statisticsFilePath);
+                    var statisticsJson = await File.ReadAllTextAsync(AppPaths.StatisticsFilePath);
                     if (!string.IsNullOrWhiteSpace(statisticsJson))
                     {
                         statistics = JsonSerializer.Deserialize<SessionStatistics>(statisticsJson, _jsonOptions) ?? new SessionStatistics();
@@ -114,21 +98,21 @@ namespace PomodoroTimer.Services
 
         public bool DataExists()
         {
-            return File.Exists(_tasksFilePath) || File.Exists(_settingsFilePath) || File.Exists(_statisticsFilePath);
+            return File.Exists(AppPaths.TasksFilePath) || File.Exists(AppPaths.SettingsFilePath) || File.Exists(AppPaths.StatisticsFilePath);
         }
 
         public async Task ResetDataAsync()
         {
             try
             {
-                if (File.Exists(_tasksFilePath))
-                    File.Delete(_tasksFilePath);
+                if (File.Exists(AppPaths.TasksFilePath))
+                    File.Delete(AppPaths.TasksFilePath);
 
-                if (File.Exists(_settingsFilePath))
-                    File.Delete(_settingsFilePath);
+                if (File.Exists(AppPaths.SettingsFilePath))
+                    File.Delete(AppPaths.SettingsFilePath);
 
-                if (File.Exists(_statisticsFilePath))
-                    File.Delete(_statisticsFilePath);
+                if (File.Exists(AppPaths.StatisticsFilePath))
+                    File.Delete(AppPaths.StatisticsFilePath);
 
                 await Task.CompletedTask;
             }
@@ -142,7 +126,7 @@ namespace PomodoroTimer.Services
         {
             try
             {
-                var filePath = Path.Combine(_dataDirectory, fileName);
+                var filePath = Path.Combine(AppPaths.AppDataDirectory, fileName);
                 var json = JsonSerializer.Serialize(data, _jsonOptions);
                 await File.WriteAllTextAsync(filePath, json);
             }
@@ -156,7 +140,7 @@ namespace PomodoroTimer.Services
         {
             try
             {
-                var filePath = Path.Combine(_dataDirectory, fileName);
+                var filePath = Path.Combine(AppPaths.AppDataDirectory, fileName);
                 
                 if (!File.Exists(filePath))
                     return default(T);
@@ -189,7 +173,7 @@ namespace PomodoroTimer.Services
 
         public bool FileExists(string fileName)
         {
-            var filePath = Path.Combine(_dataDirectory, fileName);
+            var filePath = Path.Combine(AppPaths.AppDataDirectory, fileName);
             return File.Exists(filePath);
         }
 
@@ -197,7 +181,7 @@ namespace PomodoroTimer.Services
         {
             try
             {
-                var filePath = Path.Combine(_dataDirectory, fileName);
+                var filePath = Path.Combine(AppPaths.AppDataDirectory, fileName);
                 if (File.Exists(filePath))
                 {
                     await Task.Run(() => File.Delete(filePath));

@@ -355,12 +355,9 @@ namespace PomodoroTimer.ViewModels
                 LoadTodayStatistics();
 
                 // クイックテンプレートを初期化（同期的に実行）
-                Console.WriteLine("InitializeQuickTemplatesSync を呼び出します...");
                 InitializeQuickTemplatesSync();
-                Console.WriteLine($"InitializeQuickTemplatesSync 完了後のQuickTemplatesの数: {QuickTemplates?.Count ?? 0}");
                 
                 // デバッグ用：QuickTemplatesの状態を確認
-                Console.WriteLine($"初期化時のQuickTemplatesの数: {QuickTemplates?.Count ?? 0}");
                 
                 // 初期化完了後、少し遅延してからもう一度確認
                 _ = Task.Run(async () =>
@@ -395,12 +392,10 @@ namespace PomodoroTimer.ViewModels
                 // プロパティ変更監視
                 PropertyChanged += OnPropertyChanged;
 
-                Console.WriteLine("MainViewModel が正常に初期化されました");
             }
             catch (Exception ex)
             {
                 DebugLog($"MainViewModel の初期化中にエラーが発生しました: {ex.Message}");
-                Console.WriteLine($"スタックトレース: {ex.StackTrace}");
                 
                 // 最小限の初期化を試行
                 try
@@ -606,7 +601,6 @@ namespace PomodoroTimer.ViewModels
                 // タスクデータを保存
                 SaveDataAsync();
                 
-                Console.WriteLine("実行中タスクを停止し、CurrentTaskをnullに設定しました");
             }
             
             _timerService.Stop();
@@ -675,25 +669,18 @@ namespace PomodoroTimer.ViewModels
 
             try
             {
-                // URLが有効な形式かチェック
-                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                // URLの検証
+                if (!ValidationHelper.ValidateUrl(url))
                 {
-                    // httpやhttpsが付いていない場合は自動で追加
-                    if (!url.StartsWith("http://") && !url.StartsWith("https://"))
-                    {
-                        url = "https://" + url;
-                        if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
-                        {
-                            ErrorHandler.ShowWarning("無効なURLです。");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        ErrorHandler.ShowWarning("無効なURLです。");
-                        return;
-                    }
+                    return;
                 }
+                
+                // プロトコルの自動補完（ValidationHelper内で行われるが、実際の使用のために再実行）
+                if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                {
+                    url = "https://" + url;
+                }
+                Uri.TryCreate(url, UriKind.Absolute, out var uri);
 
                 // デフォルトブラウザでURLを開く
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -1223,7 +1210,6 @@ namespace PomodoroTimer.ViewModels
         [System.Diagnostics.Conditional("DEBUG")]
         private static void DebugLog(string message)
         {
-            Console.WriteLine(message);
         }
 
         /// <summary>
@@ -1243,25 +1229,10 @@ namespace PomodoroTimer.ViewModels
         /// </summary>
         private void UpdateFilteringLists()
         {
-            AvailableCategories.Clear();
-            AvailableCategories.Add("すべて");
-            foreach (var category in _pomodoroService.GetAllCategories())
-            {
-                AvailableCategories.Add(category);
-            }
+            AvailableCategories.ReplaceWith(new[] { "すべて" }.Concat(_pomodoroService.GetAllCategories()));
+            AvailableTags.ReplaceWith(new[] { "すべて" }.Concat(_pomodoroService.GetAllTags()));
 
-            AvailableTags.Clear();
-            AvailableTags.Add("すべて");
-            foreach (var tag in _pomodoroService.GetAllTags())
-            {
-                AvailableTags.Add(tag);
-            }
-
-            AvailablePriorities.Clear();
-            AvailablePriorities.Add(null); // すべて
-            AvailablePriorities.Add(TaskPriority.Low);
-            AvailablePriorities.Add(TaskPriority.Medium);
-            AvailablePriorities.Add(TaskPriority.High);
+            AvailablePriorities.ReplaceWith(null, TaskPriority.Low, TaskPriority.Medium, TaskPriority.High);
         }
 
         /// <summary>
@@ -1271,11 +1242,7 @@ namespace PomodoroTimer.ViewModels
         {
             var filteredTasks = GetFilteredTasks();
             
-            FilteredTasks.Clear();
-            foreach (var task in filteredTasks)
-            {
-                FilteredTasks.Add(task);
-            }
+            FilteredTasks.ReplaceWith(filteredTasks);
         }
 
         /// <summary>
@@ -1296,16 +1263,13 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                Console.WriteLine("同期的クイックテンプレート初期化を開始");
                 
                 // QuickTemplatesが確実に初期化されていることを確認
                 if (QuickTemplates == null)
                 {
-                    Console.WriteLine("QuickTemplatesがnullのため、新しいObservableCollectionを作成");
                     QuickTemplates = new ObservableCollection<QuickTemplate>();
                 }
                 
-                Console.WriteLine($"初期化前のQuickTemplatesの数: {QuickTemplates.Count}");
                 
                 // 初期化時はデフォルトテンプレートを即座に作成
                 CreateDefaultQuickTemplates();

@@ -161,7 +161,6 @@ namespace PomodoroTimer.ViewModels
             StartedAt = _originalTask.StartedAt;
 
             // デバッグ用：タスクのDescriptionを確認
-            System.Diagnostics.Debug.WriteLine($"TaskDetailDialog LoadTaskData: Description = '{_originalTask.Description}'");
 
             // チェックリストをコピー
             ChecklistItems.Clear();
@@ -400,14 +399,12 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(TaskTitle))
+                if (!ValidationHelper.ValidateRequired(TaskTitle, "タイトル"))
                 {
-                    ErrorHandler.ShowWarning("タイトルを入力してください。");
                     return;
                 }
 
                 // デバッグ用：保存時のDescriptionを確認
-                System.Diagnostics.Debug.WriteLine($"TaskDetailDialog Save: Description = '{Description}'");
 
                 // タスクデータを更新
                 _originalTask.Title = TaskTitle;
@@ -510,15 +507,8 @@ namespace PomodoroTimer.ViewModels
 
         private string GetAttachmentDirectory()
         {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var attachmentDir = Path.Combine(appDataPath, "PomodoroTimer", "Attachments");
-            
-            if (!Directory.Exists(attachmentDir))
-            {
-                Directory.CreateDirectory(attachmentDir);
-            }
-            
-            return attachmentDir;
+            AppPaths.EnsureDirectoriesExist();
+            return AppPaths.AttachmentDirectory;
         }
 
         private string GenerateUniqueFileName(string directory, string fileName)
