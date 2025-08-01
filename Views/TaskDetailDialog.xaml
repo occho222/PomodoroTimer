@@ -158,6 +158,9 @@
                                                             <DataTrigger Binding="{Binding DisplayText}" Value="なし">
                                                                 <Setter Property="Background" Value="#6B7280"/>
                                                             </DataTrigger>
+                                                            <DataTrigger Binding="{Binding DisplayText}" Value="緊急">
+                                                                <Setter Property="Background" Value="#DC2626"/>
+                                                            </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
@@ -177,6 +180,9 @@
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding DisplayText}" Value="なし">
                                                                 <Setter Property="Foreground" Value="#6B7280"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding DisplayText}" Value="緊急">
+                                                                <Setter Property="Foreground" Value="#DC2626"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
