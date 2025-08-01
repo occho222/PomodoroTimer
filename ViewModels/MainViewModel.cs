@@ -229,6 +229,10 @@ namespace PomodoroTimer.ViewModels
                 if (CurrentTask == null || !CurrentTask.CurrentSessionStartTime.HasValue)
                     return CurrentTask?.ActualMinutes ?? 0;
 
+                // タイマーが一時停止中の場合は、現在のActualMinutesをそのまま返す
+                if (!IsRunning)
+                    return CurrentTask.ActualMinutes;
+
                 var elapsedTime = DateTime.Now - CurrentTask.CurrentSessionStartTime.Value;
                 var currentSessionMinutes = (int)Math.Floor(elapsedTime.TotalMinutes);
                 return CurrentTask.ActualMinutes + currentSessionMinutes;
@@ -284,6 +288,9 @@ namespace PomodoroTimer.ViewModels
                 return filteredCollection;
             }
         }
+
+        // 一時停止時刻を記録（再開時に調整するため）
+        private DateTime? _pausedTime;
 
         // ホットキー関連
         private RoutedCommand? _startPauseHotkey;
@@ -1715,6 +1722,12 @@ namespace PomodoroTimer.ViewModels
 
         private void OnTimerStopped()
         {
+            // 停止時に現在の経過時間を記録
+            UpdateRealTimeElapsedTime();
+            
+            // 一時停止時刻をリセット
+            _pausedTime = null;
+            
             IsRunning = false;
             StartPauseButtonText = "開始";
             _systemTrayService.UpdateTimerStatus(false, _timerService.RemainingTime);
@@ -1722,6 +1735,9 @@ namespace PomodoroTimer.ViewModels
 
         private void OnTimerPaused()
         {
+            // 一時停止時刻を記録
+            _pausedTime = DateTime.Now;
+            
             IsRunning = false;
             StartPauseButtonText = "再開";
             _systemTrayService.UpdateTimerStatus(false, _timerService.RemainingTime);
@@ -1730,6 +1746,17 @@ namespace PomodoroTimer.ViewModels
         private void OnTimerResumed()
         {
             Console.WriteLine("[DEBUG] OnTimerResumed() が呼び出されました。");
+            
+            // 一時停止していた時間分だけCurrentSessionStartTimeを調整
+            if (_pausedTime.HasValue && CurrentTask != null && CurrentTask.CurrentSessionStartTime.HasValue)
+            {
+                var pausedDuration = DateTime.Now - _pausedTime.Value;
+                CurrentTask.CurrentSessionStartTime = CurrentTask.CurrentSessionStartTime.Value.Add(pausedDuration);
+                Console.WriteLine($"[DEBUG] 一時停止時間 {pausedDuration.TotalMinutes:F1}分 を調整しました");
+            }
+            
+            // 一時停止時刻をリセット
+            _pausedTime = null;
             
             IsRunning = true;
             StartPauseButtonText = "一時停止";
