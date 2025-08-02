@@ -866,6 +866,7 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             
                                             <!-- タスクヘッダー -->
@@ -987,8 +988,81 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                             
+                                            <!-- チェックリスト -->
+                                            <StackPanel Grid.Row="5" Margin="0,8,0,8"
+                                                        Visibility="{Binding Checklist.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                                    <TextBlock Text="📋 やることリスト" FontSize="12" FontWeight="Bold" Foreground="#1F2937"/>
+                                                    <TextBlock Text="{Binding ChecklistProgress, StringFormat={}({0})}" 
+                                                               FontSize="11" Foreground="#6B7280" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
+                                                    <ItemsControl ItemsSource="{Binding Checklist}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Background="#F9FAFB" CornerRadius="4" Margin="0,1" Padding="6,3"
+                                                                        BorderThickness="1" BorderBrush="#E5E7EB">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <CheckBox IsChecked="{Binding IsChecked, Mode=OneWay}" 
+                                                                                 VerticalAlignment="Top" Margin="0,1,8,0"
+                                                                                 Command="{Binding DataContext.ToggleChecklistItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 CommandParameter="{Binding}">
+                                                                            <CheckBox.Style>
+                                                                                <Style TargetType="CheckBox">
+                                                                                    <Setter Property="Template">
+                                                                                        <Setter.Value>
+                                                                                            <ControlTemplate TargetType="CheckBox">
+                                                                                                <Border Width="16" Height="16" CornerRadius="3"
+                                                                                                        Background="{TemplateBinding Background}"
+                                                                                                        BorderBrush="#3B82F6" BorderThickness="2">
+                                                                                                    <Path x:Name="CheckMark" 
+                                                                                                          Data="M 2.5 7 L 6 10.5 L 13.5 3" 
+                                                                                                          Stroke="White" StrokeThickness="2" 
+                                                                                                          Visibility="Collapsed"
+                                                                                                          StrokeStartLineCap="Round"
+                                                                                                          StrokeEndLineCap="Round"/>
+                                                                                                </Border>
+                                                                                                <ControlTemplate.Triggers>
+                                                                                                    <Trigger Property="IsChecked" Value="True">
+                                                                                                        <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                                                                                        <Setter Property="Background" Value="#3B82F6"/>
+                                                                                                    </Trigger>
+                                                                                                    <Trigger Property="IsChecked" Value="False">
+                                                                                                        <Setter Property="Background" Value="White"/>
+                                                                                                    </Trigger>
+                                                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                                                        <Setter Property="Background" Value="#EBF8FF"/>
+                                                                                                    </Trigger>
+                                                                                                </ControlTemplate.Triggers>
+                                                                                            </ControlTemplate>
+                                                                                        </Setter.Value>
+                                                                                    </Setter>
+                                                                                </Style>
+                                                                            </CheckBox.Style>
+                                                                        </CheckBox>
+                                                                        <TextBlock Text="{Binding Text}" FontSize="11" 
+                                                                                   TextWrapping="Wrap" VerticalAlignment="Center" Foreground="#374151">
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="TextBlock">
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                                            <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                                                            <Setter Property="Foreground" Value="#9CA3AF"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                        </TextBlock>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
+                                            </StackPanel>
+                                            
                                             <!-- 実行時間と進捗 -->
-                                            <Grid Grid.Row="5" Margin="0,8,0,0">
+                                            <Grid Grid.Row="6" Margin="0,8,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
