@@ -886,15 +886,44 @@ namespace PomodoroTimer.ViewModels
                     // タスクが更新された場合、UIを更新
                     RefreshUI();
                     
+                    // 現在実行中のタスクが更新された場合、CurrentTaskも同期更新
+                    if (CurrentTask != null && CurrentTask.Id == task.Id)
+                    {
+                        // 参照を更新してUIに変更を通知
+                        CurrentTask = task;
+                        OnPropertyChanged(nameof(CurrentTask));
+                        
+                        // チェックリスト関連プロパティの変更を通知するため、プロパティを再設定
+                        var tempChecklist = CurrentTask.Checklist;
+                        CurrentTask.Checklist = new List<ChecklistItem>(tempChecklist);
+                    }
+                    
                     // 現在選択中のタスク詳細も更新
                     if (SelectedTaskDetail != null && SelectedTaskDetail.Id == task.Id)
                     {
-                        var updatedTask = Tasks.FirstOrDefault(t => t.Id == task.Id);
-                        if (updatedTask != null)
-                        {
-                            SelectedTaskDetail = updatedTask;
-                        }
+                        SelectedTaskDetail = task;
+                        OnPropertyChanged(nameof(SelectedTaskDetail));
                     }
+                    
+                    // 待機中タスクと未開始タスクのチェックリストも更新
+                    var waitingTask = WaitingTasks.FirstOrDefault(t => t.Id == task.Id);
+                    if (waitingTask != null)
+                    {
+                        var tempChecklist = waitingTask.Checklist;
+                        waitingTask.Checklist = new List<ChecklistItem>(tempChecklist);
+                    }
+                    
+                    var todoTask = TodoTasks.FirstOrDefault(t => t.Id == task.Id);
+                    if (todoTask != null)
+                    {
+                        var tempChecklist = todoTask.Checklist;
+                        todoTask.Checklist = new List<ChecklistItem>(tempChecklist);
+                    }
+                    
+                    // 念のため、すべてのカンバンカラムを強制更新
+                    OnPropertyChanged(nameof(TodoTasks));
+                    OnPropertyChanged(nameof(WaitingTasks));
+                    OnPropertyChanged(nameof(CompletedTasks));
                 }
             }
             catch (Exception ex)

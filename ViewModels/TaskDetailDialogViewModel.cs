@@ -464,6 +464,7 @@ namespace PomodoroTimer.ViewModels
 
                 UpdateTaskFromViewModel();
                 _pomodoroService.UpdateTask(_originalTask);
+                
                 HasUnsavedChanges = false;
             }
             catch (Exception ex)
@@ -489,12 +490,8 @@ namespace PomodoroTimer.ViewModels
             _originalTask.EstimatedMinutes = EstimatedMinutes;
             _originalTask.ActualMinutes = ActualMinutes;
 
-            // チェックリストを更新
-            _originalTask.Checklist.Clear();
-            foreach (var item in ChecklistItems)
-            {
-                _originalTask.Checklist.Add(item);
-            }
+            // チェックリストを更新（新しいリストを作成して代入することでOnChecklistChangedを発火）
+            _originalTask.Checklist = new List<ChecklistItem>(ChecklistItems);
 
             // 添付ファイルを更新（存在確認付き）
             _originalTask.Attachments.Clear();
