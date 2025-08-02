@@ -2842,22 +2842,32 @@ namespace PomodoroTimer.ViewModels
 
             try
             {
-                var templateName = System.Windows.MessageBox.Show(
+                var confirmResult = System.Windows.MessageBox.Show(
                     $"タスク「{task.Title}」からテンプレートを作成しますか？",
                     "テンプレート作成確認",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
-                if (templateName == MessageBoxResult.Yes)
+                if (confirmResult == MessageBoxResult.Yes)
                 {
                     var defaultName = $"{task.Title}のテンプレート";
-                    var template = await _taskTemplateService.CreateTemplateFromTaskAsync(
-                        task, 
-                        defaultName, 
-                        $"「{task.Title}」から作成されたテンプレート");
                     
-                    System.Windows.MessageBox.Show($"テンプレート「{template.Name}」を作成しました。", "テンプレート作成", 
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    // テンプレート名入力ダイアログを表示
+                    var inputDialog = new InputDialog("テンプレート名", "テンプレート名を入力してください:", defaultName)
+                    {
+                        Owner = System.Windows.Application.Current.MainWindow
+                    };
+                    
+                    if (inputDialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(inputDialog.InputText))
+                    {
+                        var template = await _taskTemplateService.CreateTemplateFromTaskAsync(
+                            task, 
+                            inputDialog.InputText, 
+                            $"「{task.Title}」から作成されたテンプレート");
+                        
+                        System.Windows.MessageBox.Show($"テンプレート「{template.Name}」を作成しました。", "テンプレート作成", 
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                 }
             }
             catch (Exception ex)
