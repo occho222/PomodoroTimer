@@ -811,6 +811,40 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// カテゴリー別タスク追加コマンド
+        /// </summary>
+        [RelayCommand]
+        private void AddTaskToCategory(string category)
+        {
+            try
+            {
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService);
+                
+                // カテゴリーを事前設定
+                if (!string.IsNullOrEmpty(category))
+                {
+                    viewModel.TaskCategory = category;
+                }
+                
+                var dialog = new Views.TaskDetailDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+                
+                if (dialog.ShowDialog() == true)
+                {
+                    // タスクはTaskDetailDialogViewModelのSaveメソッドで既に追加されているため、
+                    // ここではUI更新のみを行う
+                    RefreshUI(); // カンバンボードも更新
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowError("タスクの追加中にエラーが発生しました", ex);
+            }
+        }
+
+        /// <summary>
         /// タスク編集コマンド
         /// </summary>
         /// <param name="task">編集するタスク</param>
