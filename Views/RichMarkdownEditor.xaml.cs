@@ -5,6 +5,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.IO;
 
 namespace PomodoroTimer.Views
 {
@@ -29,6 +30,11 @@ namespace PomodoroTimer.Views
         public static readonly DependencyProperty ShowToolbarProperty =
             DependencyProperty.Register(nameof(ShowToolbar), typeof(bool), typeof(RichMarkdownEditor),
                 new FrameworkPropertyMetadata(true, OnShowToolbarChanged));
+
+        /// <summary>
+        /// 画像ペーストイベント
+        /// </summary>
+        public event EventHandler<ImagePasteEventArgs>? ImagePasted;
 
         public string PlainText
         {
@@ -186,6 +192,16 @@ namespace PomodoroTimer.Views
 
         private void RichEditor_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            // Ctrl+V（画像ペースト）の処理
+            if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                if (HandleImagePaste())
+                {
+                    e.Handled = true; // 画像をペーストした場合はデフォルト動作を停止
+                    return;
+                }
+            }
+
             // Enterキーの場合は特別処理
             if (e.Key == Key.Enter)
             {
@@ -728,6 +744,65 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
+        /// 画像ペーストを処理する
+        /// </summary>
+        private bool HandleImagePaste()
+        {
+            try
+            {
+                if (System.Windows.Clipboard.ContainsImage())
+                {
+                    var image = System.Windows.Clipboard.GetImage();
+                    if (image != null)
+                    {
+                        // 画像ペーストイベントを発生させる
+                        var args = new ImagePasteEventArgs(image);
+                        ImagePasted?.Invoke(this, args);
+                        
+                        // イベントハンドラーが画像を処理した場合
+                        if (args.IsHandled && !string.IsNullOrEmpty(args.ImagePath))
+                        {
+                            // マークダウン形式で画像リンクをテキストに挿入
+                            var imageMarkdown = $"![画像]({args.ImagePath})";
+                            InsertTextAtCaret(imageMarkdown);
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"画像の貼り付けに失敗しました: {ex.Message}", "エラー", 
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+            
+            return false;
+        }
+
+        /// <summary>
+        /// カーソル位置にテキストを挿入する
+        /// </summary>
+        private void InsertTextAtCaret(string text)
+        {
+            try
+            {
+                var caretPosition = RichEditor.CaretPosition;
+                if (caretPosition != null)
+                {
+                    caretPosition.InsertTextInRun(text);
+                    
+                    // テキスト変更イベントを発生させる
+                    RichEditor_TextChanged(RichEditor, new TextChangedEventArgs(System.Windows.Controls.RichTextBox.TextChangedEvent, UndoAction.None));
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"テキストの挿入に失敗しました: {ex.Message}", "エラー", 
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
         /// ShowToolbarプロパティが変更された時の処理
         /// </summary>
         private static void OnShowToolbarChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -736,6 +811,21 @@ namespace PomodoroTimer.Views
             {
                 editor.UpdateToolbarVisibility();
             }
+        }
+    }
+
+    /// <summary>
+    /// 画像ペーストイベントの引数
+    /// </summary>
+    public class ImagePasteEventArgs : EventArgs
+    {
+        public System.Windows.Media.Imaging.BitmapSource Image { get; }
+        public string ImagePath { get; set; } = string.Empty;
+        public bool IsHandled { get; set; } = false;
+
+        public ImagePasteEventArgs(System.Windows.Media.Imaging.BitmapSource image)
+        {
+            Image = image;
         }
     }
 }

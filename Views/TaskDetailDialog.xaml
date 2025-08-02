@@ -251,7 +251,7 @@
 
                         <!-- 説明 -->
                         <TextBlock Text="説明" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
-                        <views:RichMarkdownEditor PlainText="{Binding Description, Mode=TwoWay}" Height="300" Margin="0,0,0,15"/>
+                        <views:RichMarkdownEditor x:Name="DescriptionEditor" PlainText="{Binding Description, Mode=TwoWay}" Height="300" Margin="0,0,0,15" ImagePasted="DescriptionEditor_ImagePasted"/>
 
                         <!-- チェックリスト -->
                         <Grid Margin="0,0,0,15">
@@ -388,12 +388,12 @@
                                                     Command="{Binding DataContext.OpenAttachmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                     CommandParameter="{Binding}"
                                                     Style="{StaticResource KanbanActionButton}"
-                                                    Background="Transparent" Margin="5,0"/>
+                                                    Background="#3B82F6" Foreground="White" Margin="5,0"/>
                                             <Button Grid.Column="3" Content="🗑" ToolTip="削除"
                                                     Command="{Binding DataContext.RemoveAttachmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                     CommandParameter="{Binding}"
                                                     Style="{StaticResource KanbanActionButton}"
-                                                    Background="Transparent"/>
+                                                    Background="#EF4444" Foreground="White"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -511,12 +511,27 @@
 
         <!-- フッター -->
         <Border Grid.Row="2" Background="White" Margin="10,5,10,10" CornerRadius="12" Padding="15">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="キャンセル" Command="{Binding CancelCommand}"
-                        Style="{StaticResource RoundButton}" Background="Gray" Margin="0,0,10,0"/>
-                <Button Content="保存" Command="{Binding SaveCommand}"
-                        Style="{StaticResource RoundButton}" Background="{StaticResource AccentBrush}"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- 保存状態表示 -->
+                <TextBlock Grid.Column="0" 
+                           Text="未保存の変更があります"
+                           Foreground="#F59E0B" FontWeight="Bold" FontSize="12"
+                           VerticalAlignment="Center"
+                           Visibility="{Binding HasUnsavedChanges, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                
+                <!-- ボタン -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="キャンセル" Command="{Binding CancelCommand}"
+                            Style="{StaticResource RoundButton}" Background="Gray" Margin="0,0,10,0"/>
+                    <Button Content="保存" Command="{Binding SaveCommand}"
+                            Style="{StaticResource RoundButton}" Background="{StaticResource AccentBrush}"/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Window>

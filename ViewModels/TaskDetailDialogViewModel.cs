@@ -72,6 +72,9 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private DateTime? startedAt;
 
+        [ObservableProperty]
+        private bool hasUnsavedChanges = false;
+
 
         [RelayCommand]
         private void SetToday()
@@ -169,11 +172,19 @@ namespace PomodoroTimer.ViewModels
                 ChecklistItems.Add(item);
             }
 
-            // 添付ファイルをコピー
+            // 添付ファイルをコピー（存在確認付き）
             AttachmentItems.Clear();
-            foreach (var attachment in _originalTask.Attachments)
+            foreach (var attachment in _originalTask.Attachments.ToList()) // ToListで安全にイテレート
             {
-                AttachmentItems.Add(new AttachmentItem { FilePath = attachment });
+                if (File.Exists(attachment))
+                {
+                    AttachmentItems.Add(new AttachmentItem { FilePath = attachment });
+                }
+                else
+                {
+                    // 存在しないファイルは元のリストからも削除
+                    _originalTask.Attachments.Remove(attachment);
+                }
             }
 
             // リンクアイテムをコピー（データマイグレーション含む）
@@ -227,10 +238,20 @@ namespace PomodoroTimer.ViewModels
             if (e.PropertyName == nameof(EstimatedMinutes) || e.PropertyName == nameof(ActualMinutes))
             {
                 UpdateProgress();
+                HasUnsavedChanges = true;
             }
             else if (e.PropertyName == nameof(ChecklistItems))
             {
                 UpdateProgress();
+                HasUnsavedChanges = true;
+            }
+            else if (e.PropertyName == nameof(TaskTitle) || 
+                     e.PropertyName == nameof(Description) || 
+                     e.PropertyName == nameof(TaskCategory) || 
+                     e.PropertyName == nameof(TaskTags) ||
+                     e.PropertyName == nameof(DueDate))
+            {
+                HasUnsavedChanges = true;
             }
         }
 
@@ -291,14 +312,19 @@ namespace PomodoroTimer.ViewModels
 
             if (openFileDialog.ShowDialog() == true)
             {
+                var addedCount = 0;
                 foreach (var fileName in openFileDialog.FileNames)
                 {
-                    // ファイルをアプリのデータフォルダにコピー
                     var attachmentPath = CopyFileToAttachmentFolder(fileName);
-                    if (!string.IsNullOrEmpty(attachmentPath))
+                    if (AddAttachmentToList(attachmentPath))
                     {
-                        AttachmentItems.Add(new AttachmentItem { FilePath = attachmentPath });
+                        addedCount++;
                     }
+                }
+                
+                if (addedCount > 0)
+                {
+                    AutoSave();
                 }
             }
         }
@@ -330,19 +356,12 @@ namespace PomodoroTimer.ViewModels
                     var image = Clipboard.GetImage();
                     if (image != null)
                     {
-                        // 画像を一時ファイルとして保存
-                        var tempFileName = $"clipboard_image_{DateTime.Now:yyyyMMdd_HHmmss}.png";
-                        var attachmentPath = SaveImageToAttachmentFolder(image, tempFileName);
-                        
-                        if (!string.IsNullOrEmpty(attachmentPath))
+                        var attachmentPath = SaveImageToAttachmentFolder(image);
+                        if (AddAttachmentToList(attachmentPath))
                         {
-                            AttachmentItems.Add(new AttachmentItem { FilePath = attachmentPath });
+                            AutoSave();
                         }
                     }
-                }
-                else
-                {
-                    MessageBox.Show("クリップボードに画像がありません。", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -377,6 +396,7 @@ namespace PomodoroTimer.ViewModels
             if (attachment != null)
             {
                 AttachmentItems.Remove(attachment);
+                HasUnsavedChanges = true;
                 
                 // ファイルも削除するか確認
                 var result = MessageBox.Show("ファイルも削除しますか？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -391,6 +411,9 @@ namespace PomodoroTimer.ViewModels
                         ErrorHandler.ShowError("ファイルの削除に失敗しました", ex);
                     }
                 }
+                
+                // 添付ファイル削除時に自動保存を実行
+                AutoSave();
             }
         }
 
@@ -404,40 +427,7 @@ namespace PomodoroTimer.ViewModels
                     return;
                 }
 
-                // デバッグ用：保存時のDescriptionを確認
-
-                // タスクデータを更新
-                _originalTask.Title = TaskTitle;
-                _originalTask.Description = Description;
-                _originalTask.Category = TaskCategory;
-                _originalTask.TagsText = TaskTags;
-                _originalTask.Url = Url;
-                _originalTask.Status = SelectedStatusDisplay?.Status ?? TaskStatus.Todo;
-                _originalTask.Priority = SelectedPriorityDisplay?.Priority ?? TaskPriority.Medium;
-                _originalTask.DueDate = DueDate;
-                _originalTask.EstimatedMinutes = EstimatedMinutes;
-                _originalTask.ActualMinutes = ActualMinutes;
-
-                // チェックリストを更新
-                _originalTask.Checklist.Clear();
-                foreach (var item in ChecklistItems)
-                {
-                    _originalTask.Checklist.Add(item);
-                }
-
-                // 添付ファイルを更新
-                _originalTask.Attachments.Clear();
-                foreach (var attachment in AttachmentItems)
-                {
-                    _originalTask.Attachments.Add(attachment.FilePath);
-                }
-
-                // リンクアイテムを更新
-                _originalTask.Links.Clear();
-                foreach (var link in LinkItems)
-                {
-                    _originalTask.Links.Add(link);
-                }
+                UpdateTaskFromViewModel();
 
                 if (_isEditMode)
                 {
@@ -448,6 +438,7 @@ namespace PomodoroTimer.ViewModels
                     _pomodoroService.AddTask(_originalTask);
                 }
 
+                HasUnsavedChanges = false;
                 DialogResultChanged?.Invoke(true);
             }
             catch (Exception ex)
@@ -460,6 +451,79 @@ namespace PomodoroTimer.ViewModels
         private void Cancel()
         {
             DialogResultChanged?.Invoke(false);
+        }
+
+        /// <summary>
+        /// 自動保存を実行（画像添付時など）
+        /// </summary>
+        public void AutoSave()
+        {
+            try
+            {
+                if (!_isEditMode) return; // 新規作成時は自動保存しない
+
+                UpdateTaskFromViewModel();
+                _pomodoroService.UpdateTask(_originalTask);
+                HasUnsavedChanges = false;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowError("自動保存に失敗しました", ex);
+            }
+        }
+
+        /// <summary>
+        /// ViewModelの値でタスクデータを更新する共通メソッド
+        /// </summary>
+        private void UpdateTaskFromViewModel()
+        {
+            // 基本情報を更新
+            _originalTask.Title = TaskTitle;
+            _originalTask.Description = Description;
+            _originalTask.Category = TaskCategory;
+            _originalTask.TagsText = TaskTags;
+            _originalTask.Url = Url;
+            _originalTask.Status = SelectedStatusDisplay?.Status ?? TaskStatus.Todo;
+            _originalTask.Priority = SelectedPriorityDisplay?.Priority ?? TaskPriority.Medium;
+            _originalTask.DueDate = DueDate;
+            _originalTask.EstimatedMinutes = EstimatedMinutes;
+            _originalTask.ActualMinutes = ActualMinutes;
+
+            // チェックリストを更新
+            _originalTask.Checklist.Clear();
+            foreach (var item in ChecklistItems)
+            {
+                _originalTask.Checklist.Add(item);
+            }
+
+            // 添付ファイルを更新（存在確認付き）
+            _originalTask.Attachments.Clear();
+            foreach (var attachment in AttachmentItems)
+            {
+                if (File.Exists(attachment.FilePath))
+                {
+                    _originalTask.Attachments.Add(attachment.FilePath);
+                }
+            }
+
+            // リンクアイテムを更新
+            _originalTask.Links.Clear();
+            foreach (var link in LinkItems)
+            {
+                _originalTask.Links.Add(link);
+            }
+        }
+
+        /// <summary>
+        /// 添付ファイルをリストに追加する共通メソッド
+        /// </summary>
+        public bool AddAttachmentToList(string attachmentPath)
+        {
+            if (string.IsNullOrEmpty(attachmentPath)) return false;
+
+            AttachmentItems.Add(new AttachmentItem { FilePath = attachmentPath });
+            HasUnsavedChanges = true;
+            return true;
         }
 
         private string CopyFileToAttachmentFolder(string sourceFilePath)
@@ -481,10 +545,14 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
-        private string SaveImageToAttachmentFolder(System.Windows.Media.Imaging.BitmapSource image, string fileName)
+        /// <summary>
+        /// 画像を添付ファイルフォルダに保存（オーバーロード：ビットマップから）
+        /// </summary>
+        public string SaveImageToAttachmentFolder(System.Windows.Media.Imaging.BitmapSource image, string? customFileName = null)
         {
             try
             {
+                var fileName = customFileName ?? $"clipboard_image_{DateTime.Now:yyyyMMdd_HHmmss}.png";
                 var attachmentDir = GetAttachmentDirectory();
                 var uniqueFileName = GenerateUniqueFileName(attachmentDir, fileName);
                 var destinationPath = Path.Combine(attachmentDir, uniqueFileName);

@@ -349,7 +349,8 @@ namespace PomodoroTimer.Services
         {
             try
             {
-                await _dataPersistenceService.SaveDataAsync("tasks.json", _tasks.ToList());
+                var tasksList = _tasks.ToList();
+                await _dataPersistenceService.SaveDataAsync("tasks.json", tasksList);
             }
             catch (Exception ex)
             {
