@@ -20,6 +20,7 @@ namespace PomodoroTimer.ViewModels
         private readonly IPomodoroService _pomodoroService;
         private readonly PomodoroTask _originalTask;
         private readonly bool _isEditMode;
+        private readonly AppSettings? _appSettings;
 
         [ObservableProperty]
         private string taskTitle = string.Empty;
@@ -133,19 +134,49 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private ObservableCollection<string> popularTags = new();
 
+        [ObservableProperty]
+        private double dialogWidth = 900;
+
+        [ObservableProperty]
+        private double dialogHeight = 700;
+
         public event Action<bool?>? DialogResultChanged;
 
-        public TaskDetailDialogViewModel(IPomodoroService pomodoroService, PomodoroTask? task = null)
+        public TaskDetailDialogViewModel(IPomodoroService pomodoroService, PomodoroTask? task = null, AppSettings? appSettings = null)
         {
             _pomodoroService = pomodoroService ?? throw new ArgumentNullException(nameof(pomodoroService));
             _originalTask = task ?? new PomodoroTask();
             _isEditMode = task != null;
+            _appSettings = appSettings;
+
+            // AppSettingsからサイズを設定
+            if (_appSettings != null)
+            {
+                DialogWidth = _appSettings.TaskDetailDialogWidth;
+                DialogHeight = _appSettings.TaskDetailDialogHeight;
+            }
 
             // コマンドを初期化
             PasteImageCommand = new RelayCommand(PasteImage);
 
             LoadTaskData();
             PropertyChanged += OnPropertyChanged;
+        }
+
+        /// <summary>
+        /// ダイアログサイズが変更されたときの処理
+        /// </summary>
+        public void OnSizeChanged(double width, double height)
+        {
+            if (_appSettings != null)
+            {
+                _appSettings.TaskDetailDialogWidth = width;
+                _appSettings.TaskDetailDialogHeight = height;
+                
+                // ViewModelのプロパティも更新
+                DialogWidth = width;
+                DialogHeight = height;
+            }
         }
 
         private void LoadTaskData()

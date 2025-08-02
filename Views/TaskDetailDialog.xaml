@@ -4,7 +4,8 @@
         xmlns:models="clr-namespace:PomodoroTimer.Models"
         xmlns:views="clr-namespace:PomodoroTimer.Views"
         Title="タスク詳細" 
-        Height="700" Width="900"
+        Height="{Binding DialogHeight}" Width="{Binding DialogWidth}"
+        MinHeight="250" MinWidth="300"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
         Background="{StaticResource BackgroundLight}">

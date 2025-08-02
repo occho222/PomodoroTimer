@@ -8,7 +8,7 @@
         /// <summary>
         /// データフォーマットのバージョン
         /// </summary>
-        public string DataVersion { get; set; } = "1.5.15";
+        public string DataVersion { get; set; } = "1.5.16";
 
         /// <summary>
         /// 作業セッション時間（分）
@@ -159,6 +159,16 @@
         /// カスタムテーマの色設定
         /// </summary>
         public ThemeSettings ThemeSettings { get; set; } = new ThemeSettings();
+
+        /// <summary>
+        /// タスク詳細ダイアログの横幅
+        /// </summary>
+        public double TaskDetailDialogWidth { get; set; } = 900;
+
+        /// <summary>
+        /// タスク詳細ダイアログの縦幅
+        /// </summary>
+        public double TaskDetailDialogHeight { get; set; } = 700;
 
         /// <summary>
         /// Microsoft Graph設定

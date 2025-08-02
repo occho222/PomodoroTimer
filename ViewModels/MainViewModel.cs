@@ -791,7 +791,7 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                var viewModel = new TaskDetailDialogViewModel(_pomodoroService);
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, null, _settings);
                 var dialog = new Views.TaskDetailDialog(viewModel)
                 {
                     Owner = System.Windows.Application.Current.MainWindow
@@ -818,7 +818,7 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                var viewModel = new TaskDetailDialogViewModel(_pomodoroService);
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, null, _settings);
                 
                 // カテゴリーを事前設定
                 if (!string.IsNullOrEmpty(category))
@@ -875,7 +875,7 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, task);
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, task, _settings);
                 var dialog = new Views.TaskDetailDialog(viewModel)
                 {
                     Owner = System.Windows.Application.Current.MainWindow

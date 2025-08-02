@@ -18,11 +18,29 @@ namespace PomodoroTimer.Views
             
             // ダイアログの結果を監視
             ViewModel.DialogResultChanged += OnDialogResultChanged;
+            
+            // サイズ変更イベントを監視
+            SizeChanged += OnSizeChanged;
+            
+            // ダイアログが閉じられる際の処理
+            Closing += OnClosing;
         }
 
         private void OnDialogResultChanged(bool? result)
         {
             DialogResult = result;
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // サイズ変更をViewModelに通知
+            ViewModel.OnSizeChanged(e.NewSize.Width, e.NewSize.Height);
+        }
+
+        private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // 最終的なサイズを保存
+            ViewModel.OnSizeChanged(Width, Height);
         }
 
 

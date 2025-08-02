@@ -34,7 +34,7 @@
         </Grid.RowDefinitions>
         
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="SidebarColumn" Width="250" MinWidth="200" MaxWidth="350"/>
+            <ColumnDefinition x:Name="SidebarColumn" Width="250" MinWidth="150"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -325,7 +325,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="TimerColumn" Width="320" MinWidth="280" MaxWidth="400"/>
+                <ColumnDefinition x:Name="TimerColumn" Width="320" MinWidth="200"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
