@@ -843,6 +843,8 @@
                                                                   Click="MenuItem_Click" Tag="OpenTaskDetail"/>
                                                         <MenuItem Header="📋 テンプレート作成"
                                                                   Click="MenuItem_Click" Tag="CreateTemplateFromTask"/>
+                                                        <MenuItem Header="📄 コピー"
+                                                                  Click="MenuItem_Click" Tag="CopyTask"/>
                                                         <Separator/>
                                                         <MenuItem Header="🗑 削除"
                                                                   Click="MenuItem_Click" Tag="DeleteTask"/>

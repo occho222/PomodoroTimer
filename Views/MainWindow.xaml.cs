@@ -637,6 +637,9 @@ namespace PomodoroTimer.Views
                     case "CreateTemplateFromTask":
                         _viewModel.CreateTemplateFromTaskCommand?.Execute(task);
                         break;
+                    case "CopyTask":
+                        _viewModel.CopyTaskCommand?.Execute(task);
+                        break;
                     case "DeleteTask":
                         _viewModel.DeleteTaskCommand?.Execute(task);
                         break;

@@ -950,6 +950,50 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// タスクコピーコマンド
+        /// </summary>
+        /// <param name="task">コピーするタスク</param>
+        [RelayCommand]
+        private void CopyTask(PomodoroTask task)
+        {
+            try
+            {
+                // 新しいタスクを作成（IDは自動生成される）
+                var copiedTask = new PomodoroTask
+                {
+                    Title = $"{task.Title} - コピー",
+                    Description = task.Description,
+                    Category = task.Category,
+                    Priority = task.Priority,
+                    EstimatedMinutes = task.EstimatedMinutes,
+                    EstimatedPomodoros = task.EstimatedPomodoros,
+                    DueDate = task.DueDate,
+                    Tags = new List<string>(task.Tags),
+                    Links = new List<LinkItem>(task.Links.Select(link => new LinkItem(link.Title, link.Url))),
+                    Attachments = new List<string>(task.Attachments),
+                    Checklist = new List<ChecklistItem>(task.Checklist.Select(item => new ChecklistItem { Text = item.Text, IsChecked = false })),
+                    // コピー時は未開始状態で作成
+                    Status = TaskStatus.Todo,
+                    IsCompleted = false,
+                    CreatedAt = DateTime.Now,
+                    DisplayOrder = task.DisplayOrder
+                };
+
+                // サービスにタスクを追加
+                _pomodoroService.AddTask(copiedTask);
+                
+                // UIを更新
+                RefreshUI();
+
+                Console.WriteLine($"タスク「{task.Title}」をコピーしました");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowError("タスクのコピーに失敗しました", ex);
+            }
+        }
+
+        /// <summary>
         /// タスク完了コマンド
         /// </summary>
         /// <param name="task">完了するタスク</param>
