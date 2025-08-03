@@ -7,7 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:converters="clr-namespace:PomodoroTimer.Converters"
         xmlns:views="clr-namespace:PomodoroTimer.Views"
-        Title="ポモドーロタイマー - カンバンボード" 
+        Title="Pomoban" 
         Height="900" Width="1600"
         MinHeight="800" MinWidth="1400"
         WindowStartupLocation="CenterScreen"

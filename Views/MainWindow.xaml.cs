@@ -121,12 +121,12 @@ namespace PomodoroTimer.Views
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 var version = assembly.GetName().Version?.ToString(3) ?? "1.0.0";
-                Title = $"ポモドーロタイマー - カンバンボード v{version}{suffix}";
+                Title = $"Pomoban v{version}{suffix}";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"タイトル設定でエラー: {ex.Message}");
-                Title = $"ポモドーロタイマー - カンバンボード{suffix}";
+                Title = $"Pomoban{suffix}";
             }
         }
 

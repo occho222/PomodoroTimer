@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:PomodoroTimer.Converters"
         mc:Ignorable="d"
-        Title="ポモドーロタイマー - 集中モード"
+        Title="Pomoban - 集中モード"
         Height="700"
         Width="480"
         MinHeight="400"
