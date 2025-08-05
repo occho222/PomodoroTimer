@@ -20,6 +20,7 @@ namespace PomodoroTimer.Views
         private readonly MainViewModel _mainViewModel;
         private readonly DispatcherTimer _uiUpdateTimer;
         private MainWindow _mainWindow;
+        private bool _isForceClosing = false;
 
         public FocusModeWindow(IPomodoroService pomodoroService, ITimerService timerService, MainViewModel mainViewModel, MainWindow mainWindow)
         {
@@ -376,14 +377,6 @@ namespace PomodoroTimer.Views
 
         private void BackToMainWindow()
         {
-            // メインウィンドウを表示
-            if (_mainWindow != null)
-            {
-                _mainWindow.Show();
-                _mainWindow.WindowState = WindowState.Normal;
-                _mainWindow.Activate();
-            }
-
             // 集中モードを無効化
             var settings = _mainViewModel.GetCurrentSettings();
             if (settings != null)
@@ -395,22 +388,48 @@ namespace PomodoroTimer.Views
             // 集中モード表示フラグをリセット
             _mainViewModel.ResetFocusModeShowingFlag();
 
+            // メインウィンドウを表示
+            if (_mainWindow != null)
+            {
+                _mainWindow.Show();
+                _mainWindow.WindowState = WindowState.Normal;
+                _mainWindow.Activate();
+            }
+
             // このウィンドウを閉じる
-            Close();
+            CleanupAndForceClose();
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        /// <summary>
+        /// クリーンアップ処理を行ってウィンドウを強制的に閉じる
+        /// </summary>
+        private void CleanupAndForceClose()
         {
+            // 強制クローズフラグを設定
+            _isForceClosing = true;
+            
             // イベントの購読を解除
             UnsubscribeFromEvents();
             
             // タイマーを停止
             _uiUpdateTimer?.Stop();
 
-            // 集中モード表示フラグをリセット
-            _mainViewModel.ResetFocusModeShowingFlag();
+            // ウィンドウを閉じる
+            Close();
+        }
 
-            base.OnClosing(e);
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // 強制クローズの場合は通常の閉じる処理を実行
+            if (_isForceClosing)
+            {
+                base.OnClosing(e);
+                return;
+            }
+            
+            // WindowStyle="None"のため、通常はここには来ない
+            // 念のため閉じる処理をキャンセル
+            e.Cancel = true;
         }
 
         // ヘッダー部分のマウスダウンイベントハンドラー

@@ -10,7 +10,7 @@
         Width="480"
         MinHeight="400"
         MinWidth="320"
-        WindowStyle="ToolWindow"
+        WindowStyle="None"
         AllowsTransparency="False"
         Background="White"
         ResizeMode="CanResize"
