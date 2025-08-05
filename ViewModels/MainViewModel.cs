@@ -2008,8 +2008,8 @@ namespace PomodoroTimer.ViewModels
             // 設定に応じて通知を表示
             if (_settings.ShowNotifications)
             {
-                // ポップアップ通知を表示（ブロッキング）
-                _notificationService.ShowDesktopNotification("ポモドーロタイマー", notificationMessage);
+                // ポップアップ通知を表示（設定に応じて最前面表示）
+                _notificationService.ShowDesktopNotification("ポモドーロタイマー", notificationMessage, _settings.TopmostNotification);
             }
             else
             {

@@ -8,7 +8,7 @@
         /// <summary>
         /// データフォーマットのバージョン
         /// </summary>
-        public string DataVersion { get; set; } = "1.5.19";
+        public string DataVersion { get; set; } = "1.5.20";
 
         /// <summary>
         /// 作業セッション時間（分）
@@ -169,6 +169,11 @@
         /// タスク詳細ダイアログの縦幅
         /// </summary>
         public double TaskDetailDialogHeight { get; set; } = 700;
+
+        /// <summary>
+        /// 通知ダイアログを最前面に表示するかどうか
+        /// </summary>
+        public bool TopmostNotification { get; set; } = true;
 
         /// <summary>
         /// Microsoft Graph設定

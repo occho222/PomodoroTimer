@@ -65,6 +65,8 @@
                             <StackPanel Margin="0,0,0,15">
                                 <CheckBox Content="セッション完了時に通知を表示" IsChecked="{Binding ShowNotifications, Mode=TwoWay}" 
                                           Margin="0,0,0,10"/>
+                                <CheckBox Content="通知ダイアログを最前面に表示" IsChecked="{Binding TopmostNotification, Mode=TwoWay}" 
+                                          Margin="0,0,0,10"/>
                                 <CheckBox Content="システムトレイに最小化" IsChecked="{Binding MinimizeToTray, Mode=TwoWay}" 
                                           Margin="0,0,0,10"/>
                                 <CheckBox Content="自動的に次のセッションを開始" IsChecked="{Binding AutoStartNextSession, Mode=TwoWay}"

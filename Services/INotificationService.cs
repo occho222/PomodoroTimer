@@ -13,7 +13,8 @@ namespace PomodoroTimer.Services
         /// </summary>
         /// <param name="title">通知のタイトル</param>
         /// <param name="message">通知のメッセージ</param>
-        void ShowDesktopNotification(string title, string message);
+        /// <param name="topmost">最前面に表示するかどうか</param>
+        void ShowDesktopNotification(string title, string message, bool topmost = false);
 
         /// <summary>
         /// 音声通知を再生する
@@ -62,7 +63,7 @@ namespace PomodoroTimer.Services
             _enableDesktopNotification = enableDesktop;
         }
 
-        public void ShowDesktopNotification(string title, string message)
+        public void ShowDesktopNotification(string title, string message, bool topmost = false)
         {
             if (!_enableDesktopNotification) return;
 
@@ -71,8 +72,59 @@ namespace PomodoroTimer.Services
                 // WPF MessageBox を使用（将来的にはToast通知に変更可能）
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
-                    System.Windows.MessageBox.Show(message, title, 
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (topmost)
+                    {
+                        // 最前面表示用のカスタムダイアログを作成
+                        var dialog = new Window
+                        {
+                            Title = title,
+                            Width = 400,
+                            Height = 150,
+                            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                            ResizeMode = ResizeMode.NoResize,
+                            Topmost = true,
+                            ShowInTaskbar = false,
+                            WindowStyle = WindowStyle.ToolWindow
+                        };
+
+                        var textBlock = new System.Windows.Controls.TextBlock
+                        {
+                            Text = message,
+                            TextWrapping = TextWrapping.Wrap,
+                            Margin = new Thickness(20),
+                            VerticalAlignment = VerticalAlignment.Center,
+                            HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                            FontSize = 14
+                        };
+
+                        var button = new System.Windows.Controls.Button
+                        {
+                            Content = "OK",
+                            Width = 80,
+                            Height = 30,
+                            Margin = new Thickness(0, 10, 0, 0),
+                            HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+                        };
+
+                        button.Click += (s, e) => dialog.Close();
+
+                        var stackPanel = new System.Windows.Controls.StackPanel
+                        {
+                            Orientation = System.Windows.Controls.Orientation.Vertical,
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+
+                        stackPanel.Children.Add(textBlock);
+                        stackPanel.Children.Add(button);
+                        dialog.Content = stackPanel;
+
+                        dialog.ShowDialog();
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show(message, title, 
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                 });
             }
             catch
