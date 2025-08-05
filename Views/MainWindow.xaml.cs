@@ -68,9 +68,13 @@ namespace PomodoroTimer.Views
                     cvs.Filter += TodoTasksGrouped_Filter;
                 }
 
-                // GroupCollapseVisibilityConverterに関数を設定
+                // GroupCollapseVisibilityConverterに関数を設定（Todo用）
                 PomodoroTimer.Converters.GroupCollapseVisibilityConverter.IsGroupCollapsed = 
-                    (category) => collapsedGroups.Contains(category);
+                    (category) => collapsedTodoGroups.Contains(category);
+                
+                // WaitingGroupCollapseVisibilityConverterに関数を設定（Waiting用）
+                PomodoroTimer.Converters.WaitingGroupCollapseVisibilityConverter.IsWaitingGroupCollapsed = 
+                    (category) => collapsedWaitingGroups.Contains(category);
 
                 // ホットキーの登録
                 RegisterHotKeys();
@@ -693,8 +697,9 @@ namespace PomodoroTimer.Views
             }
         }
 
-        // 折りたたまれたグループを管理
-        private readonly HashSet<string> collapsedGroups = new();
+        // 折りたたまれたグループを管理（未開始用と待機用で分離）
+        private readonly HashSet<string> collapsedTodoGroups = new();
+        private readonly HashSet<string> collapsedWaitingGroups = new();
 
         /// <summary>
         /// プロジェクトグループの展開・折りたたみを切り替える
@@ -708,16 +713,16 @@ namespace PomodoroTimer.Views
                     var normalizedCategory = string.IsNullOrWhiteSpace(categoryName) ? "その他" : categoryName;
                     
                     // 折りたたみ状態を切り替え
-                    if (collapsedGroups.Contains(normalizedCategory))
+                    if (collapsedTodoGroups.Contains(normalizedCategory))
                     {
                         // 展開
-                        collapsedGroups.Remove(normalizedCategory);
+                        collapsedTodoGroups.Remove(normalizedCategory);
                         button.Content = "▼";
                     }
                     else
                     {
                         // 折りたたみ
-                        collapsedGroups.Add(normalizedCategory);
+                        collapsedTodoGroups.Add(normalizedCategory);
                         button.Content = "▶";
                     }
                     
@@ -732,6 +737,45 @@ namespace PomodoroTimer.Views
             catch (Exception ex)
             {
                 Console.WriteLine($"プロジェクトグループ切り替えでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// プロジェクトグループの展開・折りたたみを切り替える（待機ボード用）
+        /// </summary>
+        private void WaitingGroupExpandCollapse_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is System.Windows.Controls.Button button && button.Tag is string categoryName)
+                {
+                    var normalizedCategory = string.IsNullOrWhiteSpace(categoryName) ? "その他" : categoryName;
+                    
+                    // 折りたたみ状態を切り替え
+                    if (collapsedWaitingGroups.Contains(normalizedCategory))
+                    {
+                        // 展開
+                        collapsedWaitingGroups.Remove(normalizedCategory);
+                        button.Content = "▼";
+                    }
+                    else
+                    {
+                        // 折りたたみ
+                        collapsedWaitingGroups.Add(normalizedCategory);
+                        button.Content = "▶";
+                    }
+                    
+                    // CollectionViewSourceを更新してVisibilityConverterを再評価
+                    var cvs = (System.Windows.Data.CollectionViewSource)FindResource("WaitingTasksGroupedSource");
+                    if (cvs?.View != null)
+                    {
+                        cvs.View.Refresh();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"待機グループ展開・折りたたみでエラー: {ex.Message}");
             }
         }
 

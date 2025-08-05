@@ -845,6 +845,46 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// カテゴリー別待機タスク追加コマンド
+        /// </summary>
+        [RelayCommand]
+        private void AddWaitingTaskToCategory(string category)
+        {
+            try
+            {
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, null, _settings);
+                
+                // カテゴリーを事前設定
+                if (!string.IsNullOrEmpty(category))
+                {
+                    viewModel.TaskCategory = category;
+                }
+                
+                var dialog = new Views.TaskDetailDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    // 新しく作成されたタスクを探して待機中状態に変更
+                    var latestTask = Tasks.OrderByDescending(t => t.CreatedAt).FirstOrDefault();
+                    if (latestTask != null && latestTask.Status == TaskStatus.Todo && latestTask.Category == category)
+                    {
+                        latestTask.Status = TaskStatus.Waiting;
+                        _pomodoroService.UpdateTask(latestTask);
+                    }
+                    
+                    RefreshUI(); // カンバンボードも更新
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowError("待機タスクの追加中にエラーが発生しました", ex);
+            }
+        }
+
+        /// <summary>
         /// タスク編集コマンド
         /// </summary>
         /// <param name="task">編集するタスク</param>
