@@ -21,6 +21,7 @@ namespace PomodoroTimer.Views
         private readonly DispatcherTimer _uiUpdateTimer;
         private MainWindow _mainWindow;
         private bool _isForceClosing = false;
+        private bool _isMinimized = false;
 
         public FocusModeWindow(IPomodoroService pomodoroService, ITimerService timerService, MainViewModel mainViewModel, MainWindow mainWindow)
         {
@@ -43,14 +44,20 @@ namespace PomodoroTimer.Views
             _uiUpdateTimer.Tick += UpdateUI;
             _uiUpdateTimer.Start();
 
-            // ウィンドウの位置を右下に設定
-            SetWindowPosition();
-
             // 設定に応じて常に前面表示を設定
             UpdateAlwaysOnTop();
 
             // イベント購読
             SubscribeToEvents();
+            
+            // ウィンドウの位置設定はLoaded後に実行
+            Loaded += OnWindowLoaded;
+        }
+
+        private void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            // ウィンドウの位置を右下に設定
+            SetWindowPosition();
         }
 
         private void InitializeUI()
@@ -64,8 +71,17 @@ namespace PomodoroTimer.Views
         {
             // 画面の右下に配置
             var workArea = SystemParameters.WorkArea;
-            Left = workArea.Right - Width - 20;
-            Top = workArea.Bottom - Height - 20;
+            
+            // ウィンドウがまだレンダリングされていない場合は設計時のサイズを使用
+            double windowWidth = ActualWidth > 0 ? ActualWidth : Width;
+            double windowHeight = ActualHeight > 0 ? ActualHeight : Height;
+            
+            Left = workArea.Right - windowWidth - 20;
+            Top = workArea.Bottom - windowHeight - 20;
+            
+            // 画面内に収まるよう調整
+            if (Left < 0) Left = 20;
+            if (Top < 0) Top = 20;
         }
 
         private void UpdateAlwaysOnTop()
@@ -350,6 +366,53 @@ namespace PomodoroTimer.Views
                 System.Windows.MessageBox.Show($"タスク実行処理でエラーが発生しました: {ex.Message}", "エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void MinimizeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            _isMinimized = MinimizeToggle.IsChecked == true;
+            ToggleMinimizedView();
+        }
+
+        private void ToggleMinimizedView()
+        {
+            if (_isMinimized)
+            {
+                // ミニマイズモード：タイマーのみ表示
+                MainContent.Visibility = Visibility.Collapsed;
+                FooterContent.Visibility = Visibility.Collapsed;
+                MinimizedContent.Visibility = Visibility.Visible;
+                
+                // ウィンドウサイズを調整
+                Height = 200;
+                Width = 320;
+                MinHeight = 180;
+                MinWidth = 280;
+                
+                // ボタンのアイコンを変更
+                MinimizeToggle.Content = "🔼";
+                MinimizeToggle.ToolTip = "カード表示に戻す";
+            }
+            else
+            {
+                // 通常モード：カード全体表示
+                MainContent.Visibility = Visibility.Visible;
+                FooterContent.Visibility = Visibility.Visible;
+                MinimizedContent.Visibility = Visibility.Collapsed;
+                
+                // ウィンドウサイズを元に戻す
+                Height = 700;
+                Width = 480;
+                MinHeight = 400;
+                MinWidth = 320;
+                
+                // ボタンのアイコンを変更
+                MinimizeToggle.Content = "🔽";
+                MinimizeToggle.ToolTip = "タイマーのみ表示";
+            }
+            
+            // ウィンドウを画面内に再配置（レイアウト更新後）
+            Dispatcher.BeginInvoke(new Action(() => SetWindowPosition()), DispatcherPriority.Loaded);
         }
 
         private void AlwaysOnTopToggle_Click(object sender, RoutedEventArgs e)

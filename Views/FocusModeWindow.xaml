@@ -104,6 +104,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0"
@@ -114,6 +115,14 @@
                            VerticalAlignment="Center"/>
 
                 <ToggleButton Grid.Column="1"
+                              x:Name="MinimizeToggle"
+                              Content="🔽"
+                              Style="{StaticResource ToggleButtonStyle}"
+                              ToolTip="タイマーのみ表示"
+                              Margin="0,0,4,0"
+                              Click="MinimizeToggle_Click"/>
+
+                <ToggleButton Grid.Column="2"
                               x:Name="AlwaysOnTopToggle"
                               Content="📌"
                               Style="{StaticResource ToggleButtonStyle}"
@@ -121,7 +130,7 @@
                               Margin="0,0,8,0"
                               Click="AlwaysOnTopToggle_Click"/>
 
-                <Button Grid.Column="2"
+                <Button Grid.Column="3"
                         x:Name="CloseButton"
                         Content="✕"
                         Width="24"
@@ -149,7 +158,7 @@
             </Grid>
 
             <!-- メインコンテンツ（実行中タスクカード） -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" x:Name="MainContent">
                 <Border Background="#FFFBF0" CornerRadius="12" BorderBrush="#F59E0B" BorderThickness="2" Padding="15"
                         Visibility="{Binding CurrentTask, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Grid>
@@ -411,8 +420,22 @@
                 </Border>
             </ScrollViewer>
 
+            <!-- ミニマイズモード：タイマーのみ表示 -->
+            <Grid Grid.Row="1" x:Name="MinimizedContent" Visibility="Collapsed">
+                <Border Background="#F59E0B" CornerRadius="12" Padding="20,15" Margin="0,50,0,50"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="🍅" FontSize="24" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="{Binding SessionTypeText}" FontSize="16" FontWeight="SemiBold" 
+                                   Foreground="White" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock x:Name="MinimizedTimerText" Text="{Binding TimeRemaining}" FontSize="28" FontWeight="Bold" 
+                                   Foreground="White" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
             <!-- フッター -->
-            <Grid Grid.Row="2" Margin="0,12,0,0">
+            <Grid Grid.Row="2" Margin="0,12,0,0" x:Name="FooterContent">
                 <Button x:Name="BackToMainButton"
                         Content="メイン画面に戻る"
                         Style="{StaticResource ModernButton}"
