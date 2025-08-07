@@ -89,7 +89,7 @@
             BorderBrush="#E5E7EB"
             BorderThickness="1">
 
-        <Grid Margin="16">
+        <Grid Margin="12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -422,13 +422,13 @@
 
             <!-- ミニマイズモード：タイマーのみ表示 -->
             <Grid Grid.Row="1" x:Name="MinimizedContent" Visibility="Collapsed">
-                <Border Background="#F59E0B" CornerRadius="12" Padding="20,15" Margin="0,50,0,50"
+                <Border Background="#F59E0B" CornerRadius="8" Padding="12,8" Margin="0,10,0,10"
                         HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="🍅" FontSize="24" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding SessionTypeText}" FontSize="16" FontWeight="SemiBold" 
-                                   Foreground="White" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                        <TextBlock x:Name="MinimizedTimerText" Text="{Binding TimeRemaining}" FontSize="28" FontWeight="Bold" 
+                        <TextBlock Text="🍅" FontSize="20" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding SessionTypeText}" FontSize="14" FontWeight="SemiBold" 
+                                   Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="MinimizedTimerText" Text="{Binding TimeRemaining}" FontSize="24" FontWeight="Bold" 
                                    Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>

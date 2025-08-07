@@ -384,10 +384,10 @@ namespace PomodoroTimer.Views
                 MinimizedContent.Visibility = Visibility.Visible;
                 
                 // ウィンドウサイズを調整
-                Height = 200;
-                Width = 320;
-                MinHeight = 180;
-                MinWidth = 280;
+                Height = 120;
+                Width = 280;
+                MinHeight = 100;
+                MinWidth = 240;
                 
                 // ボタンのアイコンを変更
                 MinimizeToggle.Content = "🔼";
