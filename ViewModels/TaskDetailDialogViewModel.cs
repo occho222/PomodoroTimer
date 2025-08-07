@@ -164,6 +164,22 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// タスクの初期状態を設定
+        /// </summary>
+        /// <param name="status">設定する状態</param>
+        public void SetInitialStatus(TaskStatus status)
+        {
+            _originalTask.Status = status;
+            SelectedStatusDisplay = AvailableStatuses.FirstOrDefault(s => s.Status == status);
+            
+            // 完了状態の場合は完了日時も設定
+            if (status == TaskStatus.Completed)
+            {
+                _originalTask.CompletedAt = DateTime.Now;
+            }
+        }
+
+        /// <summary>
         /// ダイアログサイズが変更されたときの処理
         /// </summary>
         public void OnSizeChanged(double width, double height)

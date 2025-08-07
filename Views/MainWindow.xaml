@@ -19,6 +19,7 @@
         <converters:MinutesToTimeFormatConverter x:Key="MinutesToTimeFormatConverter"/>
         <converters:GroupCollapseVisibilityConverter x:Key="GroupCollapseVisibilityConverter"/>
         <converters:WaitingGroupCollapseVisibilityConverter x:Key="WaitingGroupCollapseVisibilityConverter"/>
+        <converters:CompletedGroupCollapseVisibilityConverter x:Key="CompletedGroupCollapseVisibilityConverter"/>
         
         <!-- TodoTasks用のCollectionViewSource -->
         <CollectionViewSource x:Key="TodoTasksGroupedSource" Source="{Binding TodoTasks}">
@@ -29,6 +30,13 @@
         
         <!-- WaitingTasks用のCollectionViewSource -->
         <CollectionViewSource x:Key="WaitingTasksGroupedSource" Source="{Binding WaitingTasks}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="Category"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+        
+        <!-- CompletedTasks用のCollectionViewSource -->
+        <CollectionViewSource x:Key="CompletedTasksGroupedSource" Source="{Binding FilteredDoneTasksCollection}">
             <CollectionViewSource.GroupDescriptions>
                 <PropertyGroupDescription PropertyName="Category"/>
             </CollectionViewSource.GroupDescriptions>
@@ -1647,7 +1655,95 @@
 
                     <!-- タスクリスト -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
-                        <ItemsControl ItemsSource="{Binding FilteredDoneTasksCollection}">
+                        <ItemsControl ItemsSource="{Binding Source={StaticResource CompletedTasksGroupedSource}}">
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <Border Background="#D1FAE5" CornerRadius="6" Margin="0,4,0,2" Padding="8,4">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        
+                                                        <Button Grid.Column="0" x:Name="ExpandCollapseButton"
+                                                                Content="▼" FontSize="12" FontWeight="Bold"
+                                                                Background="Transparent" BorderThickness="0"
+                                                                Width="20" Height="20" Padding="0"
+                                                                Click="CompletedGroupExpandCollapse_Click"
+                                                                Tag="{Binding Name}"
+                                                                Cursor="Hand">
+                                                        </Button>
+                                                        
+                                                        <TextBlock Grid.Column="1" 
+                                                                   Text="{Binding Name}" 
+                                                                   FontSize="11" FontWeight="SemiBold" 
+                                                                   Foreground="#065F46" VerticalAlignment="Center"/>
+                                                        
+                                                        <TextBlock Grid.Column="2" 
+                                                                   Text="{Binding ItemCount, StringFormat={}({0})}" 
+                                                                   FontSize="10" Foreground="#059669" 
+                                                                   VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        
+                                                        <!-- カテゴリー別タスク追加ボタン -->
+                                                        <Button Grid.Column="3" 
+                                                                Content="+" FontSize="12" FontWeight="Bold"
+                                                                Background="#10B981" Foreground="White"
+                                                                BorderThickness="0"
+                                                                Width="18" Height="18" Padding="0"
+                                                                ToolTip="{Binding Name, StringFormat={}「{0}」カテゴリーに完了タスクを追加}"
+                                                                Command="{Binding DataContext.AddCompletedTaskToCategoryCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding Name}">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}" 
+                                                                                        CornerRadius="9"
+                                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                                                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                                                                      VerticalAlignment="Center"/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#059669"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                    </Grid>
+                                                </Border>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                    <GroupStyle.ContainerStyle>
+                                        <Style TargetType="GroupItem">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="GroupItem">
+                                                        <StackPanel>
+                                                            <ContentPresenter Content="{TemplateBinding ContentControl.Content}" 
+                                                                              ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" 
+                                                                              ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}" />
+                                                            <ItemsPresenter Visibility="{Binding Name, Converter={StaticResource CompletedGroupCollapseVisibilityConverter}}" />
+                                                        </StackPanel>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </GroupStyle.ContainerStyle>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Style="{StaticResource KanbanTaskCard}" Margin="0,0,0,8" BorderBrush="#10B981" Opacity="0.8"

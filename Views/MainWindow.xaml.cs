@@ -75,6 +75,10 @@ namespace PomodoroTimer.Views
                 // WaitingGroupCollapseVisibilityConverterに関数を設定（Waiting用）
                 PomodoroTimer.Converters.WaitingGroupCollapseVisibilityConverter.IsWaitingGroupCollapsed = 
                     (category) => collapsedWaitingGroups.Contains(category);
+                
+                // CompletedGroupCollapseVisibilityConverterに関数を設定（Completed用）
+                PomodoroTimer.Converters.CompletedGroupCollapseVisibilityConverter.IsCompletedGroupCollapsed = 
+                    (category) => collapsedCompletedGroups.Contains(category);
 
                 // ホットキーの登録
                 RegisterHotKeys();
@@ -697,9 +701,10 @@ namespace PomodoroTimer.Views
             }
         }
 
-        // 折りたたまれたグループを管理（未開始用と待機用で分離）
+        // 折りたたまれたグループを管理（未開始用と待機用と完了用で分離）
         private readonly HashSet<string> collapsedTodoGroups = new();
         private readonly HashSet<string> collapsedWaitingGroups = new();
+        private readonly HashSet<string> collapsedCompletedGroups = new();
 
         /// <summary>
         /// プロジェクトグループの展開・折りたたみを切り替える
@@ -776,6 +781,45 @@ namespace PomodoroTimer.Views
             catch (Exception ex)
             {
                 Console.WriteLine($"待機グループ展開・折りたたみでエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// プロジェクトグループの展開・折りたたみを切り替える（完了ボード用）
+        /// </summary>
+        private void CompletedGroupExpandCollapse_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is System.Windows.Controls.Button button && button.Tag is string categoryName)
+                {
+                    var normalizedCategory = string.IsNullOrWhiteSpace(categoryName) ? "その他" : categoryName;
+                    
+                    // 折りたたみ状態を切り替え
+                    if (collapsedCompletedGroups.Contains(normalizedCategory))
+                    {
+                        // 展開
+                        collapsedCompletedGroups.Remove(normalizedCategory);
+                        button.Content = "▼";
+                    }
+                    else
+                    {
+                        // 折りたたみ
+                        collapsedCompletedGroups.Add(normalizedCategory);
+                        button.Content = "▶";
+                    }
+                    
+                    // CollectionViewSourceを更新してVisibilityConverterを再評価
+                    var cvs = (System.Windows.Data.CollectionViewSource)FindResource("CompletedTasksGroupedSource");
+                    if (cvs?.View != null)
+                    {
+                        cvs.View.Refresh();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"完了グループ展開・折りたたみでエラー: {ex.Message}");
             }
         }
 

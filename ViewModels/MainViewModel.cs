@@ -854,11 +854,12 @@ namespace PomodoroTimer.ViewModels
             {
                 var viewModel = new TaskDetailDialogViewModel(_pomodoroService, null, _settings);
                 
-                // カテゴリーを事前設定
+                // カテゴリーと状態を事前設定
                 if (!string.IsNullOrEmpty(category))
                 {
                     viewModel.TaskCategory = category;
                 }
+                viewModel.SetInitialStatus(TaskStatus.Waiting);
                 
                 var dialog = new Views.TaskDetailDialog(viewModel)
                 {
@@ -867,20 +868,45 @@ namespace PomodoroTimer.ViewModels
 
                 if (dialog.ShowDialog() == true)
                 {
-                    // 新しく作成されたタスクを探して待機中状態に変更
-                    var latestTask = Tasks.OrderByDescending(t => t.CreatedAt).FirstOrDefault();
-                    if (latestTask != null && latestTask.Status == TaskStatus.Todo && latestTask.Category == category)
-                    {
-                        latestTask.Status = TaskStatus.Waiting;
-                        _pomodoroService.UpdateTask(latestTask);
-                    }
-                    
                     RefreshUI(); // カンバンボードも更新
                 }
             }
             catch (Exception ex)
             {
                 ErrorHandler.ShowError("待機タスクの追加中にエラーが発生しました", ex);
+            }
+        }
+
+        /// <summary>
+        /// カテゴリー別完了タスク追加コマンド
+        /// </summary>
+        [RelayCommand]
+        private void AddCompletedTaskToCategory(string category)
+        {
+            try
+            {
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, null, _settings);
+                
+                // カテゴリーと状態を事前設定
+                if (!string.IsNullOrEmpty(category))
+                {
+                    viewModel.TaskCategory = category;
+                }
+                viewModel.SetInitialStatus(TaskStatus.Completed);
+                
+                var dialog = new Views.TaskDetailDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    RefreshUI(); // カンバンボードも更新
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowError("完了タスクの追加中にエラーが発生しました", ex);
             }
         }
 
