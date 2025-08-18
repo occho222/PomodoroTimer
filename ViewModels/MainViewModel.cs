@@ -3296,5 +3296,89 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
+        /// <summary>
+        /// 未開始タスク追加コマンド
+        /// </summary>
+        [RelayCommand]
+        private void AddTodoTask()
+        {
+            try
+            {
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, null, _settings);
+                viewModel.SetInitialStatus(TaskStatus.Todo);
+                var dialog = new Views.TaskDetailDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+                
+                if (dialog.ShowDialog() == true)
+                {
+                    RefreshUI();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"タスクの追加に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// 待機中タスク追加コマンド
+        /// </summary>
+        [RelayCommand]
+        private void AddWaitingTask()
+        {
+            try
+            {
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, null, _settings);
+                viewModel.SetInitialStatus(TaskStatus.Waiting);
+                var dialog = new Views.TaskDetailDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+                
+                if (dialog.ShowDialog() == true)
+                {
+                    RefreshUI();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"タスクの追加に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// 実行中タスク追加コマンド
+        /// </summary>
+        [RelayCommand]
+        private void AddExecutingTask()
+        {
+            try
+            {
+                var viewModel = new TaskDetailDialogViewModel(_pomodoroService, null, _settings);
+                viewModel.SetInitialStatus(TaskStatus.Executing);
+                var dialog = new Views.TaskDetailDialog(viewModel)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+                
+                if (dialog.ShowDialog() == true)
+                {
+                    // 実行中タスクとして設定するため、最新のタスクリストから実行中タスクを取得
+                    var executingTask = Tasks.FirstOrDefault(t => t.Status == TaskStatus.Executing && CurrentTask == null);
+                    if (executingTask != null)
+                    {
+                        CurrentTask = executingTask;
+                    }
+                    RefreshUI();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"タスクの追加に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
     }
 }

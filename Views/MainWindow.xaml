@@ -716,19 +716,35 @@
 
                     <!-- 列ヘッダー -->
                     <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="12,12,0,0" Padding="20,15">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="#94A3B8" VerticalAlignment="Center"/>
-                                <TextBlock Text="未開始" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
-                                           Foreground="{StaticResource TextLight}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="12" Height="12" Fill="#94A3B8" VerticalAlignment="Center"/>
+                                    <TextBlock Text="未開始" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
+                                               Foreground="{StaticResource TextLight}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding TodoTasks.Count, StringFormat={}タスク数: {0}}" 
+                                               FontSize="12" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding TodoTasksEstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}（見積: {0}）}" 
+                                               FontSize="12" Foreground="#6B7280" Margin="8,0,0,0"/>
+                                </StackPanel>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                <TextBlock Text="{Binding TodoTasks.Count, StringFormat={}タスク数: {0}}" 
-                                           FontSize="12" Foreground="Gray"/>
-                                <TextBlock Text="{Binding TodoTasksEstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}（見積: {0}）}" 
-                                           FontSize="12" Foreground="#6B7280" Margin="8,0,0,0"/>
-                            </StackPanel>
-                        </StackPanel>
+                            
+                            <!-- タスク追加ボタン -->
+                            <Button Grid.Column="1" Content="+" FontSize="16" FontWeight="Bold"
+                                    Background="#94A3B8" Foreground="White"
+                                    BorderThickness="0"
+                                    Width="28" Height="28" Padding="0"
+                                    ToolTip="未開始タスクを追加"
+                                    Command="{Binding AddTodoTaskCommand}"
+                                    VerticalAlignment="Top" HorizontalAlignment="Right"/>
+                        </Grid>
                     </Border>
 
                     <!-- タスクリスト -->
@@ -889,19 +905,35 @@
 
                     <!-- 列ヘッダー -->
                     <Border Grid.Row="0" Background="#EBF8FF" CornerRadius="12,12,0,0" Padding="20,15">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="#3B82F6" VerticalAlignment="Center"/>
-                                <TextBlock Text="待機中" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
-                                           Foreground="{StaticResource TextLight}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="12" Height="12" Fill="#3B82F6" VerticalAlignment="Center"/>
+                                    <TextBlock Text="待機中" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
+                                               Foreground="{StaticResource TextLight}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding WaitingTasks.Count, StringFormat={}タスク数: {0}}" 
+                                               FontSize="12" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding WaitingTasksEstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}（見積: {0}）}" 
+                                               FontSize="12" Foreground="#6B7280" Margin="8,0,0,0"/>
+                                </StackPanel>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                <TextBlock Text="{Binding WaitingTasks.Count, StringFormat={}タスク数: {0}}" 
-                                           FontSize="12" Foreground="Gray"/>
-                                <TextBlock Text="{Binding WaitingTasksEstimatedMinutes, Converter={StaticResource MinutesToTimeFormatConverter}, StringFormat={}（見積: {0}）}" 
-                                           FontSize="12" Foreground="#6B7280" Margin="8,0,0,0"/>
-                            </StackPanel>
-                        </StackPanel>
+                            
+                            <!-- タスク追加ボタン -->
+                            <Button Grid.Column="1" Content="+" FontSize="16" FontWeight="Bold"
+                                    Background="#3B82F6" Foreground="White"
+                                    BorderThickness="0"
+                                    Width="28" Height="28" Padding="0"
+                                    ToolTip="待機中タスクを追加"
+                                    Command="{Binding AddWaitingTaskCommand}"
+                                    VerticalAlignment="Top" HorizontalAlignment="Right"/>
+                        </Grid>
                     </Border>
 
                     <!-- タスクリスト -->
@@ -1241,15 +1273,42 @@
 
                     <!-- 列ヘッダー -->
                     <Border Grid.Row="0" Background="#FEF3C7" CornerRadius="12,12,0,0" Padding="20,15">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="#F59E0B" VerticalAlignment="Center"/>
-                                <TextBlock Text="実行中" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
-                                           Foreground="{StaticResource TextLight}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="12" Height="12" Fill="#F59E0B" VerticalAlignment="Center"/>
+                                    <TextBlock Text="実行中" FontSize="16" FontWeight="Bold" Margin="8,0,0,0" 
+                                               Foreground="{StaticResource TextLight}"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding CurrentTask.Title, FallbackValue=待機中}" 
+                                           FontSize="12" Foreground="Gray" Margin="0,4,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
-                            <TextBlock Text="{Binding CurrentTask.Title, FallbackValue=待機中}" 
-                                       FontSize="12" Foreground="Gray" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                        </StackPanel>
+                            
+                            <!-- タスク追加ボタン（実行中タスクがない時のみ表示） -->
+                            <Button Grid.Column="1" Content="+" FontSize="16" FontWeight="Bold"
+                                    Background="#F59E0B" Foreground="White"
+                                    BorderThickness="0"
+                                    Width="28" Height="28" Padding="0"
+                                    ToolTip="実行中タスクを追加"
+                                    Command="{Binding AddExecutingTaskCommand}"
+                                    VerticalAlignment="Top" HorizontalAlignment="Right">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentTask}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
                     </Border>
 
                     <!-- 実行中タスク詳細カード -->

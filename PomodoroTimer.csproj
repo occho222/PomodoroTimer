@@ -7,9 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>1.5.23</Version>
-    <AssemblyVersion>1.5.23.0</AssemblyVersion>
-    <FileVersion>1.5.23.0</FileVersion>
+    <Version>1.5.24</Version>
+    <AssemblyVersion>1.5.24.0</AssemblyVersion>
+    <FileVersion>1.5.24.0</FileVersion>
     <AssemblyName>Pomoban</AssemblyName>
     <Product>Pomoban</Product>
     <Description>効率的なタスク管理とポモドーロテクニックを組み合わせたタイマーアプリケーション</Description>
