@@ -195,29 +195,66 @@
                                 <Button Content="⏸" x:Name="PlayPauseButton" ToolTip="一時停止/再開"
                                         Click="PlayPauseButton_Click"
                                         Style="{StaticResource ModernButton}" 
-                                        Width="36" Height="32" FontSize="12" Margin="3,0"/>
+                                        Width="36" Height="32" FontSize="12" Margin="2,0"/>
                                 <Button Content="⏹" x:Name="StopButton" ToolTip="停止"
                                         Click="StopButton_Click"
                                         Style="{StaticResource ModernButton}"
                                         Background="#EF4444" 
-                                        Width="36" Height="32" FontSize="12" Margin="3,0"/>
+                                        Width="36" Height="32" FontSize="12" Margin="2,0"/>
+                                <Button Content="⏭" x:Name="SkipButton" ToolTip="スキップ"
+                                        Click="SkipButton_Click"
+                                        Style="{StaticResource ModernButton}"
+                                        Background="#F59E0B" 
+                                        Width="36" Height="32" FontSize="12" Margin="2,0"/>
                                 <Button Content="✓" x:Name="CompleteButton" ToolTip="タスク完了"
                                         Click="CompleteButton_Click"
                                         Style="{StaticResource ModernButton}"
                                         Background="#10B981" 
-                                        Width="36" Height="32" FontSize="12" Margin="3,0"/>
+                                        Width="36" Height="32" FontSize="12" Margin="2,0"/>
                             </StackPanel>
                         </Grid>
                         
                         <!-- セッション情報 -->
                         <Border Grid.Row="1" Background="#F59E0B" CornerRadius="8" Margin="0,12,0,0" Padding="15,12">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock Text="🍅" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding SessionTypeText}" FontSize="14" FontWeight="SemiBold" 
-                                           Foreground="White" VerticalAlignment="Center"/>
-                                <TextBlock x:Name="TimerText" Text="{Binding TimeRemaining}" FontSize="22" FontWeight="Bold" 
-                                           Foreground="White" VerticalAlignment="Center" Margin="12,0,0,0"/>
-                            </StackPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <!-- タイマー表示 -->
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="🍅" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding SessionTypeText}" FontSize="14" FontWeight="SemiBold" 
+                                               Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TimerText" Text="{Binding TimeRemaining}" FontSize="22" FontWeight="Bold" 
+                                               Foreground="White" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                </StackPanel>
+                                
+                                <!-- 時間調整ボタン -->
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                    <Button Content="+1分" x:Name="AddMinuteButton" ToolTip="1分追加"
+                                            Click="AddMinuteButton_Click"
+                                            Style="{StaticResource ModernButton}"
+                                            Background="#10B981" 
+                                            FontSize="10" Width="32" Height="24" Margin="2,0"/>
+                                    <Button Content="+10秒" x:Name="AddTenSecondsButton" ToolTip="10秒追加"
+                                            Click="AddTenSecondsButton_Click"
+                                            Style="{StaticResource ModernButton}"
+                                            Background="#059669" 
+                                            FontSize="10" Width="36" Height="24" Margin="2,0"/>
+                                    <Button Content="-1分" x:Name="SubtractMinuteButton" ToolTip="1分減らす"
+                                            Click="SubtractMinuteButton_Click"
+                                            Style="{StaticResource ModernButton}"
+                                            Background="#EF4444" 
+                                            FontSize="10" Width="32" Height="24" Margin="2,0"/>
+                                    <Button Content="-10秒" x:Name="SubtractTenSecondsButton" ToolTip="10秒減らす"
+                                            Click="SubtractTenSecondsButton_Click"
+                                            Style="{StaticResource ModernButton}"
+                                            Background="#DC2626" 
+                                            FontSize="10" Width="36" Height="24" Margin="2,0"/>
+                                </StackPanel>
+                            </Grid>
                         </Border>
                         
                         <!-- チェックリスト -->
@@ -436,7 +473,36 @@
 
             <!-- フッター -->
             <Grid Grid.Row="2" Margin="0,12,0,0" x:Name="FooterContent">
-                <Button x:Name="BackToMainButton"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- キーボードショートカットヘルプ -->
+                <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
+                    <StackPanel>
+                        <TextBlock Text="⌨️ ショートカット" FontSize="12" FontWeight="Bold" 
+                                   Foreground="#374151" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Space: ⏸/▶️" FontSize="10" Foreground="#6B7280" Margin="0,1"/>
+                                <TextBlock Text="S: ⏹ 停止" FontSize="10" Foreground="#6B7280" Margin="0,1"/>
+                                <TextBlock Text="N: ⏭ スキップ" FontSize="10" Foreground="#6B7280" Margin="0,1"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="C: ✓ 完了" FontSize="10" Foreground="#6B7280" Margin="0,1"/>
+                                <TextBlock Text="+/-: 時間調整" FontSize="10" Foreground="#6B7280" Margin="0,1"/>
+                                <TextBlock Text="ESC: 閉じる" FontSize="10" Foreground="#6B7280" Margin="0,1"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <Button Grid.Row="1" x:Name="BackToMainButton"
                         Content="メイン画面に戻る"
                         Style="{StaticResource ModernButton}"
                         Background="#6B7280"

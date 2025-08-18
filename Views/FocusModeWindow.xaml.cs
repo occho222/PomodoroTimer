@@ -52,6 +52,9 @@ namespace PomodoroTimer.Views
             
             // ウィンドウの位置設定はLoaded後に実行
             Loaded += OnWindowLoaded;
+            
+            // キーボードショートカットを設定
+            KeyDown += OnKeyDown;
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -194,6 +197,76 @@ namespace PomodoroTimer.Views
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
             _mainViewModel.StopCommand.Execute(null);
+        }
+
+        private void SkipButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.SkipCommand.Execute(null);
+        }
+
+        private void AddMinuteButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.AddOneMinuteCommand.Execute(null);
+        }
+
+        private void AddTenSecondsButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.AddTenSecondsCommand.Execute(null);
+        }
+
+        private void SubtractMinuteButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.SubtractOneMinuteCommand.Execute(null);
+        }
+
+        private void SubtractTenSecondsButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.SubtractTenSecondsCommand.Execute(null);
+        }
+
+        /// <summary>
+        /// キーボードショートカットハンドラー
+        /// </summary>
+        private void OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            try
+            {
+                switch (e.Key)
+                {
+                    case System.Windows.Input.Key.Space: // スペース: 一時停止/再開
+                        PlayPauseButton_Click(this, new RoutedEventArgs());
+                        e.Handled = true;
+                        break;
+                    case System.Windows.Input.Key.S: // S: 停止
+                        StopButton_Click(this, new RoutedEventArgs());
+                        e.Handled = true;
+                        break;
+                    case System.Windows.Input.Key.N: // N: スキップ
+                        SkipButton_Click(this, new RoutedEventArgs());
+                        e.Handled = true;
+                        break;
+                    case System.Windows.Input.Key.C: // C: 完了
+                        CompleteButton_Click(this, new RoutedEventArgs());
+                        e.Handled = true;
+                        break;
+                    case System.Windows.Input.Key.OemPlus: // +: 1分追加
+                        AddMinuteButton_Click(this, new RoutedEventArgs());
+                        e.Handled = true;
+                        break;
+                    case System.Windows.Input.Key.OemMinus: // -: 1分減らす
+                        SubtractMinuteButton_Click(this, new RoutedEventArgs());
+                        e.Handled = true;
+                        break;
+                    case System.Windows.Input.Key.Escape: // ESC: 集中モード終了
+                        BackToMainButton_Click(this, new RoutedEventArgs());
+                        e.Handled = true;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"キーボードショートカット処理でエラー: {ex.Message}");
+            }
         }
 
         private void CompleteButton_Click(object sender, RoutedEventArgs e)

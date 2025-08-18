@@ -230,6 +230,39 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
+        /// 集中モードウィンドウを閉じる（設定変更時）
+        /// </summary>
+        public void CloseFocusMode()
+        {
+            try
+            {
+                Console.WriteLine("[DEBUG] CloseFocusMode called");
+                
+                // 集中モードウィンドウを閉じる
+                if (_focusModeWindow != null && _focusModeWindow.IsVisible)
+                {
+                    _focusModeWindow.Close();
+                    _focusModeWindow = null;
+                }
+
+                // 集中モード表示フラグをリセット
+                _viewModel?.ResetFocusModeShowingFlag();
+
+                // メインウィンドウを表示
+                if (!IsVisible)
+                {
+                    Show();
+                    WindowState = WindowState.Normal;
+                    Activate();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"集中モード終了でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// 集中モードを終了してメイン画面に戻る
         /// </summary>
         public void ExitFocusMode()
