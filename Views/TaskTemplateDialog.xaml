@@ -5,261 +5,451 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:PomodoroTimer.Models"
         mc:Ignorable="d"
-        Title="タスクテンプレート管理" Height="700" Width="900"
+        Title="タスクテンプレート管理" Height="800" Width="1200"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
-        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+        Background="#F8F9FA">
 
     <Window.Resources>
         <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
         </Style>
 
         <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,0,0,3"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#374151"/>
         </Style>
 
         <Style x:Key="InputStyle" TargetType="Control">
-            <Setter Property="Margin" Value="0,0,0,10"/>
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontSize" Value="12"/>
         </Style>
 
-        <Style x:Key="ButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="15,5"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="MinWidth" Value="80"/>
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#3B82F6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2563EB"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#9CA3AF"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
-        <DataTemplate x:Key="TemplateListItemTemplate" DataType="{x:Type models:TaskTemplate}">
-            <Border BorderBrush="LightGray" BorderThickness="1" Margin="2" Padding="8" Background="White" CornerRadius="3">
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#6B7280"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4B5563"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#EF4444"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#DC2626"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#10B981"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#059669"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <DataTemplate x:Key="TemplateCardTemplate" DataType="{x:Type models:TaskTemplate}">
+            <Border BorderBrush="#E5E7EB" BorderThickness="1" Margin="4" Padding="16" 
+                    Background="White" CornerRadius="8">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
-                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-                        <Border Background="{Binding PriorityColor}" CornerRadius="10" Padding="8,2" Margin="0,0,5,0">
-                            <TextBlock Text="{Binding PriorityText}" FontSize="10" Foreground="White"/>
-                        </Border>
-                        <TextBlock Text="{Binding UsageCount, StringFormat='{}使用回数: {0}'}" FontSize="10" Foreground="Gray" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <!-- ヘッダー -->
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="#1F2937"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Border Background="{Binding PriorityColor}" CornerRadius="12" Padding="8,3" Margin="0,0,8,0">
+                                <TextBlock Text="{Binding PriorityText}" FontSize="10" Foreground="White" FontWeight="Medium"/>
+                            </Border>
+                            <Border Background="#F3F4F6" CornerRadius="12" Padding="8,3">
+                                <TextBlock Text="{Binding UsageCount, StringFormat='{}使用: {0}回'}" FontSize="10" Foreground="#6B7280"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding TaskTitle}" FontStyle="Italic" Margin="0,2,0,0"/>
-                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}" FontSize="12" Foreground="Gray" Margin="0,2,0,0"/>
+                    <!-- タスクタイトル -->
+                    <TextBlock Grid.Row="1" Text="{Binding TaskTitle}" FontStyle="Italic" 
+                               FontSize="13" Foreground="#4B5563" Margin="0,0,0,6"/>
                     
-                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,5,0,0">
-                        <TextBlock Text="{Binding Category, StringFormat='{}カテゴリ: {0}'}" FontSize="11" Foreground="DarkBlue" Margin="0,0,15,0"/>
-                        <TextBlock Text="{Binding EstimatedPomodoros, StringFormat='{}ポモドーロ: {0}'}" FontSize="11" Foreground="DarkGreen" Margin="0,0,15,0"/>
-                        <TextBlock Text="{Binding DefaultChecklist.Count, StringFormat='{}チェックリスト: {0}項目'}" FontSize="11" Foreground="Purple" Margin="0,0,15,0"/>
-                        <TextBlock Text="{Binding DefaultLinks.Count, StringFormat='{}リンク: {0}項目'}" FontSize="11" Foreground="DarkCyan" Margin="0,0,15,0"/>
-                        <TextBlock Text="{Binding TagsText, StringFormat='{}タグ: {0}'}" FontSize="11" Foreground="DarkOrange"/>
+                    <!-- 説明 -->
+                    <TextBlock Grid.Row="2" Text="{Binding Description}" FontSize="12" 
+                               Foreground="#6B7280" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                    
+                    <!-- メタデータ -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,8">
+                        <Border Background="#DBEAFE" CornerRadius="6" Padding="6,3" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#1D4ED8" FontWeight="Medium"/>
+                        </Border>
+                        <Border Background="#F3E8FF" CornerRadius="6" Padding="6,3" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding DefaultChecklist.Count, StringFormat='{}📋 {0}'}" 
+                                       FontSize="10" Foreground="#7C3AED" FontWeight="Medium"/>
+                        </Border>
+                        <Border Background="#ECFDF5" CornerRadius="6" Padding="6,3">
+                            <TextBlock Text="{Binding DefaultLinks.Count, StringFormat='{}🔗 {0}'}" 
+                                       FontSize="10" Foreground="#047857" FontWeight="Medium"/>
+                        </Border>
                     </StackPanel>
+                    
+                    <!-- タグ -->
+                    <ItemsControl Grid.Row="4" ItemsSource="{Binding Tags}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#E5E7EB" CornerRadius="10" Padding="6,2" Margin="0,0,4,2">
+                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="#374151"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </Grid>
             </Border>
         </DataTemplate>
     </Window.Resources>
 
-    <Grid Margin="10">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="3*"/>
-        </Grid.ColumnDefinitions>
 
-        <!-- タイトル -->
-        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="タスクテンプレート管理" Style="{StaticResource HeaderTextStyle}" 
-                   FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+        <!-- ヘッダー -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="タスクテンプレート管理" Style="{StaticResource HeaderTextStyle}"/>
+            <TextBlock Text="効率的なタスク管理のためのテンプレートを作成・管理できます" 
+                       FontSize="14" Foreground="#6B7280" Margin="0,0,0,0"/>
+        </StackPanel>
 
         <!-- 検索・フィルター -->
-        <GroupBox Grid.Row="1" Grid.ColumnSpan="2" Header="検索・フィルター" Margin="0,0,0,10">
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <TextBlock Text="検索:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                <TextBox x:Name="SearchTextBox" Width="200" Margin="0,0,15,0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                
-                <TextBlock Text="カテゴリ:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                <ComboBox x:Name="CategoryComboBox" Width="120" Margin="0,0,15,0" 
-                          ItemsSource="{Binding TemplateCategories}" SelectedItem="{Binding SelectedTemplateCategory}"/>
-                
-                <Button Content="クリア" Command="{Binding ClearFiltersCommand}" Style="{StaticResource ButtonStyle}"/>
+        <Border Grid.Row="1" Background="White" CornerRadius="12" Padding="20" Margin="0,0,0,20"
+                BorderBrush="#E5E7EB" BorderThickness="1">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="🔍 検索・フィルター" FontSize="14" FontWeight="SemiBold" 
+                           Foreground="#374151" Margin="0,0,0,12"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="SearchTextBox" Width="250" Margin="0,0,15,0" 
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" 
+                             Tag="テンプレート名で検索..."/>
+                    
+                    <ComboBox x:Name="CategoryComboBox" Width="150" Margin="0,0,15,0" 
+                              ItemsSource="{Binding TemplateCategories}" 
+                              SelectedItem="{Binding SelectedTemplateCategory}"
+                              Style="{StaticResource InputStyle}"/>
+                    
+                    <Button Content="🗑️ クリア" Command="{Binding ClearFiltersCommand}" 
+                            Style="{StaticResource SecondaryButton}"/>
+                </StackPanel>
             </StackPanel>
-        </GroupBox>
+        </Border>
 
-        <!-- テンプレート一覧 -->
-        <GroupBox Grid.Row="2" Grid.Column="0" Header="テンプレート一覧" Margin="0,0,5,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <!-- メインコンテンツ -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
-                    <Button Content="新規作成" Command="{Binding CreateTemplateCommand}" Style="{StaticResource ButtonStyle}"/>
-                    <Button Content="インポート" Command="{Binding ImportTemplatesCommand}" Style="{StaticResource ButtonStyle}"/>
-                    <Button Content="エクスポート" Command="{Binding ExportTemplatesCommand}" Style="{StaticResource ButtonStyle}"/>
-                </StackPanel>
+            <!-- テンプレート一覧 -->
+            <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="20" Margin="0,0,10,0"
+                    BorderBrush="#E5E7EB" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <ListBox Grid.Row="1" x:Name="TemplateListBox" 
-                         ItemsSource="{Binding FilteredTemplates}"
-                         SelectedItem="{Binding SelectedTemplate}"
-                         ItemTemplate="{StaticResource TemplateListItemTemplate}"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                    <TextBlock Grid.Row="0" Text="📋 テンプレート一覧" FontSize="16" FontWeight="SemiBold" 
+                               Foreground="#374151" Margin="0,0,0,16"/>
 
-                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
-                    <Button Content="編集" Command="{Binding EditTemplateCommand}" 
-                            CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"/>
-                    <Button Content="複製" Command="{Binding DuplicateTemplateCommand}" 
-                            CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"/>
-                    <Button Content="削除" Command="{Binding DeleteTemplateCommand}" 
-                            CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"/>
-                </StackPanel>
-            </Grid>
-        </GroupBox>
-
-        <!-- テンプレート詳細/編集 -->
-        <GroupBox Grid.Row="2" Grid.Column="1" Header="テンプレート詳細" Margin="5,0,0,0">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="10" IsEnabled="{Binding IsEditMode}">
-                    <TextBlock Text="テンプレート名:" Style="{StaticResource LabelStyle}"/>
-                    <TextBox Text="{Binding TemplateEditName}" Style="{StaticResource InputStyle}"/>
-
-                    <!-- チェックリスト編集 -->
-                    <TextBlock Text="デフォルトチェックリスト:" Style="{StaticResource LabelStyle}"/>
-                    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" MaxHeight="150" Margin="0,0,0,10">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel Margin="5">
-                                <ItemsControl ItemsSource="{Binding TemplateEditChecklist}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0,2">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" Margin="0,0,5,0"/>
-                                                <TextBox Grid.Column="1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
-                                                        BorderThickness="0" Background="Transparent" Margin="0,0,5,0"/>
-                                                <Button Grid.Column="2" Content="×" Width="20" Height="20" 
-                                                       Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.RemoveChecklistItemCommand}"
-                                                       CommandParameter="{Binding}"
-                                                       Background="#EF4444" Foreground="White" FontSize="10"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <Button Content="+ チェックリストアイテム追加" 
-                                       Command="{Binding AddChecklistItemCommand}" 
-                                       HorizontalAlignment="Left" Margin="0,5,0,0"
-                                       Background="LightBlue" Padding="5,2"/>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
-
-                    <!-- リンク編集 -->
-                    <TextBlock Text="デフォルトリンク:" Style="{StaticResource LabelStyle}"/>
-                    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" MaxHeight="150" Margin="0,0,0,10">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel Margin="5">
-                                <ItemsControl ItemsSource="{Binding TemplateEditLinks}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0,2">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="100"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBox Grid.Column="0" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" 
-                                                        BorderThickness="1" Margin="0,0,5,0" ToolTip="リンクタイトル"/>
-                                                <TextBox Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" 
-                                                        BorderThickness="1" Margin="0,0,5,0" ToolTip="URL"/>
-                                                <Button Grid.Column="2" Content="×" Width="20" Height="20" 
-                                                       Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.RemoveLinkItemCommand}"
-                                                       CommandParameter="{Binding}"
-                                                       Background="#EF4444" Foreground="White" FontSize="10"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <Button Content="+ リンク追加" 
-                                       Command="{Binding AddLinkItemCommand}" 
-                                       HorizontalAlignment="Left" Margin="0,5,0,0"
-                                       Background="LightGreen" Padding="5,2"/>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
-
-                    <TextBlock Text="説明:" Style="{StaticResource LabelStyle}"/>
-                    <TextBox Text="{Binding TemplateEditDescription}" Style="{StaticResource InputStyle}" 
-                             Height="50" TextWrapping="Wrap" AcceptsReturn="True"/>
-
-                    <TextBlock Text="タスクタイトル:" Style="{StaticResource LabelStyle}"/>
-                    <TextBox Text="{Binding TemplateEditTaskTitle}" Style="{StaticResource InputStyle}"/>
-
-                    <TextBlock Text="タスク説明:" Style="{StaticResource LabelStyle}"/>
-                    <TextBox Text="{Binding TemplateEditTaskDescription}" Style="{StaticResource InputStyle}" 
-                             Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
-
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <StackPanel Grid.Column="0" Margin="0,0,5,0">
-                            <TextBlock Text="カテゴリ:" Style="{StaticResource LabelStyle}"/>
-                            <TextBox Text="{Binding TemplateEditCategory}" Style="{StaticResource InputStyle}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1" Margin="5,0,0,0">
-                            <TextBlock Text="予定ポモドーロ数:" Style="{StaticResource LabelStyle}"/>
-                            <TextBox Text="{Binding TemplateEditEstimatedPomodoros}" Style="{StaticResource InputStyle}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="優先度:" Style="{StaticResource LabelStyle}"/>
-                    <ComboBox SelectedItem="{Binding TemplateEditPriority}" Style="{StaticResource InputStyle}">
-                        <ComboBox.Items>
-                            <models:TaskPriority>Low</models:TaskPriority>
-                            <models:TaskPriority>Medium</models:TaskPriority>
-                            <models:TaskPriority>High</models:TaskPriority>
-                            <models:TaskPriority>Urgent</models:TaskPriority>
-                        </ComboBox.Items>
-                    </ComboBox>
-
-                    <TextBlock Text="タグ (カンマ区切り):" Style="{StaticResource LabelStyle}"/>
-                    <TextBox Text="{Binding TemplateEditTagsText}" Style="{StaticResource InputStyle}"/>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Button Content="保存" Command="{Binding SaveTemplateCommand}" Style="{StaticResource ButtonStyle}"/>
-                        <Button Content="キャンセル" Command="{Binding CancelEditCommand}" Style="{StaticResource ButtonStyle}"/>
-                        <Button Content="タスク作成" Command="{Binding CreateTaskFromTemplateCommand}" 
-                                CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"/>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+                        <Button Content="➕ 新規作成" Command="{Binding CreateTemplateCommand}" 
+                                Style="{StaticResource ModernButton}"/>
+                        <Button Content="📥 インポート" Command="{Binding ImportTemplatesCommand}" 
+                                Style="{StaticResource SecondaryButton}"/>
+                        <Button Content="📤 エクスポート" Command="{Binding ExportTemplatesCommand}" 
+                                Style="{StaticResource SecondaryButton}"/>
                     </StackPanel>
-                </StackPanel>
-            </ScrollViewer>
-        </GroupBox>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding FilteredTemplates}"
+                                      x:Name="TemplateItemsControl">
+                            <ItemsControl.Template>
+                                <ControlTemplate>
+                                    <ScrollViewer CanContentScroll="False">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </ControlTemplate>
+                            </ItemsControl.Template>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" 
+                                            CornerRadius="8" Margin="0,0,0,8" Padding="12" Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick" 
+                                                          Command="{Binding DataContext.EditTemplateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          CommandParameter="{Binding}"/>
+                                        </Border.InputBindings>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                                        <Setter Property="Background" Value="#F8FAFC"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
+                                            <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="SemiBold" 
+                                                       FontSize="14" Foreground="#1F2937" Margin="0,0,0,4"/>
+                                            <TextBlock Grid.Row="1" Text="{Binding Description}" FontSize="11" 
+                                                       Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                                <Border Background="#DBEAFE" CornerRadius="4" Padding="4,2" Margin="0,0,4,0">
+                                                    <TextBlock Text="{Binding Category}" FontSize="9" 
+                                                               Foreground="#1D4ED8" FontWeight="Medium"/>
+                                                </Border>
+                                                <Border Background="{Binding PriorityColor}" CornerRadius="4" Padding="4,2">
+                                                    <TextBlock Text="{Binding PriorityText}" FontSize="9" 
+                                                               Foreground="White" FontWeight="Medium"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,16,0,0">
+                        <Button Content="✏️ 編集" Command="{Binding EditTemplateCommand}" 
+                                CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ModernButton}"
+                                IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NotNullToBooleanConverter}}"/>
+                        <Button Content="📋 複製" Command="{Binding DuplicateTemplateCommand}" 
+                                CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource SecondaryButton}"
+                                IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NotNullToBooleanConverter}}"/>
+                        <Button Content="🗑️ 削除" Command="{Binding DeleteTemplateCommand}" 
+                                CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource DangerButton}"
+                                IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NotNullToBooleanConverter}}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- テンプレート詳細/編集 -->
+            <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20" Margin="10,0,0,0"
+                    BorderBrush="#E5E7EB" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05"/>
+                </Border.Effect>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel IsEnabled="{Binding IsEditMode}">
+                        <TextBlock Text="📝 テンプレート詳細" FontSize="16" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,20"/>
+                        
+                        <TextBlock Text="テンプレート名" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding TemplateEditName}" Style="{StaticResource InputStyle}"/>
+
+                        <!-- チェックリスト編集 -->
+                        <TextBlock Text="📋 デフォルトチェックリスト" Style="{StaticResource LabelStyle}"/>
+                        <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" MaxHeight="200" 
+                                Background="#F9FAFB" Margin="0,0,0,15">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                                <StackPanel>
+                                    <ItemsControl ItemsSource="{Binding TemplateEditChecklist}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="White" CornerRadius="6" Padding="8" Margin="0,0,0,6"
+                                                        BorderBrush="#E5E7EB" BorderThickness="1">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" 
+                                                                  Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
+                                                                BorderThickness="0" Background="Transparent" 
+                                                                VerticalAlignment="Center" FontSize="12"/>
+                                                        <Button Grid.Column="2" Content="🗑️" Width="24" Height="24" 
+                                                               Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.RemoveChecklistItemCommand}"
+                                                               CommandParameter="{Binding}"
+                                                               Style="{StaticResource DangerButton}" Padding="4"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button Content="➕ チェックリスト項目を追加" 
+                                           Command="{Binding AddChecklistItemCommand}" 
+                                           Style="{StaticResource SecondaryButton}"
+                                           HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <!-- リンク編集 -->
+                        <TextBlock Text="🔗 デフォルトリンク" Style="{StaticResource LabelStyle}"/>
+                        <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" MaxHeight="200" 
+                                Background="#F9FAFB" Margin="0,0,0,15">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                                <StackPanel>
+                                    <ItemsControl ItemsSource="{Binding TemplateEditLinks}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="White" CornerRadius="6" Padding="8" Margin="0,0,0,6"
+                                                        BorderBrush="#E5E7EB" BorderThickness="1">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBox Grid.Column="0" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" 
+                                                                Margin="0,0,8,0" FontSize="12" ToolTip="リンクタイトル"
+                                                                Style="{StaticResource InputStyle}"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" 
+                                                                Margin="0,0,8,0" FontSize="12" ToolTip="URL"
+                                                                Style="{StaticResource InputStyle}"/>
+                                                        <Button Grid.Column="2" Content="🗑️" Width="24" Height="24" 
+                                                               Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.RemoveLinkItemCommand}"
+                                                               CommandParameter="{Binding}"
+                                                               Style="{StaticResource DangerButton}" Padding="4"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button Content="➕ リンクを追加" 
+                                           Command="{Binding AddLinkItemCommand}" 
+                                           Style="{StaticResource SuccessButton}"
+                                           HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <TextBlock Text="📄 説明" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding TemplateEditDescription}" Style="{StaticResource InputStyle}" 
+                                 Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                                 BorderBrush="#E5E7EB" BorderThickness="1"/>
+
+                        <TextBlock Text="📝 タスクタイトル" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding TemplateEditTaskTitle}" Style="{StaticResource InputStyle}"
+                                 BorderBrush="#E5E7EB" BorderThickness="1"/>
+
+                        <TextBlock Text="📄 タスク説明" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding TemplateEditTaskDescription}" Style="{StaticResource InputStyle}" 
+                                 Height="70" TextWrapping="Wrap" AcceptsReturn="True"
+                                 BorderBrush="#E5E7EB" BorderThickness="1"/>
+
+                        <TextBlock Text="🏷️ カテゴリ" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding TemplateEditCategory}" Style="{StaticResource InputStyle}"
+                                 BorderBrush="#E5E7EB" BorderThickness="1"/>
+
+                        <TextBlock Text="⚡ 優先度" Style="{StaticResource LabelStyle}"/>
+                        <ComboBox SelectedItem="{Binding TemplateEditPriority}" Style="{StaticResource InputStyle}"
+                                  BorderBrush="#E5E7EB" BorderThickness="1">
+                            <ComboBox.Items>
+                                <models:TaskPriority>Low</models:TaskPriority>
+                                <models:TaskPriority>Medium</models:TaskPriority>
+                                <models:TaskPriority>High</models:TaskPriority>
+                                <models:TaskPriority>Urgent</models:TaskPriority>
+                            </ComboBox.Items>
+                        </ComboBox>
+
+                        <TextBlock Text="🏷️ タグ (カンマ区切り)" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding TemplateEditTagsText}" Style="{StaticResource InputStyle}"
+                                 BorderBrush="#E5E7EB" BorderThickness="1"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                            <Button Content="💾 保存" Command="{Binding SaveTemplateCommand}" 
+                                    Style="{StaticResource ModernButton}"/>
+                            <Button Content="❌ キャンセル" Command="{Binding CancelEditCommand}" 
+                                    Style="{StaticResource SecondaryButton}"/>
+                            <Button Content="➕ タスク作成" Command="{Binding CreateTaskFromTemplateCommand}" 
+                                    CommandParameter="{Binding SelectedTemplate}" 
+                                    Style="{StaticResource SuccessButton}"/>
+                            </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
 
         <!-- ダイアログボタン -->
-        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <Button Content="閉じる" IsCancel="True" Style="{StaticResource ButtonStyle}" 
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="✖️ 閉じる" IsCancel="True" Style="{StaticResource SecondaryButton}" 
                     Click="CloseButton_Click"/>
         </StackPanel>
     </Grid>

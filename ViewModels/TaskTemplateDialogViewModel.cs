@@ -50,8 +50,6 @@ namespace PomodoroTimer.ViewModels
         [ObservableProperty]
         private string templateEditCategory = string.Empty;
 
-        [ObservableProperty]
-        private int templateEditEstimatedPomodoros = 1;
 
         [ObservableProperty]
         private TaskPriority templateEditPriority = TaskPriority.Medium;
@@ -152,7 +150,6 @@ namespace PomodoroTimer.ViewModels
             TemplateEditTaskTitle = SelectedTemplate.TaskTitle;
             TemplateEditTaskDescription = SelectedTemplate.TaskDescription;
             TemplateEditCategory = SelectedTemplate.Category;
-            TemplateEditEstimatedPomodoros = SelectedTemplate.EstimatedPomodoros;
             TemplateEditPriority = SelectedTemplate.Priority;
             TemplateEditTagsText = SelectedTemplate.TagsText;
 
@@ -178,7 +175,6 @@ namespace PomodoroTimer.ViewModels
             TemplateEditTaskTitle = string.Empty;
             TemplateEditTaskDescription = string.Empty;
             TemplateEditCategory = string.Empty;
-            TemplateEditEstimatedPomodoros = 1;
             TemplateEditPriority = TaskPriority.Medium;
             TemplateEditTagsText = string.Empty;
             TemplateEditChecklist.Clear();
@@ -212,12 +208,6 @@ namespace PomodoroTimer.ViewModels
                     return;
                 }
 
-                if (TemplateEditEstimatedPomodoros < 1 || TemplateEditEstimatedPomodoros > 20)
-                {
-                    MessageBox.Show("予定ポモドーロ数は1〜20の範囲で入力してください。", "入力エラー", 
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
 
                 var template = SelectedTemplate ?? new TaskTemplate();
                 template.Name = TemplateEditName;
@@ -225,7 +215,6 @@ namespace PomodoroTimer.ViewModels
                 template.TaskTitle = TemplateEditTaskTitle;
                 template.TaskDescription = TemplateEditTaskDescription;
                 template.Category = TemplateEditCategory;
-                template.EstimatedPomodoros = TemplateEditEstimatedPomodoros;
                 template.Priority = TemplateEditPriority;
                 template.TagsText = TemplateEditTagsText;
 
