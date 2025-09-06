@@ -560,11 +560,23 @@
                                 </StackPanel>
                                 
                                 <StackPanel Orientation="Horizontal"
-                                            Visibility="{Binding SelectedTaskDetail.TagsText, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            Visibility="{Binding SelectedTaskDetail.Tags.Count, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <TextBlock Text="🏷️" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
                                     <TextBlock Text="タグ:" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock Text="{Binding SelectedTaskDetail.TagsText}" FontSize="12" 
-                                               Foreground="#374151" VerticalAlignment="Center"/>
+                                    <ItemsControl ItemsSource="{Binding SelectedTaskDetail.Tags}" VerticalAlignment="Center">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#E5E7EB" CornerRadius="3" Margin="0,0,4,0" Padding="6,2">
+                                                    <TextBlock Text="{Binding}" FontSize="11" Foreground="#374151"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
                             </StackPanel>
                             
@@ -858,6 +870,21 @@
                                                                    Foreground="White"/>
                                                     </Border>
                                                 </StackPanel>
+                                                <!-- タグ表示 -->
+                                                <ItemsControl ItemsSource="{Binding Tags}" Margin="0,3,0,0">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="#E5E7EB" CornerRadius="2" Margin="0,0,2,0" Padding="3,1">
+                                                                <TextBlock Text="{Binding}" FontSize="8" Foreground="#6B7280"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
                                             </StackPanel>
                                             
                                             <!-- 3点メニューボタン -->
@@ -1132,9 +1159,20 @@
                                                     <TextBlock Text="{Binding Category}" FontSize="10" 
                                                                Foreground="White" Padding="4,2"/>
                                                 </Border>
-                                                <TextBlock Text="{Binding TagsText, Mode=OneWay}" FontSize="10" 
-                                                           Foreground="Gray" VerticalAlignment="Center"
-                                                           Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
+                                                <ItemsControl ItemsSource="{Binding Tags}" Margin="4,0,0,0">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="#E5E7EB" CornerRadius="3" Margin="0,0,3,0" Padding="4,1">
+                                                                <TextBlock Text="{Binding}" FontSize="9" Foreground="#6B7280"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
                                             </StackPanel>
                                             
                                             <!-- リンク -->
@@ -1513,9 +1551,20 @@
                                             <TextBlock Text="{Binding CurrentTask.Category}" FontSize="11" 
                                                        Foreground="White" FontWeight="SemiBold"/>
                                         </Border>
-                                        <TextBlock Text="{Binding CurrentTask.TagsText, Mode=OneWay}" FontSize="11" 
-                                                   Foreground="#6B7280" VerticalAlignment="Center"
-                                                   Visibility="{Binding CurrentTask.TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
+                                        <ItemsControl ItemsSource="{Binding CurrentTask.Tags}" Margin="4,0,0,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="#E5E7EB" CornerRadius="3" Margin="0,0,3,0" Padding="4,2">
+                                                        <TextBlock Text="{Binding}" FontSize="10" Foreground="#6B7280"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
                                     </StackPanel>
                                     
                                     <!-- リンク -->
@@ -1901,9 +1950,20 @@
                                                     <TextBlock Text="{Binding Category}" FontSize="10" 
                                                                Foreground="White" Padding="4,2"/>
                                                 </Border>
-                                                <TextBlock Text="{Binding TagsText, Mode=OneWay}" FontSize="10" 
-                                                           Foreground="Gray" VerticalAlignment="Center"
-                                                           Visibility="{Binding TagsText, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
+                                                <ItemsControl ItemsSource="{Binding Tags}" Margin="4,0,0,0">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="#E5E7EB" CornerRadius="3" Margin="0,0,3,0" Padding="4,1">
+                                                                <TextBlock Text="{Binding}" FontSize="9" Foreground="#6B7280"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
                                             </StackPanel>
                                             
                                             <!-- リンク -->
