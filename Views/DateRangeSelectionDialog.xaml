@@ -1,0 +1,110 @@
+<Window x:Class="PomodoroTimer.Views.DateRangeSelectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="期間選択 - AI分析用データエクスポート" Height="400" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F8F9FA">
+    
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005A9B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style TargetType="DatePicker">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="5,3"/>
+        </Style>
+        
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="5,3"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- ヘッダー -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="📊 AI分析用データエクスポート" FontSize="18" FontWeight="Bold" Foreground="#2D3748"/>
+            <TextBlock Text="分析したい期間を選択してください。生成されたデータをChatGPTなどのAIで分析できます。" 
+                       FontSize="12" Foreground="#718096" Margin="0,5,0,0" TextWrapping="Wrap"/>
+        </StackPanel>
+        
+        <!-- 日付選択 -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,15">
+            <TextBlock Text="📅 分析期間の設定" FontSize="14" FontWeight="SemiBold" Foreground="#2D3748" Margin="0,0,0,10"/>
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="開始日:" VerticalAlignment="Center"/>
+                <DatePicker Grid.Column="1" x:Name="StartDatePicker" SelectedDate="{Binding StartDate}"/>
+                
+                <TextBlock Grid.Column="2" Text="終了日:" VerticalAlignment="Center" Margin="15,3,5,3"/>
+                <DatePicker Grid.Column="3" x:Name="EndDatePicker" SelectedDate="{Binding EndDate}"/>
+            </Grid>
+        </StackPanel>
+        
+        <!-- クイック選択オプション -->
+        <GroupBox Grid.Row="2" Header="⚡ クイック選択" Margin="0,0,0,15" Padding="10">
+            <StackPanel>
+                <TextBlock Text="よく使用される期間を選択できます:" FontSize="11" Foreground="#718096" Margin="0,0,0,8"/>
+                
+                <WrapPanel>
+                    <Button Content="今日" Click="TodayButton_Click" Background="#48BB78"/>
+                    <Button Content="昨日" Click="YesterdayButton_Click" Background="#48BB78"/>
+                    <Button Content="過去3日" Click="Last3DaysButton_Click" Background="#38B2AC"/>
+                    <Button Content="今週" Click="ThisWeekButton_Click" Background="#38B2AC"/>
+                    <Button Content="先週" Click="LastWeekButton_Click" Background="#38B2AC"/>
+                    <Button Content="過去7日" Click="Last7DaysButton_Click" Background="#4299E1"/>
+                    <Button Content="今月" Click="ThisMonthButton_Click" Background="#9F7AEA"/>
+                    <Button Content="先月" Click="LastMonthButton_Click" Background="#9F7AEA"/>
+                </WrapPanel>
+                
+                <Border Background="#E6FFFA" BorderBrush="#38B2AC" BorderThickness="1" 
+                        Padding="10" Margin="0,10,0,0">
+                    <StackPanel>
+                        <TextBlock Text="💡 生成されるファイルについて" FontWeight="SemiBold" FontSize="11" Foreground="#234E52"/>
+                        <TextBlock TextWrapping="Wrap" FontSize="10" Foreground="#234E52" Margin="0,3,0,0">
+                            • JSONファイル: 詳細な作業データ（タスク、時間配分、生産性メトリクス等）<LineBreak/>
+                            • プロンプトファイル: AI分析用の構造化された質問テンプレート<LineBreak/>
+                            • これらのファイルをChatGPT、Claude、Geminiなどにアップロードして包括的な分析を受けられます
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </GroupBox>
+        
+        <!-- ボタン -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="CancelButton" Content="キャンセル" Click="CancelButton_Click" 
+                    Background="#E2E8F0" Foreground="#4A5568"/>
+            <Button x:Name="ExportButton" Content="🚀 AI分析データを生成" Click="ExportButton_Click" 
+                    Background="#10B981" MinWidth="150"/>
+        </StackPanel>
+    </Grid>
+</Window>

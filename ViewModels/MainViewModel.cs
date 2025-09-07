@@ -30,6 +30,7 @@ namespace PomodoroTimer.ViewModels
         private readonly IGraphService _graphService;
         private readonly ITaskTemplateService _taskTemplateService;
         private readonly INotificationService _notificationService;
+        private readonly IActivityExportService _activityExportService;
         private AppSettings _settings;
         private bool _isFocusModeWindowShowing = false;
 
@@ -305,7 +306,7 @@ namespace PomodoroTimer.ViewModels
         public MainViewModel(IPomodoroService pomodoroService, ITimerService timerService, 
             IStatisticsService statisticsService, IDataPersistenceService dataPersistenceService,
             ISystemTrayService systemTrayService, IGraphService graphService, ITaskTemplateService taskTemplateService,
-            INotificationService notificationService)
+            INotificationService notificationService, IActivityExportService activityExportService)
         {
             _pomodoroService = pomodoroService ?? throw new ArgumentNullException(nameof(pomodoroService));
             _timerService = timerService ?? throw new ArgumentNullException(nameof(timerService));
@@ -315,6 +316,7 @@ namespace PomodoroTimer.ViewModels
             _graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
             _taskTemplateService = taskTemplateService ?? throw new ArgumentNullException(nameof(taskTemplateService));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            _activityExportService = activityExportService ?? throw new ArgumentNullException(nameof(activityExportService));
             _settings = new AppSettings();
 
             try
@@ -3384,6 +3386,81 @@ namespace PomodoroTimer.ViewModels
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show($"タスクの追加に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// AI分析用データエクスポートコマンド
+        /// </summary>
+        [RelayCommand]
+        private async Task ExportAIAnalysisData()
+        {
+            try
+            {
+                // 日付範囲選択ダイアログを表示
+                var dateRangeDialog = new Views.DateRangeSelectionDialog
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+
+                if (dateRangeDialog.ShowDialog() != true || !dateRangeDialog.IsExportRequested)
+                    return;
+
+                var startDate = dateRangeDialog.StartDate;
+                var endDate = dateRangeDialog.EndDate;
+
+                // ファイル保存ダイアログ
+                var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = "AI分析用データの保存先を選択",
+                    Filter = "JSONファイル (*.json)|*.json",
+                    FileName = startDate == endDate 
+                        ? $"ai_analysis_data_{startDate:yyyy-MM-dd}.json"
+                        : $"ai_analysis_data_{startDate:yyyy-MM-dd}_to_{endDate:yyyy-MM-dd}.json"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    var outputDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
+                    if (outputDirectory != null)
+                    {
+                        (string jsonFilePath, string promptFilePath) result;
+                        
+                        if (startDate == endDate)
+                        {
+                            // 単一日の場合
+                            result = await _activityExportService.ExportDailyActivityAsync(startDate, outputDirectory);
+                        }
+                        else
+                        {
+                            // 期間の場合
+                            result = await _activityExportService.ExportPeriodActivityAsync(startDate, endDate, outputDirectory);
+                        }
+                        
+                        var periodText = startDate == endDate 
+                            ? $"{startDate:yyyy年MM月dd日}"
+                            : $"{startDate:yyyy年MM月dd日} ～ {endDate:yyyy年MM月dd日}";
+
+                        var message = $"✅ AI分析用データを生成しました！\n\n" +
+                            $"📅 対象期間: {periodText}\n" +
+                            $"📄 データファイル: {Path.GetFileName(result.jsonFilePath)}\n" +
+                            $"🤖 AIプロンプト: {Path.GetFileName(result.promptFilePath)}\n\n" +
+                            $"💡 使用方法:\n" +
+                            $"1. 両ファイルをChatGPT、Claude、Gemini等にアップロード\n" +
+                            $"2. AIが詳細な生産性分析と改善提案を提供します\n" +
+                            $"3. 提案を参考に作業効率を向上させましょう！";
+
+                        System.Windows.MessageBox.Show(
+                            message,
+                            "🚀 AI分析データ生成完了",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"AI分析用データの生成に失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

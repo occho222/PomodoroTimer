@@ -281,6 +281,16 @@
                                 <TextBlock Text="通常テンプレート" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
+
+                        <TextBlock Text="AI分析" FontSize="10" Foreground="#6B7280" Margin="0,12,0,4"/>
+                        <Button Command="{Binding ExportAIAnalysisDataCommand}" Margin="0,0,0,8"
+                                Style="{StaticResource RoundButton}" Background="#10B981" Foreground="White"
+                                Height="32" Padding="8,6" ToolTip="作業データをAI分析用形式でエクスポート（ChatGPT等で分析可能）" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="🤖" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="AI生産性分析" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                         
                         <!-- データ管理 -->
                         <TextBlock Text="データ管理" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
