@@ -24,6 +24,9 @@ namespace PomodoroTimer.ViewModels
         private ObservableCollection<string> templateCategories = new();
 
         [ObservableProperty]
+        private ObservableCollection<string> templateTags = new();
+
+        [ObservableProperty]
         private TaskTemplate? selectedTemplate;
 
         [ObservableProperty]
@@ -31,6 +34,9 @@ namespace PomodoroTimer.ViewModels
 
         [ObservableProperty]
         private string selectedTemplateCategory = "すべて";
+
+        [ObservableProperty]
+        private string selectedTemplateTag = "すべて";
 
         [ObservableProperty]
         private bool isEditMode = false;
@@ -76,7 +82,9 @@ namespace PomodoroTimer.ViewModels
 
         private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SearchText) || e.PropertyName == nameof(SelectedTemplateCategory))
+            if (e.PropertyName == nameof(SearchText) || 
+                e.PropertyName == nameof(SelectedTemplateCategory) || 
+                e.PropertyName == nameof(SelectedTemplateTag))
             {
                 ApplyFilters();
             }
@@ -93,6 +101,7 @@ namespace PomodoroTimer.ViewModels
                 await _templateService.LoadTemplatesAsync();
                 Templates = _templateService.GetTemplates();
                 UpdateCategories();
+                UpdateTags();
                 ApplyFilters();
             }
             catch (Exception ex)
@@ -114,6 +123,26 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
+        private void UpdateTags()
+        {
+            TemplateTags.Clear();
+            TemplateTags.Add("すべて");
+            
+            var allTags = new HashSet<string>();
+            foreach (var template in Templates)
+            {
+                foreach (var tag in template.Tags)
+                {
+                    allTags.Add(tag);
+                }
+            }
+            
+            foreach (var tag in allTags.OrderBy(t => t))
+            {
+                TemplateTags.Add(tag);
+            }
+        }
+
         private void ApplyFilters()
         {
             var filtered = Templates.AsEnumerable();
@@ -126,6 +155,11 @@ namespace PomodoroTimer.ViewModels
             if (!string.IsNullOrWhiteSpace(SelectedTemplateCategory) && SelectedTemplateCategory != "すべて")
             {
                 filtered = filtered.Where(t => t.Category.Equals(SelectedTemplateCategory, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTemplateTag) && SelectedTemplateTag != "すべて")
+            {
+                filtered = filtered.Where(t => t.Tags.Contains(SelectedTemplateTag));
             }
 
             FilteredTemplates.Clear();
@@ -243,6 +277,7 @@ namespace PomodoroTimer.ViewModels
 
                 await _templateService.SaveTemplatesAsync();
                 UpdateCategories();
+                UpdateTags();
                 ApplyFilters();
                 
                 SelectedTemplate = template;
@@ -290,6 +325,8 @@ namespace PomodoroTimer.ViewModels
             {
                 var duplicated = _templateService.DuplicateTemplate(template);
                 await _templateService.SaveTemplatesAsync();
+                UpdateCategories();
+                UpdateTags();
                 ApplyFilters();
                 SelectedTemplate = duplicated;
 
@@ -318,6 +355,7 @@ namespace PomodoroTimer.ViewModels
                     _templateService.RemoveTemplate(template);
                     await _templateService.SaveTemplatesAsync();
                     UpdateCategories();
+                    UpdateTags();
                     ApplyFilters();
 
                     if (SelectedTemplate == template)
@@ -374,6 +412,7 @@ namespace PomodoroTimer.ViewModels
         {
             SearchText = string.Empty;
             SelectedTemplateCategory = "すべて";
+            SelectedTemplateTag = "すべて";
         }
 
         [RelayCommand]
@@ -392,6 +431,7 @@ namespace PomodoroTimer.ViewModels
                     await _templateService.ImportTemplatesFromJsonAsync(openFileDialog.FileName);
                     await _templateService.SaveTemplatesAsync();
                     UpdateCategories();
+                    UpdateTags();
                     ApplyFilters();
 
                     MessageBox.Show("テンプレートのインポートが完了しました。", "インポート完了", 

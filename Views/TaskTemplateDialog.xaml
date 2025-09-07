@@ -121,6 +121,12 @@
                                   SelectedItem="{Binding SelectedTemplateCategory}"
                                   ItemsSource="{Binding TemplateCategories}"
                                   FontSize="14" VerticalContentAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBlock Text="タグ" FontSize="12" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="TagComboBox" Height="40"
+                                  SelectedItem="{Binding SelectedTemplateTag}"
+                                  ItemsSource="{Binding TemplateTags}"
+                                  FontSize="14" VerticalContentAlignment="Center" Margin="0,0,0,8"/>
                         <Button Content="🗑️ フィルタークリア" Command="{Binding ClearFiltersCommand}" 
                                 Style="{StaticResource SecondaryButton}" HorizontalAlignment="Stretch"/>
                     </StackPanel>
