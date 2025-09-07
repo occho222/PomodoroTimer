@@ -22,6 +22,12 @@ namespace PomodoroTimer.ViewModels
         private ObservableCollection<string> availableCategories = new();
 
         [ObservableProperty]
+        private ObservableCollection<string> availablePriorities = new();
+
+        [ObservableProperty]
+        private ObservableCollection<string> availableDueDateFilters = new();
+
+        [ObservableProperty]
         private PomodoroTask? selectedTask;
 
         [ObservableProperty]
@@ -29,6 +35,12 @@ namespace PomodoroTimer.ViewModels
 
         [ObservableProperty]
         private string selectedCategory = string.Empty;
+
+        [ObservableProperty]
+        private string selectedPriority = "すべて";
+
+        [ObservableProperty]
+        private string selectedDueDateFilter = "すべて";
 
         [ObservableProperty]
         private string remainingTime = "00:00";
@@ -49,7 +61,10 @@ namespace PomodoroTimer.ViewModels
 
         private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SearchText) || e.PropertyName == nameof(SelectedCategory))
+            if (e.PropertyName == nameof(SearchText) || 
+                e.PropertyName == nameof(SelectedCategory) ||
+                e.PropertyName == nameof(SelectedPriority) ||
+                e.PropertyName == nameof(SelectedDueDateFilter))
             {
                 ApplyFilters();
             }
@@ -73,6 +88,8 @@ namespace PomodoroTimer.ViewModels
             }
 
             UpdateCategories();
+            UpdatePriorities();
+            UpdateDueDateFilters();
             ApplyFilters();
             
             // 最初の進行中タスクを自動選択
@@ -100,6 +117,28 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
+        private void UpdatePriorities()
+        {
+            AvailablePriorities.Clear();
+            AvailablePriorities.Add("すべて");
+            AvailablePriorities.Add("緊急");
+            AvailablePriorities.Add("高");
+            AvailablePriorities.Add("中");
+            AvailablePriorities.Add("低");
+        }
+
+        private void UpdateDueDateFilters()
+        {
+            AvailableDueDateFilters.Clear();
+            AvailableDueDateFilters.Add("すべて");
+            AvailableDueDateFilters.Add("今日まで");
+            AvailableDueDateFilters.Add("明日まで");
+            AvailableDueDateFilters.Add("今週まで");
+            AvailableDueDateFilters.Add("来週まで");
+            AvailableDueDateFilters.Add("期日なし");
+            AvailableDueDateFilters.Add("期日あり");
+        }
+
         private void ApplyFilters()
         {
             var filtered = AvailableTasks.AsEnumerable();
@@ -117,6 +156,16 @@ namespace PomodoroTimer.ViewModels
                     t.Category.Equals(SelectedCategory, StringComparison.OrdinalIgnoreCase));
             }
 
+            if (!string.IsNullOrWhiteSpace(SelectedPriority) && SelectedPriority != "すべて")
+            {
+                filtered = filtered.Where(t => GetPriorityText(t.Priority) == SelectedPriority);
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedDueDateFilter) && SelectedDueDateFilter != "すべて")
+            {
+                filtered = ApplyDueDateFilter(filtered, SelectedDueDateFilter);
+            }
+
             FilteredTasks.Clear();
             foreach (var task in filtered.OrderByDescending(t => t.Status == TaskStatus.Waiting).ThenBy(t => t.DisplayOrder))
             {
@@ -124,11 +173,41 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
+        private string GetPriorityText(TaskPriority priority)
+        {
+            return priority switch
+            {
+                TaskPriority.Urgent => "緊急",
+                TaskPriority.High => "高",
+                TaskPriority.Medium => "中",
+                TaskPriority.Low => "低",
+                _ => "中"
+            };
+        }
+
+        private IEnumerable<PomodoroTask> ApplyDueDateFilter(IEnumerable<PomodoroTask> tasks, string filter)
+        {
+            var today = DateTime.Today;
+            
+            return filter switch
+            {
+                "今日まで" => tasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today),
+                "明日まで" => tasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today.AddDays(1)),
+                "今週まで" => tasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today.AddDays(7 - (int)today.DayOfWeek)),
+                "来週まで" => tasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= today.AddDays(14 - (int)today.DayOfWeek)),
+                "期日なし" => tasks.Where(t => !t.DueDate.HasValue),
+                "期日あり" => tasks.Where(t => t.DueDate.HasValue),
+                _ => tasks
+            };
+        }
+
         [RelayCommand]
         private void ClearFilters()
         {
             SearchText = string.Empty;
             SelectedCategory = "すべて";
+            SelectedPriority = "すべて";
+            SelectedDueDateFilter = "すべて";
         }
 
         [RelayCommand]

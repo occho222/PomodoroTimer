@@ -39,16 +39,39 @@
                 </Grid.RowDefinitions>
 
                 <!-- 検索・フィルター -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                    <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             Style="{StaticResource SearchTextBox}" Width="200"
-                             ToolTip="タスク名で検索" Margin="0,0,10,0"/>
-                    <ComboBox ItemsSource="{Binding AvailableCategories}"
-                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-                              Style="{StaticResource FilterComboBox}" Width="120" Margin="0,0,10,0"/>
-                    <Button Content="フィルタークリア" Command="{Binding ClearFiltersCommand}"
-                            Style="{StaticResource RoundButton}" Background="Gray" FontSize="11" Padding="8,4"/>
-                </StackPanel>
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- 上段：検索とカテゴリ -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource SearchTextBox}" Width="200"
+                                 ToolTip="タスク名で検索" Margin="0,0,10,0"/>
+                        <ComboBox ItemsSource="{Binding AvailableCategories}"
+                                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                                  Style="{StaticResource FilterComboBox}" Width="120" Margin="0,0,10,0"
+                                  ToolTip="カテゴリでフィルター"/>
+                        <Button Content="フィルタークリア" Command="{Binding ClearFiltersCommand}"
+                                Style="{StaticResource RoundButton}" Background="Gray" FontSize="11" Padding="8,4"/>
+                    </StackPanel>
+                    
+                    <!-- 下段：優先度と期日 -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <TextBlock Text="優先度:" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="Gray"/>
+                        <ComboBox ItemsSource="{Binding AvailablePriorities}"
+                                  SelectedItem="{Binding SelectedPriority, Mode=TwoWay}"
+                                  Style="{StaticResource FilterComboBox}" Width="80" Margin="0,0,15,0"
+                                  ToolTip="優先度でフィルター" FontSize="11"/>
+                        <TextBlock Text="期日:" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="Gray"/>
+                        <ComboBox ItemsSource="{Binding AvailableDueDateFilters}"
+                                  SelectedItem="{Binding SelectedDueDateFilter, Mode=TwoWay}"
+                                  Style="{StaticResource FilterComboBox}" Width="100" Margin="0,0,10,0"
+                                  ToolTip="期日でフィルター" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
 
                 <!-- タスクリスト -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -100,6 +123,11 @@
                                                         Visibility="{Binding Category, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                     <TextBlock Text="{Binding Category}" FontSize="9" 
                                                                Foreground="White" Padding="3,1"/>
+                                                </Border>
+                                                <Border Background="#FEF3C7" CornerRadius="3" Margin="0,0,4,0"
+                                                        Visibility="{Binding DueDate, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <TextBlock Text="{Binding DueDate, StringFormat='{}📅 {0:MM/dd}'}" FontSize="9" 
+                                                               Foreground="#92400E" Padding="3,1"/>
                                                 </Border>
                                                 <TextBlock Text="{Binding StatusText}" FontSize="10" 
                                                            Foreground="{Binding StatusColor}" VerticalAlignment="Center"/>
