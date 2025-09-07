@@ -8,7 +8,7 @@
         /// <summary>
         /// データフォーマットのバージョン
         /// </summary>
-        public string DataVersion { get; set; } = "1.5.31";
+        public string DataVersion { get; set; } = "1.6.0";
 
         /// <summary>
         /// 作業セッション時間（分）
@@ -181,6 +181,11 @@
         public GraphSettings GraphSettings { get; set; } = new GraphSettings();
 
         /// <summary>
+        /// ホットキー設定
+        /// </summary>
+        public HotkeySettings HotkeySettings { get; set; } = new HotkeySettings();
+
+        /// <summary>
         /// コンストラクタでGraphSettingsの初期化を確実にする
         /// </summary>
         public AppSettings()
@@ -188,6 +193,7 @@
             // GraphSettingsが確実に初期化されるようにする
             GraphSettings ??= new GraphSettings();
             ThemeSettings ??= new ThemeSettings();
+            HotkeySettings ??= new HotkeySettings();
         }
     }
 

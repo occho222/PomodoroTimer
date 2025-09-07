@@ -4,6 +4,8 @@ using PomodoroTimer.Helpers;
 using PomodoroTimer.Models;
 using PomodoroTimer.Services;
 using System.Diagnostics;
+using PomodoroTimer.ViewModels;
+using System.Windows.Input;
 
 namespace PomodoroTimer.Views
 {
@@ -48,10 +50,24 @@ namespace PomodoroTimer.Views
                     EnablePlannerImport = currentSettings.GraphSettings.EnablePlannerImport,
                     EnableOutlookImport = currentSettings.GraphSettings.EnableOutlookImport,
                     LastAuthenticationTime = currentSettings.GraphSettings.LastAuthenticationTime
+                },
+                HotkeySettings = new HotkeySettings
+                {
+                    StartPauseHotkey = currentSettings.HotkeySettings.StartPauseHotkey,
+                    StopHotkey = currentSettings.HotkeySettings.StopHotkey,
+                    SkipHotkey = currentSettings.HotkeySettings.SkipHotkey,
+                    AddTaskHotkey = currentSettings.HotkeySettings.AddTaskHotkey,
+                    OpenSettingsHotkey = currentSettings.HotkeySettings.OpenSettingsHotkey,
+                    OpenStatisticsHotkey = currentSettings.HotkeySettings.OpenStatisticsHotkey,
+                    FocusModeHotkey = currentSettings.HotkeySettings.FocusModeHotkey,
+                    QuickAddTaskHotkey = currentSettings.HotkeySettings.QuickAddTaskHotkey,
+                    ExportAIAnalysisHotkey = currentSettings.HotkeySettings.ExportAIAnalysisHotkey
                 }
             };
             
-            DataContext = Settings;
+            // SettingsViewModelを作成してDataContextに設定
+            var settingsViewModel = new SettingsViewModel(Settings);
+            DataContext = settingsViewModel;
             
             // GraphServiceを初期化
             _graphService = new GraphService(Settings);
@@ -429,6 +445,140 @@ namespace PomodoroTimer.Views
             {
                 System.Windows.MessageBox.Show($"Azure ポータルを開けませんでした: {ex.Message}", "エラー", 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        /// <summary>
+        /// ホットキーテキストボックスのキー入力処理
+        /// </summary>
+        private void HotkeyTextBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            e.Handled = true;
+            
+            var textBox = sender as System.Windows.Controls.TextBox;
+            if (textBox == null) return;
+
+            var modifiers = new List<string>();
+            var key = "";
+
+            // モディファイアキーをチェック
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                modifiers.Add("Ctrl");
+            if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+                modifiers.Add("Alt");
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                modifiers.Add("Shift");
+            if (Keyboard.IsKeyDown(Key.LWin) || Keyboard.IsKeyDown(Key.RWin))
+                modifiers.Add("Win");
+
+            // キーを取得
+            if (e.Key != Key.LeftCtrl && e.Key != Key.RightCtrl &&
+                e.Key != Key.LeftAlt && e.Key != Key.RightAlt &&
+                e.Key != Key.LeftShift && e.Key != Key.RightShift &&
+                e.Key != Key.LWin && e.Key != Key.RWin)
+            {
+                key = GetKeyName(e.Key);
+            }
+
+            // ショートカットキー文字列を作成
+            if (!string.IsNullOrEmpty(key))
+            {
+                var hotkeyString = string.Join("+", modifiers.Concat(new[] { key }));
+                textBox.Text = hotkeyString;
+                
+                // データバインディングを手動で更新
+                var binding = textBox.GetBindingExpression(System.Windows.Controls.TextBox.TextProperty);
+                binding?.UpdateSource();
+            }
+        }
+
+        /// <summary>
+        /// キーから表示名を取得
+        /// </summary>
+        private string GetKeyName(Key key)
+        {
+            return key switch
+            {
+                Key.Space => "Space",
+                Key.Enter => "Enter",
+                Key.Escape => "Escape",
+                Key.Tab => "Tab",
+                Key.Back => "Backspace",
+                Key.Delete => "Delete",
+                Key.Insert => "Insert",
+                Key.Home => "Home",
+                Key.End => "End",
+                Key.PageUp => "PageUp",
+                Key.PageDown => "PageDown",
+                Key.Up => "Up",
+                Key.Down => "Down",
+                Key.Left => "Left",
+                Key.Right => "Right",
+                Key.F1 => "F1",
+                Key.F2 => "F2",
+                Key.F3 => "F3",
+                Key.F4 => "F4",
+                Key.F5 => "F5",
+                Key.F6 => "F6",
+                Key.F7 => "F7",
+                Key.F8 => "F8",
+                Key.F9 => "F9",
+                Key.F10 => "F10",
+                Key.F11 => "F11",
+                Key.F12 => "F12",
+                _ => key.ToString()
+            };
+        }
+
+        /// <summary>
+        /// ホットキーをデフォルトに戻すボタンクリック時の処理
+        /// </summary>
+        private void ResetHotkeys_Click(object sender, RoutedEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show(
+                "すべてのショートカットキーをデフォルト設定に戻しますか？",
+                "確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                if (DataContext is SettingsViewModel viewModel)
+                {
+                    viewModel.ResetHotkeysToDefault();
+                    System.Windows.MessageBox.Show("ショートカットキーをデフォルト設定に戻しました。", "完了", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+        }
+
+        /// <summary>
+        /// ホットキーテストボタンクリック時の処理
+        /// </summary>
+        private void TestHotkey_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SettingsViewModel viewModel)
+            {
+                // 重複チェック
+                if (!viewModel.ValidateHotkeys())
+                {
+                    System.Windows.MessageBox.Show("重複しているショートカットキーがあります。", "エラー", 
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // 無効なホットキーチェック
+                var invalidHotkeys = viewModel.GetInvalidHotkeys();
+                if (invalidHotkeys.Any())
+                {
+                    var invalidList = string.Join("\n", invalidHotkeys.Select(h => $"• {h.DisplayName}: {h.Hotkey}"));
+                    System.Windows.MessageBox.Show($"無効なショートカットキーがあります:\n\n{invalidList}", "エラー", 
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                System.Windows.MessageBox.Show("すべてのショートカットキーが有効です。", "テスト結果", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }

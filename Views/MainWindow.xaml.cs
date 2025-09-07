@@ -19,6 +19,8 @@ namespace PomodoroTimer.Views
         private MainViewModel? _viewModel;
         private ISystemTrayService? _systemTrayService;
         private FocusModeWindow? _focusModeWindow;
+        private HotkeyService? _hotkeyService;
+        private AppSettings? _appSettings;
 
         /// <summary>
         /// デフォルトコンストラクタ（デザイナー用）
@@ -56,9 +58,14 @@ namespace PomodoroTimer.Views
                 var taskTemplateService = new TaskTemplateService(dataPersistenceService);
                 var notificationService = new NotificationService();
                 var activityExportService = new ActivityExportService(pomodoroService, statisticsService);
+                var hotkeyService = new HotkeyService();
                 
                 _viewModel = new MainViewModel(pomodoroService, timerService, statisticsService, 
                     dataPersistenceService, _systemTrayService, graphService, taskTemplateService, notificationService, activityExportService);
+                
+                // ホットキーサービスをクラスフィールドとして保存
+                _hotkeyService = hotkeyService;
+                _appSettings = settings;
                 
                 DataContext = _viewModel;
 
@@ -87,6 +94,7 @@ namespace PomodoroTimer.Views
                 // ウィンドウイベントの購読
                 StateChanged += OnWindowStateChanged;
                 Closing += OnWindowClosing;
+                Loaded += OnWindowLoaded;
                 
                 Console.WriteLine("MainWindow が正常に初期化されました");
                 
@@ -136,6 +144,28 @@ namespace PomodoroTimer.Views
             {
                 Console.WriteLine($"タイトル設定でエラー: {ex.Message}");
                 Title = $"Pomoban{suffix}";
+            }
+        }
+
+        /// <summary>
+        /// ウィンドウロード完了時の処理
+        /// </summary>
+        private void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // ホットキーサービスを初期化（ウィンドウハンドルが利用可能になった後）
+                if (_hotkeyService != null && _appSettings != null)
+                {
+                    _hotkeyService.Initialize(this);
+                    RegisterHotkeys(_hotkeyService, _appSettings);
+                    Console.WriteLine("ホットキーが正常に登録されました");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ホットキー初期化でエラー: {ex.Message}");
+                // エラーが発生してもアプリケーションは継続する
             }
         }
 
@@ -880,6 +910,9 @@ namespace PomodoroTimer.Views
                     await _viewModel.CleanupAsync();
                 }
                 
+                // ホットキーサービスのクリーンアップ
+                _hotkeyService?.Dispose();
+                
                 _systemTrayService?.Dispose();
                 
                 Console.WriteLine("MainWindow のクリーンアップが完了しました");
@@ -892,6 +925,80 @@ namespace PomodoroTimer.Views
             {
                 base.OnClosed(e);
             }
+        }
+
+        /// <summary>
+        /// ホットキーを登録
+        /// </summary>
+        private void RegisterHotkeys(HotkeyService hotkeyService, AppSettings settings)
+        {
+            if (_viewModel == null) return;
+
+            // 実際のViewModelコマンドを実行するホットキーアクション
+            var hotkeyActions = new Dictionary<string, Action>
+            {
+                { "StartPause", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { _viewModel.StartPauseCommand?.Execute(null); }
+                        catch (Exception ex) { Console.WriteLine($"StartPause hotkey error: {ex.Message}"); }
+                    });
+                }},
+                { "Stop", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { _viewModel.StopCommand?.Execute(null); }
+                        catch (Exception ex) { Console.WriteLine($"Stop hotkey error: {ex.Message}"); }
+                    });
+                }},
+                { "Skip", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { _viewModel.SkipCommand?.Execute(null); }
+                        catch (Exception ex) { Console.WriteLine($"Skip hotkey error: {ex.Message}"); }
+                    });
+                }},
+                { "AddTask", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { _viewModel.AddTaskCommand?.Execute(null); }
+                        catch (Exception ex) { Console.WriteLine($"AddTask hotkey error: {ex.Message}"); }
+                    });
+                }},
+                { "OpenSettings", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { _viewModel.OpenSettingsCommand?.Execute(null); }
+                        catch (Exception ex) { Console.WriteLine($"OpenSettings hotkey error: {ex.Message}"); }
+                    });
+                }},
+                { "OpenStatistics", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { _viewModel.OpenStatisticsCommand?.Execute(null); }
+                        catch (Exception ex) { Console.WriteLine($"OpenStatistics hotkey error: {ex.Message}"); }
+                    });
+                }},
+                { "FocusMode", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { 
+                            if (_viewModel.EnableFocusMode)
+                                ShowFocusMode();
+                            else
+                                CloseFocusMode();
+                        }
+                        catch (Exception ex) { Console.WriteLine($"FocusMode hotkey error: {ex.Message}"); }
+                    });
+                }},
+                { "QuickAddTask", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { _viewModel.AddQuickTaskCommand?.Execute(null); }
+                        catch (Exception ex) { Console.WriteLine($"QuickAddTask hotkey error: {ex.Message}"); }
+                    });
+                }},
+                { "ExportAIAnalysis", () => { 
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                        try { _viewModel.ExportAIAnalysisDataCommand?.Execute(null); }
+                        catch (Exception ex) { Console.WriteLine($"ExportAIAnalysis hotkey error: {ex.Message}"); }
+                    });
+                }}
+            };
+
+            hotkeyService.RegisterHotkeysFromSettings(settings.HotkeySettings, hotkeyActions);
         }
     }
 }

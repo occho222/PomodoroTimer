@@ -176,6 +176,93 @@
                     </ScrollViewer>
                 </TabItem>
 
+                <!-- ショートカットキータブ -->
+                <TabItem Header="ショートカット">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                        <StackPanel>
+                            <!-- ショートカットキー設定セクション -->
+                            <GroupBox Header="ショートカットキー設定" Margin="0,0,0,15" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="アプリケーション全体で使用できるショートカットキーを設定できます。" 
+                                               FontSize="12" Foreground="Gray" Margin="0,0,0,15" TextWrapping="Wrap"/>
+                                    
+                                    <!-- ショートカット一覧 -->
+                                    <ItemsControl x:Name="HotkeyItemsControl" ItemsSource="{Binding HotkeyItems}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#F8F9FA" Padding="12" Margin="0,0,0,8" CornerRadius="6">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="180"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        
+                                                        <!-- 機能名と説明 -->
+                                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"/>
+                                                            <TextBlock Text="{Binding Description}" FontSize="11" Foreground="#6B7280" 
+                                                                       TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+                                                        
+                                                        <!-- ショートカットキー入力 -->
+                                                        <TextBox Grid.Column="1" 
+                                                                Text="{Binding Hotkey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                VerticalAlignment="Center"
+                                                                Height="30"
+                                                                Margin="10,0"
+                                                                FontFamily="Consolas"
+                                                                TextAlignment="Center"
+                                                                ToolTip="ショートカットキーを入力してください（例：Ctrl+Space）"
+                                                                PreviewKeyDown="HotkeyTextBox_PreviewKeyDown"/>
+                                                        
+                                                        <!-- 有効/無効切り替え -->
+                                                        <CheckBox Grid.Column="2" 
+                                                                 IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                                                 Content="有効"
+                                                                 VerticalAlignment="Center"
+                                                                 HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    
+                                    <!-- 操作ボタン -->
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                                        <Button x:Name="ResetHotkeysButton" Content="デフォルトに戻す" 
+                                                Click="ResetHotkeys_Click"
+                                                Background="{StaticResource WarningBrush}"
+                                                Style="{StaticResource RoundButton}"
+                                                Margin="0,0,10,0"
+                                                ToolTip="すべてのショートカットキーをデフォルト設定に戻します"/>
+                                        <Button x:Name="TestHotkeyButton" Content="テスト" 
+                                                Click="TestHotkey_Click"
+                                                Background="{StaticResource AccentBrush}"
+                                                Style="{StaticResource RoundButton}"
+                                                ToolTip="設定したショートカットキーをテストします"/>
+                                    </StackPanel>
+                                    
+                                    <!-- 注意事項 -->
+                                    <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" 
+                                            Padding="12" Margin="0,15,0,0" CornerRadius="6">
+                                        <StackPanel>
+                                            <TextBlock Text="💡 ショートカットキー設定のヒント" FontWeight="SemiBold" 
+                                                       FontSize="12" Foreground="#92400E"/>
+                                            <TextBlock FontSize="11" Foreground="#92400E" Margin="0,5,0,0" TextWrapping="Wrap">
+                                                • 他のアプリケーションと重複しないキーを選んでください<LineBreak/>
+                                                • Ctrl、Alt、Shift、Win キーと組み合わせて使用します<LineBreak/>
+                                                • 設定は即座に適用されます<LineBreak/>
+                                                • 無効にしたショートカットは動作しません
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
                 <!-- データ管理タブ -->
                 <TabItem Header="データ管理">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
