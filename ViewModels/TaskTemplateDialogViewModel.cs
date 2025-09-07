@@ -360,6 +360,16 @@ namespace PomodoroTimer.ViewModels
         }
 
         [RelayCommand]
+        private void ShowTemplateDetails(TaskTemplate template)
+        {
+            if (template != null)
+            {
+                SelectedTemplate = template;
+                IsEditMode = false;
+            }
+        }
+
+        [RelayCommand]
         private void ClearFilters()
         {
             SearchText = string.Empty;

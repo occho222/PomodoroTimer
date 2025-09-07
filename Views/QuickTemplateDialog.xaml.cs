@@ -27,13 +27,6 @@ namespace PomodoroTimer.Views
             Close();
         }
 
-        private void TemplateListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (TemplateListBox.SelectedItem is TaskTemplate template)
-            {
-                ViewModel.SelectTemplateCommand.Execute(template);
-            }
-        }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {

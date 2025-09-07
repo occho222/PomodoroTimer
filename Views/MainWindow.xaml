@@ -250,16 +250,6 @@
                     <StackPanel>
                         <TextBlock Text="⚙️ 管理・操作" FontSize="12" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
                         
-                        <!-- タスク操作 -->
-                        <TextBlock Text="タスク操作" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
-                        <Button Command="{Binding CreateTaskFromTaskTemplateCommand}" Margin="0,0,0,4"
-                                Style="{StaticResource RoundButton}" Background="#6366F1" Foreground="White"
-                                Height="32" Padding="8,6" ToolTip="テンプレート選択" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock Text="📋" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="通常テンプレート" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
                         
                         <Button Command="{Binding OpenStatisticsCommand}" Margin="0,0,0,8"
                                 Style="{StaticResource RoundButton}" Background="#3B82F6" Foreground="White"
@@ -283,15 +273,14 @@
                         
                         <!-- テンプレート管理 -->
                         <TextBlock Text="テンプレート管理" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
-                        <Button Command="{Binding OpenTemplateManagerCommand}" Margin="0,0,0,4"
+                        <Button Command="{Binding OpenTemplateManagerCommand}" Margin="0,0,0,8"
                                 Style="{StaticResource RoundButton}" Background="#EC4899" Foreground="White"
                                 Height="32" Padding="8,6" ToolTip="通常テンプレートの管理" HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <TextBlock Text="📋" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="通常テンプレート管理" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                <TextBlock Text="通常テンプレート" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
-                        
                         
                         <!-- データ管理 -->
                         <TextBlock Text="データ管理" FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>

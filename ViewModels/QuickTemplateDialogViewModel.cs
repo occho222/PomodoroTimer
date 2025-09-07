@@ -20,10 +20,16 @@ namespace PomodoroTimer.ViewModels
         private ObservableCollection<TaskTemplate> frequentTemplates = new();
 
         [ObservableProperty]
+        private ObservableCollection<string> templateCategories = new();
+
+        [ObservableProperty]
         private TaskTemplate? selectedTemplate;
 
         [ObservableProperty]
         private string searchText = string.Empty;
+
+        [ObservableProperty]
+        private string selectedTemplateCategory = "すべて";
 
         [ObservableProperty]
         private bool hasFrequentTemplates = false;
@@ -43,7 +49,7 @@ namespace PomodoroTimer.ViewModels
 
         private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SearchText))
+            if (e.PropertyName == nameof(SearchText) || e.PropertyName == nameof(SelectedTemplateCategory))
             {
                 ApplyFilter();
             }
@@ -59,6 +65,7 @@ namespace PomodoroTimer.ViewModels
             {
                 await _templateService.LoadTemplatesAsync();
                 Templates = _templateService.GetTemplates();
+                LoadCategories();
                 LoadFrequentTemplates();
                 ApplyFilter();
             }
@@ -81,13 +88,30 @@ namespace PomodoroTimer.ViewModels
             HasFrequentTemplates = FrequentTemplates.Any();
         }
 
+        private void LoadCategories()
+        {
+            TemplateCategories.Clear();
+            TemplateCategories.Add("すべて");
+            
+            var categories = _templateService.GetAllTemplateCategories();
+            foreach (var category in categories)
+            {
+                TemplateCategories.Add(category);
+            }
+        }
+
         private void ApplyFilter()
         {
             FilteredTemplates.Clear();
 
             var filtered = string.IsNullOrWhiteSpace(SearchText)
-                ? Templates.ToList()
+                ? Templates.AsEnumerable()
                 : _templateService.SearchTemplates(SearchText);
+
+            if (!string.IsNullOrWhiteSpace(SelectedTemplateCategory) && SelectedTemplateCategory != "すべて")
+            {
+                filtered = filtered.Where(t => t.Category.Equals(SelectedTemplateCategory, StringComparison.OrdinalIgnoreCase));
+            }
 
             foreach (var template in filtered.OrderBy(t => t.Name))
             {
@@ -105,9 +129,25 @@ namespace PomodoroTimer.ViewModels
         }
 
         [RelayCommand]
+        private void ShowTemplateDetails(TaskTemplate template)
+        {
+            if (template != null)
+            {
+                SelectedTemplate = template;
+            }
+        }
+
+        [RelayCommand]
         private void ClearSearch()
         {
             SearchText = string.Empty;
+        }
+
+        [RelayCommand]
+        private void ClearFilters()
+        {
+            SearchText = string.Empty;
+            SelectedTemplateCategory = "すべて";
         }
     }
 }

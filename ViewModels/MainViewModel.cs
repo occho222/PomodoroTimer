@@ -2880,37 +2880,6 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
-        /// <summary>
-        /// テンプレートからタスクを作成するコマンド
-        /// </summary>
-        [RelayCommand]
-        private void CreateTaskFromTaskTemplate()
-        {
-            try
-            {
-                var viewModel = new QuickTemplateDialogViewModel(_taskTemplateService);
-                var templateDialog = new Views.QuickTemplateDialog(viewModel);
-
-                if (templateDialog.ShowDialog() == true && templateDialog.SelectedTemplate != null)
-                {
-                    var task = _taskTemplateService.CreateTaskFromTemplate(templateDialog.SelectedTemplate);
-                    _pomodoroService.AddTask(task);
-
-                    RefreshUI();
-
-                    System.Windows.MessageBox.Show($"テンプレート「{templateDialog.SelectedTemplate.Name}」からタスクを作成しました。", 
-                        "タスク作成", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    SaveDataAsync();
-                    _ = Task.Run(_taskTemplateService.SaveTemplatesAsync);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"テンプレートからのタスク作成に失敗しました: {ex.Message}", "エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
 
         /// <summary>
         /// 既存タスクからテンプレートを作成するコマンド

@@ -5,32 +5,69 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:PomodoroTimer.Models"
         mc:Ignorable="d"
-        Title="テンプレートからタスク作成" Height="500" Width="600"
+        Title="テンプレートからタスク作成" Height="700" Width="900"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="CanResize">
+        ResizeMode="CanResize"
+        Background="#F8F9FA">
 
     <Window.Resources>
         <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="24"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,0,0,15"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
         </Style>
 
-        <Style x:Key="ButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="15,8"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="MinWidth" Value="100"/>
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#3B82F6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2563EB"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#9CA3AF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#6B7280"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4B5563"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <DataTemplate x:Key="TemplateItemTemplate" DataType="{x:Type models:TaskTemplate}">
-            <Border BorderBrush="LightGray" BorderThickness="1" Margin="2" Padding="10" 
-                    Background="White" CornerRadius="5" Cursor="Hand">
+            <Border BorderBrush="#E5E7EB" BorderThickness="1" Margin="6" Padding="16" 
+                    Background="White" CornerRadius="12" Cursor="Hand">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Border.Effect>
                 <Border.Style>
                     <Style TargetType="Border">
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="LightBlue"/>
+                                <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                <Setter Property="Background" Value="#F8FAFC"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -42,86 +79,470 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
-                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-                        <Border Background="{Binding PriorityColor}" CornerRadius="8" Padding="6,2" Margin="0,0,5,0">
-                            <TextBlock Text="{Binding PriorityText}" FontSize="10" Foreground="White"/>
-                        </Border>
-                        <TextBlock Text="{Binding UsageCount, StringFormat='{}{0}回'}" FontSize="10" 
-                                   Foreground="Gray" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <!-- ヘッダー -->
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="#1F2937"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Border Background="{Binding PriorityColor}" CornerRadius="12" Padding="8,3" Margin="0,0,8,0">
+                                <TextBlock Text="{Binding PriorityText}" FontSize="10" Foreground="White" FontWeight="Medium"/>
+                            </Border>
+                            <Border Background="#F3F4F6" CornerRadius="12" Padding="8,3">
+                                <TextBlock Text="{Binding UsageCount, StringFormat='{}使用: {0}回'}" FontSize="10" Foreground="#6B7280"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding TaskTitle}" 
-                               FontStyle="Italic" FontWeight="SemiBold" Margin="0,3,0,0"/>
+                    <!-- タスクタイトル -->
+                    <TextBlock Grid.Row="1" Text="{Binding TaskTitle}" FontStyle="Italic" FontWeight="SemiBold"
+                               FontSize="14" Foreground="#4B5563" Margin="0,0,0,6"/>
                     
-                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}" 
-                               FontSize="12" Foreground="Gray" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                    <!-- 説明 -->
+                    <TextBlock Grid.Row="2" Text="{Binding Description}" FontSize="12" 
+                               Foreground="#6B7280" Margin="0,0,0,10" TextWrapping="Wrap" MaxHeight="40"/>
                     
-                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,5,0,0">
-                        <Border Background="LightBlue" CornerRadius="3" Padding="4,1" Margin="0,0,8,0">
-                            <TextBlock Text="{Binding Category}" FontSize="11" Foreground="DarkBlue"/>
+                    <!-- メタデータ -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,8">
+                        <Border Background="#DBEAFE" CornerRadius="6" Padding="6,3" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#1D4ED8" FontWeight="Medium"/>
                         </Border>
-                        <TextBlock Text="{Binding EstimatedPomodoros, StringFormat='{}{0}🍅'}" FontSize="11" 
-                                   Foreground="DarkGreen" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding TagsText}" FontSize="11" Foreground="DarkOrange"/>
+                        <Border Background="#F3E8FF" CornerRadius="6" Padding="6,3" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding DefaultChecklist.Count, StringFormat='{}📋 {0}'}" 
+                                       FontSize="10" Foreground="#7C3AED" FontWeight="Medium"/>
+                        </Border>
+                        <Border Background="#ECFDF5" CornerRadius="6" Padding="6,3">
+                            <TextBlock Text="{Binding DefaultLinks.Count, StringFormat='{}🔗 {0}'}" 
+                                       FontSize="10" Foreground="#047857" FontWeight="Medium"/>
+                        </Border>
                     </StackPanel>
+                    
+                    <!-- タグ -->
+                    <ItemsControl Grid.Row="4" ItemsSource="{Binding Tags}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#E5E7EB" CornerRadius="10" Padding="6,2" Margin="0,0,4,2">
+                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="#374151"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </Grid>
             </Border>
         </DataTemplate>
     </Window.Resources>
 
-    <Grid Margin="15">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- タイトル -->
-        <TextBlock Grid.Row="0" Text="テンプレートからタスクを作成" Style="{StaticResource HeaderTextStyle}"/>
-
-        <!-- 検索 -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="検索:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBox x:Name="SearchTextBox" Width="250" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Content="クリア" Command="{Binding ClearSearchCommand}" Style="{StaticResource ButtonStyle}" 
-                    Padding="10,5" MinWidth="60" Margin="10,0,0,0"/>
+        <!-- ヘッダー -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="テンプレートからタスクを作成" Style="{StaticResource HeaderTextStyle}"/>
+            <TextBlock Text="使いたいテンプレートを選択してタスクを簡単に作成できます" 
+                       FontSize="14" Foreground="#6B7280"/>
         </StackPanel>
 
-        <!-- よく使用するテンプレート -->
-        <GroupBox Grid.Row="2" Header="よく使用するテンプレート" Margin="0,0,0,10" 
-                  Visibility="{Binding HasFrequentTemplates, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <ListBox ItemsSource="{Binding FrequentTemplates}" 
-                     SelectedItem="{Binding SelectedTemplate}"
-                     ItemTemplate="{StaticResource TemplateItemTemplate}"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     MaxHeight="120"/>
-        </GroupBox>
+        <!-- メインコンテンツ -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="350"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- 全テンプレート -->
-        <GroupBox Grid.Row="3" Header="すべてのテンプレート">
-            <ListBox x:Name="TemplateListBox"
-                     ItemsSource="{Binding FilteredTemplates}"
-                     SelectedItem="{Binding SelectedTemplate}"
-                     ItemTemplate="{StaticResource TemplateItemTemplate}"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     MouseDoubleClick="TemplateListBox_MouseDoubleClick"/>
-        </GroupBox>
+            <!-- 左サイドバー: 検索・フィルター -->
+            <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                <!-- 検索セクション -->
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,0,16"
+                        BorderBrush="#E5E7EB" BorderThickness="1">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="🔍 検索" FontSize="16" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,12"/>
+                        <TextBox x:Name="SearchTextBox" Height="40"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="14" Padding="12,8" BorderBrush="#E5E7EB" BorderThickness="2"
+                                 VerticalContentAlignment="Center" Margin="0,0,0,8"/>
+                        <Button Content="🗑️ 検索クリア" Command="{Binding ClearFiltersCommand}" 
+                                Style="{StaticResource SecondaryButton}" HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- カテゴリフィルター -->
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,0,16"
+                        BorderBrush="#E5E7EB" BorderThickness="1">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="📁 カテゴリ" FontSize="16" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,12"/>
+                        <ComboBox x:Name="CategoryComboBox" Height="40"
+                                  SelectedItem="{Binding SelectedTemplateCategory}"
+                                  ItemsSource="{Binding TemplateCategories}"
+                                  FontSize="14" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- よく使用するテンプレート（コンパクト表示） -->
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,0,16"
+                        BorderBrush="#E5E7EB" BorderThickness="1"
+                        Visibility="{Binding HasFrequentTemplates, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="⭐" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="よく使用" FontSize="14" FontWeight="SemiBold" Foreground="#374151"/>
+                        </StackPanel>
+                        <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding FrequentTemplates}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F8FAFC" BorderBrush="#E5E7EB" BorderThickness="1" 
+                                                CornerRadius="6" Margin="0,0,0,4" Padding="8" Cursor="Hand">
+                                            <Border.InputBindings>
+                                                <MouseBinding MouseAction="LeftClick" 
+                                                              Command="{Binding DataContext.ShowTemplateDetailsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                              CommandParameter="{Binding}"/>
+                                                <MouseBinding MouseAction="LeftDoubleClick" 
+                                                              Command="{Binding DataContext.SelectTemplateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                              CommandParameter="{Binding}"/>
+                                            </Border.InputBindings>
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                                            <Setter Property="Background" Value="#EBF8FF"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" 
+                                                           Foreground="#1F2937" TextTrimming="CharacterEllipsis"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <Border Background="{Binding PriorityColor}" CornerRadius="8" 
+                                                            Padding="4,1" Margin="0,0,4,0">
+                                                        <TextBlock Text="{Binding PriorityText}" FontSize="8" 
+                                                                   Foreground="White" FontWeight="Medium"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding UsageCount, StringFormat='{}({0}回)'}" 
+                                                               FontSize="9" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- 右側メインエリア: テンプレートグリッド -->
+            <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20"
+                    BorderBrush="#E5E7EB" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05"/>
+                </Border.Effect>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="📋" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="テンプレート一覧" FontSize="18" FontWeight="SemiBold" Foreground="#374151"/>
+                        <TextBlock Text="{Binding FilteredTemplates.Count, StringFormat='{}({0}件)'}" 
+                                   FontSize="14" Foreground="#6B7280" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="TemplateItemsControl" ItemsSource="{Binding FilteredTemplates}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="1" Margin="4" Padding="12" 
+                                            Background="White" CornerRadius="8" Cursor="Hand" MinHeight="180">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="6" ShadowDepth="2" Opacity="0.08"/>
+                                        </Border.Effect>
+                                        <Border.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick" 
+                                                          Command="{Binding DataContext.ShowTemplateDetailsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          CommandParameter="{Binding}"/>
+                                            <MouseBinding MouseAction="LeftDoubleClick" 
+                                                          Command="{Binding DataContext.SelectTemplateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          CommandParameter="{Binding}"/>
+                                        </Border.InputBindings>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                                        <Setter Property="Background" Value="#F8FAFC"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- ヘッダー -->
+                                            <Grid Grid.Row="0" Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" 
+                                                           FontSize="14" Foreground="#1F2937" TextTrimming="CharacterEllipsis"/>
+                                                <Border Grid.Column="1" Background="{Binding PriorityColor}" CornerRadius="8" 
+                                                        Padding="6,2" Margin="4,0,0,0">
+                                                    <TextBlock Text="{Binding PriorityText}" FontSize="9" 
+                                                               Foreground="White" FontWeight="Medium"/>
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- タスクタイトル -->
+                                            <TextBlock Grid.Row="1" Text="{Binding TaskTitle}" FontStyle="Italic" 
+                                                       FontSize="12" Foreground="#4B5563" Margin="0,0,0,4"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            
+                                            <!-- 説明 -->
+                                            <TextBlock Grid.Row="2" Text="{Binding Description}" FontSize="11" 
+                                                       Foreground="#6B7280" Margin="0,0,0,6" TextWrapping="Wrap" 
+                                                       MaxHeight="30" TextTrimming="CharacterEllipsis"/>
+                                            
+                                            <!-- メタデータ -->
+                                            <StackPanel Grid.Row="3" Margin="0,0,0,6" VerticalAlignment="Top">
+                                                <WrapPanel Margin="0,0,0,4">
+                                                    <Border Background="#DBEAFE" CornerRadius="4" Padding="4,2" Margin="0,0,4,2">
+                                                        <TextBlock Text="{Binding Category}" FontSize="9" Foreground="#1D4ED8" FontWeight="Medium"/>
+                                                    </Border>
+                                                    <Border Background="#F3E8FF" CornerRadius="4" Padding="4,2" Margin="0,0,4,2">
+                                                        <TextBlock Text="{Binding DefaultChecklist.Count, StringFormat='{}📋{0}'}" 
+                                                                   FontSize="9" Foreground="#7C3AED" FontWeight="Medium"/>
+                                                    </Border>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="4,2" Margin="0,0,4,2">
+                                                        <TextBlock Text="{Binding DefaultLinks.Count, StringFormat='{}🔗{0}'}" 
+                                                                   FontSize="9" Foreground="#047857" FontWeight="Medium"/>
+                                                    </Border>
+                                                </WrapPanel>
+                                            </StackPanel>
+                                            
+                                            <!-- 使用回数とタグ -->
+                                            <StackPanel Grid.Row="4" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                                <Border Background="#F3F4F6" CornerRadius="6" Padding="4,2">
+                                                    <TextBlock Text="{Binding UsageCount, StringFormat='{}使用{0}回'}" 
+                                                               FontSize="9" Foreground="#6B7280"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+
+            <!-- 右サイドバー: テンプレート詳細表示 -->
+            <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="20" Margin="20,0,0,0"
+                    BorderBrush="#E5E7EB" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05"/>
+                </Border.Effect>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="📋 テンプレート詳細" FontSize="18" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,16"/>
+                        
+                        <Grid x:Name="TemplateDetailsPanel" Visibility="{Binding SelectedTemplate, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- テンプレート名 -->
+                            <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                                <TextBlock Text="テンプレート名" FontSize="12" FontWeight="SemiBold" 
+                                           Foreground="#374151" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding SelectedTemplate.Name}" FontSize="16" FontWeight="Bold" 
+                                           Foreground="#1F2937" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <!-- 説明 -->
+                            <StackPanel Grid.Row="1" Margin="0,0,0,16" 
+                                        Visibility="{Binding SelectedTemplate.Description, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="説明" FontSize="12" FontWeight="SemiBold" 
+                                           Foreground="#374151" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding SelectedTemplate.Description}" FontSize="13" 
+                                           Foreground="#4B5563" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <!-- タスクタイトル -->
+                            <StackPanel Grid.Row="2" Margin="0,0,0,16">
+                                <TextBlock Text="作成されるタスクタイトル" FontSize="12" FontWeight="SemiBold" 
+                                           Foreground="#374151" Margin="0,0,0,4"/>
+                                <Border Background="#F8FAFC" CornerRadius="6" Padding="12,8" BorderBrush="#E5E7EB" BorderThickness="1">
+                                    <TextBlock Text="{Binding SelectedTemplate.TaskTitle}" FontSize="14" FontWeight="SemiBold"
+                                               Foreground="#1F2937" TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- タスク説明 -->
+                            <StackPanel Grid.Row="3" Margin="0,0,0,16" 
+                                        Visibility="{Binding SelectedTemplate.TaskDescription, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="作成されるタスク説明" FontSize="12" FontWeight="SemiBold" 
+                                           Foreground="#374151" Margin="0,0,0,4"/>
+                                <Border Background="#F8FAFC" CornerRadius="6" Padding="12,8" BorderBrush="#E5E7EB" BorderThickness="1">
+                                    <TextBlock Text="{Binding SelectedTemplate.TaskDescription}" FontSize="13" 
+                                               Foreground="#4B5563" TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- メタ情報 -->
+                            <StackPanel Grid.Row="4" Margin="0,0,0,16">
+                                <TextBlock Text="メタ情報" FontSize="12" FontWeight="SemiBold" 
+                                           Foreground="#374151" Margin="0,0,0,8"/>
+                                <WrapPanel>
+                                    <Border Background="#DBEAFE" CornerRadius="8" Padding="8,4" Margin="0,0,8,4">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📁" FontSize="12" Margin="0,0,4,0"/>
+                                            <TextBlock Text="{Binding SelectedTemplate.Category}" FontSize="12" 
+                                                       Foreground="#1D4ED8" FontWeight="Medium"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="{Binding SelectedTemplate.PriorityColor}" CornerRadius="8" Padding="8,4" Margin="0,0,8,4">
+                                        <TextBlock Text="{Binding SelectedTemplate.PriorityText}" FontSize="12" 
+                                                   Foreground="White" FontWeight="Medium"/>
+                                    </Border>
+                                    <Border Background="#F3F4F6" CornerRadius="8" Padding="8,4" Margin="0,0,8,4">
+                                        <TextBlock Text="{Binding SelectedTemplate.UsageCount, StringFormat='{}使用回数: {0}回'}" 
+                                                   FontSize="12" Foreground="#6B7280"/>
+                                    </Border>
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <!-- タグ -->
+                            <StackPanel Grid.Row="5" Margin="0,0,0,16"
+                                        Visibility="{Binding SelectedTemplate.Tags.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                                <TextBlock Text="タグ" FontSize="12" FontWeight="SemiBold" 
+                                           Foreground="#374151" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding SelectedTemplate.Tags}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#E5E7EB" CornerRadius="12" Padding="8,4" Margin="0,0,4,4">
+                                                <TextBlock Text="{Binding}" FontSize="11" Foreground="#374151" FontWeight="Medium"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <!-- チェックリスト -->
+                            <StackPanel Grid.Row="6" Margin="0,0,0,16"
+                                        Visibility="{Binding SelectedTemplate.DefaultChecklist.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                                <TextBlock Text="📋 デフォルトチェックリスト" FontSize="12" FontWeight="SemiBold" 
+                                           Foreground="#374151" Margin="0,0,0,8"/>
+                                <Border Background="#F8FAFC" CornerRadius="6" Padding="12,8" BorderBrush="#E5E7EB" BorderThickness="1">
+                                    <ItemsControl ItemsSource="{Binding SelectedTemplate.DefaultChecklist}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                                    <CheckBox IsChecked="{Binding IsChecked}" IsEnabled="False" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="{Binding Text}" FontSize="12" Foreground="#4B5563" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- リンク -->
+                            <StackPanel Grid.Row="7" Margin="0,0,0,16"
+                                        Visibility="{Binding SelectedTemplate.DefaultLinks.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                                <TextBlock Text="🔗 デフォルトリンク" FontSize="12" FontWeight="SemiBold" 
+                                           Foreground="#374151" Margin="0,0,0,8"/>
+                                <Border Background="#F8FAFC" CornerRadius="6" Padding="12,8" BorderBrush="#E5E7EB" BorderThickness="1">
+                                    <ItemsControl ItemsSource="{Binding SelectedTemplate.DefaultLinks}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,4">
+                                                    <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="Medium" 
+                                                               Foreground="#1F2937"/>
+                                                    <TextBlock Text="{Binding Url}" FontSize="11" Foreground="#3B82F6" 
+                                                               TextDecorations="Underline" Cursor="Hand"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- アクションボタン -->
+                            <StackPanel Grid.Row="8" VerticalAlignment="Bottom">
+                                <Button Content="✅ このテンプレートでタスク作成" 
+                                        Command="{Binding SelectTemplateCommand}" 
+                                        CommandParameter="{Binding SelectedTemplate}" 
+                                        Style="{StaticResource ModernButton}"
+                                        HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- テンプレート未選択時のメッセージ -->
+                        <StackPanel x:Name="NoSelectionPanel" 
+                                    Visibility="{Binding SelectedTemplate, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Invert}">
+                            <TextBlock Text="テンプレートを選択すると詳細が表示されます" FontSize="14" 
+                                       Foreground="#9CA3AF" TextAlignment="Center" Margin="0,40,0,0" 
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
 
         <!-- ボタン -->
-        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
-            <Button Content="選択" Command="{Binding SelectTemplateCommand}" 
-                    CommandParameter="{Binding SelectedTemplate}" Style="{StaticResource ButtonStyle}"
-                    IsDefault="True" IsEnabled="{Binding HasSelectedTemplate}"/>
-            <Button Content="キャンセル" IsCancel="True" Style="{StaticResource ButtonStyle}"
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="❌ キャンセル" IsCancel="True" Style="{StaticResource SecondaryButton}"
                     Click="CancelButton_Click"/>
         </StackPanel>
     </Grid>
