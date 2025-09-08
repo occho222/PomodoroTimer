@@ -79,11 +79,11 @@ namespace PomodoroTimer.Models
 
     public class EstimatedVsActualData
     {
-        [JsonPropertyName("estimated_pomodoros")]
-        public int EstimatedPomodoros { get; set; }
+        [JsonPropertyName("estimated_minutes")]
+        public int EstimatedMinutes { get; set; }
 
-        [JsonPropertyName("actual_pomodoros")]
-        public int ActualPomodoros { get; set; }
+        [JsonPropertyName("actual_minutes")]
+        public int ActualMinutes { get; set; }
 
         [JsonPropertyName("variance_percentage")]
         public double VariancePercentage { get; set; }
@@ -124,8 +124,8 @@ namespace PomodoroTimer.Models
         [JsonPropertyName("task_completion_rate")]
         public double TaskCompletionRate { get; set; }
 
-        [JsonPropertyName("average_task_size_pomodoros")]
-        public double AverageTaskSizePomodoros { get; set; }
+        [JsonPropertyName("average_task_size_minutes")]
+        public double AverageTaskSizeMinutes { get; set; }
 
         [JsonPropertyName("most_productive_hour")]
         public int MostProductiveHour { get; set; }

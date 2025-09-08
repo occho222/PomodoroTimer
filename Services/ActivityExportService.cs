@@ -60,13 +60,13 @@ namespace PomodoroTimer.Services
                 Priority = GetPriorityText(task.Priority),
                 CompletedAt = task.CompletedAt ?? dateOnly,
                 TotalPomodorosUsed = task.CompletedPomodoros,
-                TotalFocusTimeMinutes = task.CompletedPomodoros * 25,
+                TotalFocusTimeMinutes = task.ActualMinutes,
                 EstimatedVsActual = new EstimatedVsActualData
                 {
-                    EstimatedPomodoros = task.EstimatedPomodoros,
-                    ActualPomodoros = task.CompletedPomodoros,
-                    VariancePercentage = task.EstimatedPomodoros > 0 
-                        ? ((double)(task.CompletedPomodoros - task.EstimatedPomodoros) / task.EstimatedPomodoros) * 100 
+                    EstimatedMinutes = task.EstimatedMinutes,
+                    ActualMinutes = task.ActualMinutes,
+                    VariancePercentage = task.EstimatedMinutes > 0 
+                        ? ((double)(task.ActualMinutes - task.EstimatedMinutes) / task.EstimatedMinutes) * 100 
                         : 0
                 }
             }).ToList();
@@ -180,11 +180,11 @@ namespace PomodoroTimer.Services
                 var category = string.IsNullOrEmpty(task.Category) ? "未分類" : task.Category;
                 if (distribution.ContainsKey(category))
                 {
-                    distribution[category] += task.CompletedPomodoros * 25;
+                    distribution[category] += task.ActualMinutes;
                 }
                 else
                 {
-                    distribution[category] = task.CompletedPomodoros * 25;
+                    distribution[category] = task.ActualMinutes;
                 }
             }
 
@@ -193,14 +193,14 @@ namespace PomodoroTimer.Services
 
         private ProductivityMetrics CalculateProductivityMetrics(List<PomodoroTask> completedTasks, DailyStatistics stats)
         {
-            var totalPomodoros = completedTasks.Sum(t => t.CompletedPomodoros);
-            var deepWorkTime = completedTasks.Where(t => t.CompletedPomodoros >= 2).Sum(t => t.CompletedPomodoros * 25);
+            var totalMinutes = completedTasks.Sum(t => t.ActualMinutes);
+            var deepWorkTime = completedTasks.Where(t => t.ActualMinutes >= 50).Sum(t => t.ActualMinutes);
             
             return new ProductivityMetrics
             {
                 DeepWorkRatio = stats.TotalFocusMinutes > 0 ? (double)deepWorkTime / stats.TotalFocusMinutes : 0,
                 TaskCompletionRate = completedTasks.Count > 0 ? 100.0 : 0,
-                AverageTaskSizePomodoros = completedTasks.Any() ? (double)totalPomodoros / completedTasks.Count : 0,
+                AverageTaskSizeMinutes = completedTasks.Any() ? (double)totalMinutes / completedTasks.Count : 0,
                 MostProductiveHour = 10, // 仮の値（10時）
                 PeakPerformancePeriods = new List<TimeRange>
                 {
@@ -317,13 +317,13 @@ namespace PomodoroTimer.Services
                     Priority = GetPriorityText(task.Priority),
                     CompletedAt = task.CompletedAt ?? startDateOnly,
                     TotalPomodorosUsed = task.CompletedPomodoros,
-                    TotalFocusTimeMinutes = task.CompletedPomodoros * 25,
+                    TotalFocusTimeMinutes = task.ActualMinutes,
                     EstimatedVsActual = new EstimatedVsActualData
                     {
-                        EstimatedPomodoros = task.EstimatedPomodoros,
-                        ActualPomodoros = task.CompletedPomodoros,
-                        VariancePercentage = task.EstimatedPomodoros > 0 
-                            ? ((double)(task.CompletedPomodoros - task.EstimatedPomodoros) / task.EstimatedPomodoros) * 100 
+                        EstimatedMinutes = task.EstimatedMinutes,
+                        ActualMinutes = task.ActualMinutes,
+                        VariancePercentage = task.EstimatedMinutes > 0 
+                            ? ((double)(task.ActualMinutes - task.EstimatedMinutes) / task.EstimatedMinutes) * 100 
                             : 0
                     }
                 }).ToList();
