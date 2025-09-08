@@ -475,6 +475,9 @@ namespace PomodoroTimer.ViewModels
                 // テンプレートデータを読み込み
                 await _taskTemplateService.LoadTemplatesAsync();
 
+                // クイックテンプレートを読み込み
+                await Task.Run(() => LoadQuickTemplates());
+
                 // UIスレッドで更新
                 EnsureUIThread(() =>
                 {
@@ -1541,6 +1544,22 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// クイックテンプレートを保存する
+        /// </summary>
+        private async void SaveQuickTemplates()
+        {
+            try
+            {
+                await _dataPersistenceService.SaveDataAsync("quick_templates.json", QuickTemplates.ToList());
+                Console.WriteLine("クイックテンプレートを保存しました");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"クイックテンプレートの保存に失敗しました: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// デフォルトのクイックテンプレートを作成
         /// </summary>
         private void CreateDefaultQuickTemplates()
@@ -1651,7 +1670,7 @@ namespace PomodoroTimer.ViewModels
                 {
                     try
                     {
-                        await _dataPersistenceService.SaveDataAsync("quick_templates.json", defaultTemplates);
+                        await _dataPersistenceService.SaveDataAsync("quick_templates.json", QuickTemplates.ToList());
                         Console.WriteLine("デフォルトのクイックテンプレートを作成・保存しました");
                     }
                     catch (Exception ex)
