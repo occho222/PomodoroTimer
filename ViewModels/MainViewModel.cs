@@ -731,6 +731,7 @@ namespace PomodoroTimer.ViewModels
             SaveDataAsync();
         }
 
+
         /// <summary>
         /// クイックタスク追加コマンド
         /// </summary>

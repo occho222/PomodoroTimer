@@ -68,6 +68,7 @@ namespace PomodoroTimer.Views
                 _appSettings = settings;
                 
                 DataContext = _viewModel;
+                
 
                 // CollectionViewSourceのフィルタを設定
                 var cvs = (System.Windows.Data.CollectionViewSource)FindResource("TodoTasksGroupedSource");
@@ -144,6 +145,35 @@ namespace PomodoroTimer.Views
             {
                 Console.WriteLine($"タイトル設定でエラー: {ex.Message}");
                 Title = $"Pomoban{suffix}";
+            }
+        }
+
+        /// <summary>
+        /// ウィンドウを最前面に表示
+        /// </summary>
+        private void BringToFront()
+        {
+            try
+            {
+                if (WindowState == WindowState.Minimized)
+                {
+                    WindowState = WindowState.Normal;
+                }
+                
+                Activate();
+                Topmost = true;
+                Focus();
+                
+                // Topmostを一時的に解除（常に最前面にならないように）
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
+                    Topmost = false;
+                }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                
+                Console.WriteLine("ウィンドウを最前面に表示しました");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ウィンドウ最前面表示でエラー: {ex.Message}");
             }
         }
 
@@ -986,7 +1016,13 @@ namespace PomodoroTimer.Views
                 }},
                 { "QuickAddTask", () => { 
                     System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
-                        try { _viewModel.AddQuickTaskCommand?.Execute(null); }
+                        try { 
+                            // ウィンドウを最前面に表示
+                            BringToFront();
+                            
+                            // タスク詳細ダイアログを開く
+                            _viewModel.AddTaskCommand?.Execute(null); 
+                        }
                         catch (Exception ex) { Console.WriteLine($"QuickAddTask hotkey error: {ex.Message}"); }
                     });
                 }},
