@@ -10,7 +10,6 @@ namespace PomodoroTimer.Views
     public partial class QuickTemplateEditDialog : Window
     {
         public string DisplayName { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
         public string TaskTitle { get; set; } = string.Empty;
         public string TaskDescription { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
@@ -47,7 +46,6 @@ namespace PomodoroTimer.Views
         private void LoadTemplate(QuickTemplate template)
         {
             DisplayName = template.DisplayName;
-            Description = template.Description;
             TaskTitle = template.TaskTitle;
             TaskDescription = template.TaskDescription;
             Category = template.Category;
@@ -58,7 +56,6 @@ namespace PomodoroTimer.Views
 
             // フォームに値を設定
             DisplayNameTextBox.Text = DisplayName;
-            DescriptionTextBox.Text = Description;
             TaskTitleTextBox.Text = TaskTitle;
             TaskDescriptionTextBox.Text = TaskDescription;
             CategoryComboBox.Text = Category;
@@ -138,7 +135,6 @@ namespace PomodoroTimer.Views
 
             // フォームから値を取得
             DisplayName = DisplayNameTextBox.Text.Trim();
-            Description = DescriptionTextBox.Text.Trim();
             TaskTitle = TaskTitleTextBox.Text.Trim();
             TaskDescription = TaskDescriptionTextBox.Text.Trim();
             Category = string.IsNullOrWhiteSpace(CategoryComboBox.Text) ? "一般" : CategoryComboBox.Text.Trim();

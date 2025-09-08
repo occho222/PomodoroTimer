@@ -75,7 +75,6 @@ namespace PomodoroTimer.ViewModels
                 {
                     Id = "coding",
                     DisplayName = "💻 コーディング",
-                    Description = "プログラミング・開発作業",
                     TaskTitle = "コーディング作業",
                     TaskDescription = "開発作業を実施します",
                     Category = "開発",
@@ -88,7 +87,6 @@ namespace PomodoroTimer.ViewModels
                 {
                     Id = "review",
                     DisplayName = "👀 レビュー",
-                    Description = "コードレビュー・設計レビュー",
                     TaskTitle = "レビュー作業",
                     TaskDescription = "レビューを実施します",
                     Category = "レビュー",
@@ -101,7 +99,6 @@ namespace PomodoroTimer.ViewModels
                 {
                     Id = "document",
                     DisplayName = "📄 ドキュメント",
-                    Description = "仕様書・ドキュメント作成",
                     TaskTitle = "ドキュメント作成",
                     TaskDescription = "ドキュメントの作成・更新を行います",
                     Category = "ドキュメント",
@@ -114,7 +111,6 @@ namespace PomodoroTimer.ViewModels
                 {
                     Id = "learning",
                     DisplayName = "📚 学習",
-                    Description = "技術学習・研修",
                     TaskTitle = "学習・研修",
                     TaskDescription = "技術習得や学習を行います",
                     Category = "学習",
@@ -127,7 +123,6 @@ namespace PomodoroTimer.ViewModels
                 {
                     Id = "meeting",
                     DisplayName = "📝 会議",
-                    Description = "会議・ミーティング",
                     TaskTitle = "会議参加",
                     TaskDescription = "会議への参加",
                     Category = "会議",
@@ -140,7 +135,6 @@ namespace PomodoroTimer.ViewModels
                 {
                     Id = "email",
                     DisplayName = "📧 メール処理",
-                    Description = "メールの確認・返信",
                     TaskTitle = "メール処理",
                     TaskDescription = "メールの確認・返信作業",
                     Category = "コミュニケーション",
@@ -172,7 +166,6 @@ namespace PomodoroTimer.ViewModels
                     {
                         Id = Guid.NewGuid().ToString(),
                         DisplayName = editDialog.DisplayName,
-                        Description = editDialog.Description,
                         TaskTitle = editDialog.TaskTitle,
                         TaskDescription = editDialog.TaskDescription,
                         Category = editDialog.Category,
@@ -211,7 +204,6 @@ namespace PomodoroTimer.ViewModels
                 {
                     // 選択されたテンプレートを更新
                     SelectedTemplate.DisplayName = editDialog.DisplayName;
-                    SelectedTemplate.Description = editDialog.Description;
                     SelectedTemplate.TaskTitle = editDialog.TaskTitle;
                     SelectedTemplate.TaskDescription = editDialog.TaskDescription;
                     SelectedTemplate.Category = editDialog.Category;

@@ -15,8 +15,6 @@ namespace PomodoroTimer.Models
         [ObservableProperty]
         private string displayName = string.Empty;
 
-        [ObservableProperty]
-        private string description = string.Empty;
 
         [ObservableProperty]
         private string taskTitle = string.Empty;

@@ -79,7 +79,6 @@
                               GridLinesVisibility="Horizontal" HeadersVisibility="Column">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="表示名" Binding="{Binding DisplayName}" Width="150"/>
-                            <DataGridTextColumn Header="説明" Binding="{Binding Description}" Width="200"/>
                             <DataGridTextColumn Header="カテゴリ" Binding="{Binding Category}" Width="120"/>
                             <DataGridTextColumn Header="予想時間" Width="80">
                                 <DataGridTextColumn.Binding>
@@ -115,9 +114,6 @@
                             <Border Background="{Binding BackgroundBrush}" Padding="15" Margin="0,0,0,15" CornerRadius="8">
                                 <TextBlock Text="{Binding DisplayName}" Foreground="White" FontWeight="Bold" FontSize="16"/>
                             </Border>
-                            
-                            <TextBlock Text="説明:" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,0,0,10"/>
                             
                             <TextBlock Text="タスクタイトル:" FontWeight="Bold" Margin="0,0,0,5"/>
                             <TextBlock Text="{Binding TaskTitle}" TextWrapping="Wrap" Margin="0,0,0,10"/>

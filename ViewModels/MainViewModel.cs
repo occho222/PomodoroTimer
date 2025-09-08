@@ -387,7 +387,6 @@ namespace PomodoroTimer.ViewModels
                             {
                                 Console.WriteLine($"  {i+1}. DisplayName: '{QuickTemplates[i].DisplayName}'");
                                 Console.WriteLine($"     TaskTitle: '{QuickTemplates[i].TaskTitle}'");
-                                Console.WriteLine($"     Description: '{QuickTemplates[i].Description}'");
                                 Console.WriteLine($"     Category: '{QuickTemplates[i].Category}'");
                                 Console.WriteLine();
                             }
@@ -1566,7 +1565,6 @@ namespace PomodoroTimer.ViewModels
                     {
                         Id = Guid.NewGuid().ToString(),
                         DisplayName = "📧 メール確認",
-                        Description = "メールをチェックして返信",
                         TaskTitle = "メール確認・返信",
                         TaskDescription = "重要なメールをチェックして必要に応じて返信する",
                         Category = "コミュニケーション",
@@ -1579,7 +1577,6 @@ namespace PomodoroTimer.ViewModels
                     {
                         Id = Guid.NewGuid().ToString(),
                         DisplayName = "📝 文書作成",
-                        Description = "文書やレポートの作成",
                         TaskTitle = "文書作成",
                         TaskDescription = "必要な文書やレポートを作成する",
                         Category = "文書作業",
@@ -1592,7 +1589,6 @@ namespace PomodoroTimer.ViewModels
                     {
                         Id = Guid.NewGuid().ToString(),
                         DisplayName = "💡 アイデア整理",
-                        Description = "アイデアや思考の整理",
                         TaskTitle = "アイデア・思考整理",
                         TaskDescription = "散らかった考えやアイデアを整理してまとめる",
                         Category = "企画・思考",
@@ -1605,7 +1601,6 @@ namespace PomodoroTimer.ViewModels
                     {
                         Id = Guid.NewGuid().ToString(),
                         DisplayName = "🔍 調査・リサーチ",
-                        Description = "情報収集と調査",
                         TaskTitle = "調査・リサーチ",
                         TaskDescription = "必要な情報を調査・収集する",
                         Category = "調査",
@@ -1618,7 +1613,6 @@ namespace PomodoroTimer.ViewModels
                     {
                         Id = Guid.NewGuid().ToString(),
                         DisplayName = "⚡ 緊急対応",
-                        Description = "緊急性の高いタスク",
                         TaskTitle = "緊急対応",
                         TaskDescription = "緊急に対応が必要なタスク",
                         Category = "緊急",

@@ -116,15 +116,6 @@
                            Background="#F0FDF4" BorderBrush="#10B981" Click="AddLinkItemButton_Click"/>
                 </StackPanel>
                 
-                <!-- 説明 -->
-                <StackPanel Margin="0,0,0,15">
-                    <TextBlock Text="説明" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                    <TextBox x:Name="DescriptionTextBox" 
-                             Height="60" Padding="8,5"
-                             TextWrapping="Wrap" AcceptsReturn="True"
-                             BorderBrush="#E2E8F0" Background="White"/>
-                </StackPanel>
-                
                 <!-- タスクタイトル -->
                 <StackPanel Margin="0,0,0,15">
                     <TextBlock Text="タスクタイトル *" FontWeight="SemiBold" Margin="0,0,0,5"/>

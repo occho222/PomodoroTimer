@@ -103,9 +103,6 @@
                     <TextBlock Grid.Row="1" Text="{Binding TaskTitle}" FontStyle="Italic" FontWeight="SemiBold"
                                FontSize="14" Foreground="#4B5563" Margin="0,0,0,6"/>
                     
-                    <!-- 説明 -->
-                    <TextBlock Grid.Row="2" Text="{Binding Description}" FontSize="12" 
-                               Foreground="#6B7280" Margin="0,0,0,10" TextWrapping="Wrap" MaxHeight="40"/>
                     
                     <!-- メタデータ -->
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,8">
@@ -334,10 +331,6 @@
                                                        FontSize="12" Foreground="#4B5563" Margin="0,0,0,4"
                                                        TextTrimming="CharacterEllipsis"/>
                                             
-                                            <!-- 説明 -->
-                                            <TextBlock Grid.Row="2" Text="{Binding Description}" FontSize="11" 
-                                                       Foreground="#6B7280" Margin="0,0,0,6" TextWrapping="Wrap" 
-                                                       MaxHeight="30" TextTrimming="CharacterEllipsis"/>
                                             
                                             <!-- メタデータ -->
                                             <StackPanel Grid.Row="3" Margin="0,0,0,6" VerticalAlignment="Top">
@@ -404,14 +397,6 @@
                                            Foreground="#1F2937" TextWrapping="Wrap"/>
                             </StackPanel>
 
-                            <!-- 説明 -->
-                            <StackPanel Grid.Row="1" Margin="0,0,0,16" 
-                                        Visibility="{Binding SelectedTemplate.Description, Converter={StaticResource StringToVisibilityConverter}}">
-                                <TextBlock Text="説明" FontSize="12" FontWeight="SemiBold" 
-                                           Foreground="#374151" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding SelectedTemplate.Description}" FontSize="13" 
-                                           Foreground="#4B5563" TextWrapping="Wrap"/>
-                            </StackPanel>
 
                             <!-- タスクタイトル -->
                             <StackPanel Grid.Row="2" Margin="0,0,0,16">
