@@ -34,6 +34,11 @@ namespace PomodoroTimer.ViewModels
         private AppSettings _settings;
         private bool _isFocusModeWindowShowing = false;
 
+        /// <summary>
+        /// ホットキー再登録要求イベント
+        /// </summary>
+        public event Action? HotkeyReregistrationRequested;
+
         // タスク関連プロパティ
         [ObservableProperty]
         private ObservableCollection<PomodoroTask> tasks = new();
@@ -1824,6 +1829,11 @@ namespace PomodoroTimer.ViewModels
             _timerService.UpdateSettings(settings);
             _notificationService.UpdateSettings(settings.EnableSoundNotification, settings.EnableDesktopNotification);
             OnPropertyChanged(nameof(EnableFocusMode)); // UI更新のため
+            
+            // ホットキーの再登録を要求
+            HotkeyReregistrationRequested?.Invoke();
+            Console.WriteLine("[DEBUG] ホットキー再登録要求を送信しました");
+            
             Console.WriteLine($"[DEBUG] UpdateSettings完了: 現在の_settings.EnableFocusMode = {_settings?.EnableFocusMode}");
         }
 

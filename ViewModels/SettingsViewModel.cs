@@ -156,14 +156,6 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.QuickAddTaskHotkey,
                     PropertyName = nameof(HotkeySettings.QuickAddTaskHotkey),
                     IsEnabled = true
-                },
-                new HotkeyItem
-                {
-                    DisplayName = "AI分析データエクスポート",
-                    Description = "AI分析用のデータエクスポートダイアログを開きます",
-                    Hotkey = _settings.HotkeySettings.ExportAIAnalysisHotkey,
-                    PropertyName = nameof(HotkeySettings.ExportAIAnalysisHotkey),
-                    IsEnabled = true
                 }
             };
 

@@ -69,6 +69,12 @@ namespace PomodoroTimer.Views
                 
                 DataContext = _viewModel;
                 
+                // ViewModelイベントの購読
+                if (_viewModel != null)
+                {
+                    _viewModel.HotkeyReregistrationRequested += OnHotkeyReregistrationRequested;
+                }
+                
 
                 // CollectionViewSourceのフィルタを設定
                 var cvs = (System.Windows.Data.CollectionViewSource)FindResource("TodoTasksGroupedSource");
@@ -145,6 +151,33 @@ namespace PomodoroTimer.Views
             {
                 Console.WriteLine($"タイトル設定でエラー: {ex.Message}");
                 Title = $"Pomoban{suffix}";
+            }
+        }
+
+        /// <summary>
+        /// ホットキー再登録要求の処理
+        /// </summary>
+        private void OnHotkeyReregistrationRequested()
+        {
+            try
+            {
+                if (_hotkeyService != null && _viewModel != null)
+                {
+                    // 現在の設定を取得
+                    var currentSettings = _viewModel.GetCurrentSettings();
+                    
+                    // すべてのホットキーを一旦削除
+                    _hotkeyService.UnregisterAllHotkeys();
+                    Console.WriteLine("[DEBUG] 既存のホットキーをすべて削除しました");
+                    
+                    // 新しい設定でホットキーを再登録
+                    RegisterHotkeys(_hotkeyService, currentSettings);
+                    Console.WriteLine("[DEBUG] 新しい設定でホットキーを再登録しました");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ホットキー再登録でエラー: {ex.Message}");
             }
         }
 
@@ -937,6 +970,7 @@ namespace PomodoroTimer.Views
                 // ViewModelのクリーンアップを実行
                 if (_viewModel != null)
                 {
+                    _viewModel.HotkeyReregistrationRequested -= OnHotkeyReregistrationRequested;
                     await _viewModel.CleanupAsync();
                 }
                 
@@ -1024,12 +1058,6 @@ namespace PomodoroTimer.Views
                             _viewModel.AddTaskCommand?.Execute(null); 
                         }
                         catch (Exception ex) { Console.WriteLine($"QuickAddTask hotkey error: {ex.Message}"); }
-                    });
-                }},
-                { "ExportAIAnalysis", () => { 
-                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
-                        try { _viewModel.ExportAIAnalysisDataCommand?.Execute(null); }
-                        catch (Exception ex) { Console.WriteLine($"ExportAIAnalysis hotkey error: {ex.Message}"); }
                     });
                 }}
             };

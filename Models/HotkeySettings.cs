@@ -60,7 +60,7 @@ namespace PomodoroTimer.Models
         /// AI分析データエクスポートのショートカットキー
         /// </summary>
         [ObservableProperty]
-        private string exportAIAnalysisHotkey = "Ctrl+E";
+        private string exportAIAnalysisHotkey = "";
     }
 
     /// <summary>

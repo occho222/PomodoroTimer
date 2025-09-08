@@ -159,12 +159,18 @@ namespace PomodoroTimer.Services
                 { "OpenSettings", hotkeySettings.OpenSettingsHotkey },
                 { "OpenStatistics", hotkeySettings.OpenStatisticsHotkey },
                 { "FocusMode", hotkeySettings.FocusModeHotkey },
-                { "QuickAddTask", hotkeySettings.QuickAddTaskHotkey },
-                { "ExportAIAnalysis", hotkeySettings.ExportAIAnalysisHotkey }
+                { "QuickAddTask", hotkeySettings.QuickAddTaskHotkey }
             };
 
             foreach (var mapping in hotkeyMappings)
             {
+                // 空の文字列やnullのホットキーはスキップ
+                if (string.IsNullOrWhiteSpace(mapping.Value))
+                {
+                    System.Diagnostics.Debug.WriteLine($"ホットキー登録スキップ: {mapping.Key} -> (空文字列)");
+                    continue;
+                }
+
                 if (actions.TryGetValue(mapping.Key, out var action))
                 {
                     var success = RegisterHotkey(mapping.Key, mapping.Value, action);
