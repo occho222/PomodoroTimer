@@ -61,6 +61,61 @@ namespace PomodoroTimer.Models
         /// </summary>
         [ObservableProperty]
         private string exportAIAnalysisHotkey = "";
+
+        // 各ホットキーの有効/無効設定
+        /// <summary>
+        /// 開始/一時停止ショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool startPauseHotkeyEnabled = true;
+
+        /// <summary>
+        /// 停止ショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool stopHotkeyEnabled = true;
+
+        /// <summary>
+        /// スキップショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool skipHotkeyEnabled = true;
+
+        /// <summary>
+        /// 新しいタスク追加ショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool addTaskHotkeyEnabled = true;
+
+        /// <summary>
+        /// 設定を開くショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool openSettingsHotkeyEnabled = true;
+
+        /// <summary>
+        /// 統計を開くショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool openStatisticsHotkeyEnabled = true;
+
+        /// <summary>
+        /// 集中モードショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool focusModeHotkeyEnabled = true;
+
+        /// <summary>
+        /// クイックタスク追加ショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool quickAddTaskHotkeyEnabled = true;
+
+        /// <summary>
+        /// AI分析データエクスポートショートカットキーが有効かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool exportAIAnalysisHotkeyEnabled = false;
     }
 
     /// <summary>
@@ -88,6 +143,11 @@ namespace PomodoroTimer.Models
         /// プロパティ名（設定保存用）
         /// </summary>
         public string PropertyName { get; set; } = "";
+
+        /// <summary>
+        /// 有効フラグのプロパティ名（設定保存用）
+        /// </summary>
+        public string EnabledPropertyName { get; set; } = "";
 
         /// <summary>
         /// 有効かどうか

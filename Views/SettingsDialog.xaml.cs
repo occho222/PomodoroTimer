@@ -61,7 +61,17 @@ namespace PomodoroTimer.Views
                     OpenStatisticsHotkey = currentSettings.HotkeySettings.OpenStatisticsHotkey,
                     FocusModeHotkey = currentSettings.HotkeySettings.FocusModeHotkey,
                     QuickAddTaskHotkey = currentSettings.HotkeySettings.QuickAddTaskHotkey,
-                    ExportAIAnalysisHotkey = currentSettings.HotkeySettings.ExportAIAnalysisHotkey
+                    ExportAIAnalysisHotkey = currentSettings.HotkeySettings.ExportAIAnalysisHotkey,
+                    // 有効フラグもコピー
+                    StartPauseHotkeyEnabled = currentSettings.HotkeySettings.StartPauseHotkeyEnabled,
+                    StopHotkeyEnabled = currentSettings.HotkeySettings.StopHotkeyEnabled,
+                    SkipHotkeyEnabled = currentSettings.HotkeySettings.SkipHotkeyEnabled,
+                    AddTaskHotkeyEnabled = currentSettings.HotkeySettings.AddTaskHotkeyEnabled,
+                    OpenSettingsHotkeyEnabled = currentSettings.HotkeySettings.OpenSettingsHotkeyEnabled,
+                    OpenStatisticsHotkeyEnabled = currentSettings.HotkeySettings.OpenStatisticsHotkeyEnabled,
+                    FocusModeHotkeyEnabled = currentSettings.HotkeySettings.FocusModeHotkeyEnabled,
+                    QuickAddTaskHotkeyEnabled = currentSettings.HotkeySettings.QuickAddTaskHotkeyEnabled,
+                    ExportAIAnalysisHotkeyEnabled = currentSettings.HotkeySettings.ExportAIAnalysisHotkeyEnabled
                 }
             };
             

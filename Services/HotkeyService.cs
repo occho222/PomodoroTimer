@@ -150,22 +150,29 @@ namespace PomodoroTimer.Services
         /// <param name="actions">アクション辞書</param>
         public void RegisterHotkeysFromSettings(HotkeySettings hotkeySettings, Dictionary<string, Action> actions)
         {
-            var hotkeyMappings = new Dictionary<string, string>
+            var hotkeyMappings = new Dictionary<string, (string hotkey, bool enabled)>
             {
-                { "StartPause", hotkeySettings.StartPauseHotkey },
-                { "Stop", hotkeySettings.StopHotkey },
-                { "Skip", hotkeySettings.SkipHotkey },
-                { "AddTask", hotkeySettings.AddTaskHotkey },
-                { "OpenSettings", hotkeySettings.OpenSettingsHotkey },
-                { "OpenStatistics", hotkeySettings.OpenStatisticsHotkey },
-                { "FocusMode", hotkeySettings.FocusModeHotkey },
-                { "QuickAddTask", hotkeySettings.QuickAddTaskHotkey }
+                { "StartPause", (hotkeySettings.StartPauseHotkey, hotkeySettings.StartPauseHotkeyEnabled) },
+                { "Stop", (hotkeySettings.StopHotkey, hotkeySettings.StopHotkeyEnabled) },
+                { "Skip", (hotkeySettings.SkipHotkey, hotkeySettings.SkipHotkeyEnabled) },
+                { "AddTask", (hotkeySettings.AddTaskHotkey, hotkeySettings.AddTaskHotkeyEnabled) },
+                { "OpenSettings", (hotkeySettings.OpenSettingsHotkey, hotkeySettings.OpenSettingsHotkeyEnabled) },
+                { "OpenStatistics", (hotkeySettings.OpenStatisticsHotkey, hotkeySettings.OpenStatisticsHotkeyEnabled) },
+                { "FocusMode", (hotkeySettings.FocusModeHotkey, hotkeySettings.FocusModeHotkeyEnabled) },
+                { "QuickAddTask", (hotkeySettings.QuickAddTaskHotkey, hotkeySettings.QuickAddTaskHotkeyEnabled) }
             };
 
             foreach (var mapping in hotkeyMappings)
             {
+                // 無効化されているホットキーはスキップ
+                if (!mapping.Value.enabled)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ホットキー登録スキップ: {mapping.Key} -> (無効)");
+                    continue;
+                }
+
                 // 空の文字列やnullのホットキーはスキップ
-                if (string.IsNullOrWhiteSpace(mapping.Value))
+                if (string.IsNullOrWhiteSpace(mapping.Value.hotkey))
                 {
                     System.Diagnostics.Debug.WriteLine($"ホットキー登録スキップ: {mapping.Key} -> (空文字列)");
                     continue;
@@ -173,8 +180,8 @@ namespace PomodoroTimer.Services
 
                 if (actions.TryGetValue(mapping.Key, out var action))
                 {
-                    var success = RegisterHotkey(mapping.Key, mapping.Value, action);
-                    System.Diagnostics.Debug.WriteLine($"ホットキー登録: {mapping.Key} -> {mapping.Value} : {(success ? "成功" : "失敗")}");
+                    var success = RegisterHotkey(mapping.Key, mapping.Value.hotkey, action);
+                    System.Diagnostics.Debug.WriteLine($"ホットキー登録: {mapping.Key} -> {mapping.Value.hotkey} : {(success ? "成功" : "失敗")}");
                 }
                 else
                 {

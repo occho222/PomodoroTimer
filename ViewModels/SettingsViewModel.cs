@@ -99,7 +99,8 @@ namespace PomodoroTimer.ViewModels
                     Description = "タイマーの開始と一時停止を切り替えます",
                     Hotkey = _settings.HotkeySettings.StartPauseHotkey,
                     PropertyName = nameof(HotkeySettings.StartPauseHotkey),
-                    IsEnabled = true
+                    IsEnabled = _settings.HotkeySettings.StartPauseHotkeyEnabled,
+                    EnabledPropertyName = nameof(HotkeySettings.StartPauseHotkeyEnabled)
                 },
                 new HotkeyItem
                 {
@@ -107,7 +108,8 @@ namespace PomodoroTimer.ViewModels
                     Description = "タイマーを停止してセッションをリセットします",
                     Hotkey = _settings.HotkeySettings.StopHotkey,
                     PropertyName = nameof(HotkeySettings.StopHotkey),
-                    IsEnabled = true
+                    IsEnabled = _settings.HotkeySettings.StopHotkeyEnabled,
+                    EnabledPropertyName = nameof(HotkeySettings.StopHotkeyEnabled)
                 },
                 new HotkeyItem
                 {
@@ -115,7 +117,8 @@ namespace PomodoroTimer.ViewModels
                     Description = "現在のセッションをスキップして次に進みます",
                     Hotkey = _settings.HotkeySettings.SkipHotkey,
                     PropertyName = nameof(HotkeySettings.SkipHotkey),
-                    IsEnabled = true
+                    IsEnabled = _settings.HotkeySettings.SkipHotkeyEnabled,
+                    EnabledPropertyName = nameof(HotkeySettings.SkipHotkeyEnabled)
                 },
                 new HotkeyItem
                 {
@@ -123,7 +126,8 @@ namespace PomodoroTimer.ViewModels
                     Description = "新しいタスクを追加するダイアログを開きます",
                     Hotkey = _settings.HotkeySettings.AddTaskHotkey,
                     PropertyName = nameof(HotkeySettings.AddTaskHotkey),
-                    IsEnabled = true
+                    IsEnabled = _settings.HotkeySettings.AddTaskHotkeyEnabled,
+                    EnabledPropertyName = nameof(HotkeySettings.AddTaskHotkeyEnabled)
                 },
                 new HotkeyItem
                 {
@@ -131,7 +135,8 @@ namespace PomodoroTimer.ViewModels
                     Description = "設定ダイアログを開きます",
                     Hotkey = _settings.HotkeySettings.OpenSettingsHotkey,
                     PropertyName = nameof(HotkeySettings.OpenSettingsHotkey),
-                    IsEnabled = true
+                    IsEnabled = _settings.HotkeySettings.OpenSettingsHotkeyEnabled,
+                    EnabledPropertyName = nameof(HotkeySettings.OpenSettingsHotkeyEnabled)
                 },
                 new HotkeyItem
                 {
@@ -139,7 +144,8 @@ namespace PomodoroTimer.ViewModels
                     Description = "統計ダイアログを開きます",
                     Hotkey = _settings.HotkeySettings.OpenStatisticsHotkey,
                     PropertyName = nameof(HotkeySettings.OpenStatisticsHotkey),
-                    IsEnabled = true
+                    IsEnabled = _settings.HotkeySettings.OpenStatisticsHotkeyEnabled,
+                    EnabledPropertyName = nameof(HotkeySettings.OpenStatisticsHotkeyEnabled)
                 },
                 new HotkeyItem
                 {
@@ -147,7 +153,8 @@ namespace PomodoroTimer.ViewModels
                     Description = "集中モードウィンドウを開きます",
                     Hotkey = _settings.HotkeySettings.FocusModeHotkey,
                     PropertyName = nameof(HotkeySettings.FocusModeHotkey),
-                    IsEnabled = true
+                    IsEnabled = _settings.HotkeySettings.FocusModeHotkeyEnabled,
+                    EnabledPropertyName = nameof(HotkeySettings.FocusModeHotkeyEnabled)
                 },
                 new HotkeyItem
                 {
@@ -155,7 +162,8 @@ namespace PomodoroTimer.ViewModels
                     Description = "クイックタスク追加ダイアログを開きます",
                     Hotkey = _settings.HotkeySettings.QuickAddTaskHotkey,
                     PropertyName = nameof(HotkeySettings.QuickAddTaskHotkey),
-                    IsEnabled = true
+                    IsEnabled = _settings.HotkeySettings.QuickAddTaskHotkeyEnabled,
+                    EnabledPropertyName = nameof(HotkeySettings.QuickAddTaskHotkeyEnabled)
                 }
             };
 
@@ -176,10 +184,18 @@ namespace PomodoroTimer.ViewModels
         /// </summary>
         private void HotkeyItem_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (sender is HotkeyItem item && e.PropertyName == nameof(HotkeyItem.Hotkey))
+            if (sender is HotkeyItem item)
             {
-                // 設定を更新
-                UpdateHotkeySetting(item);
+                if (e.PropertyName == nameof(HotkeyItem.Hotkey))
+                {
+                    // ホットキー設定を更新
+                    UpdateHotkeySetting(item);
+                }
+                else if (e.PropertyName == nameof(HotkeyItem.IsEnabled))
+                {
+                    // 有効/無効設定を更新
+                    UpdateHotkeyEnabledSetting(item);
+                }
             }
         }
 
@@ -204,6 +220,26 @@ namespace PomodoroTimer.ViewModels
         }
 
         /// <summary>
+        /// ホットキーの有効/無効設定を更新
+        /// </summary>
+        /// <param name="item">ホットキー項目</param>
+        private void UpdateHotkeyEnabledSetting(HotkeyItem item)
+        {
+            try
+            {
+                var property = typeof(HotkeySettings).GetProperty(item.EnabledPropertyName);
+                if (property != null && property.CanWrite)
+                {
+                    property.SetValue(_settings.HotkeySettings, item.IsEnabled);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ホットキー有効設定更新エラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// ホットキーをデフォルトに戻す
         /// </summary>
         public void ResetHotkeysToDefault()
@@ -214,11 +250,20 @@ namespace PomodoroTimer.ViewModels
             {
                 try
                 {
+                    // ホットキー文字列をデフォルトに戻す
                     var property = typeof(HotkeySettings).GetProperty(item.PropertyName);
                     if (property != null && property.CanRead)
                     {
                         var defaultValue = property.GetValue(defaultSettings) as string ?? "";
                         item.Hotkey = defaultValue;
+                    }
+
+                    // 有効フラグをデフォルトに戻す
+                    var enabledProperty = typeof(HotkeySettings).GetProperty(item.EnabledPropertyName);
+                    if (enabledProperty != null && enabledProperty.CanRead)
+                    {
+                        var defaultEnabled = (bool)(enabledProperty.GetValue(defaultSettings) ?? true);
+                        item.IsEnabled = defaultEnabled;
                     }
                 }
                 catch (Exception ex)
