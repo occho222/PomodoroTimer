@@ -216,47 +216,83 @@ namespace PomodoroTimer.Services
             
             sb.AppendLine("# 日次アクティビティ振り返り用プロンプト");
             sb.AppendLine();
-            sb.AppendLine("以下のJSONデータは、私の1日の作業アクティビティを詳細に記録したものです。");
-            sb.AppendLine("このデータを分析して、生産性向上のための具体的なアドバイスと振り返りを提供してください。");
+            
+            // まず最初にサマリーを表示
+            sb.AppendLine("## 📊 今日のアクティビティサマリー");
+            sb.AppendLine($"**対象日**: {activityData.Date:yyyy年MM月dd日}");
+            sb.AppendLine($"**総集中時間**: {activityData.Summary.TotalFocusTimeMinutes}分 ({activityData.Summary.TotalFocusTimeMinutes / 60.0:F1}時間)");
+            sb.AppendLine($"**完了ポモドーロ数**: {activityData.Summary.TotalPomodorosCompleted}個");
+            sb.AppendLine($"**完了タスク数**: {activityData.Summary.TotalTasksCompleted}個");
+            sb.AppendLine($"**集中効率**: {activityData.Summary.FocusEfficiencyPercentage:F1}%");
+            
+            // カテゴリ別時間配分を追加
+            if (activityData.CategoryBreakdown.Any())
+            {
+                sb.AppendLine();
+                sb.AppendLine("**カテゴリ別時間配分**:");
+                foreach (var category in activityData.CategoryBreakdown.OrderByDescending(c => c.TotalMinutes))
+                {
+                    var percentage = activityData.Summary.TotalFocusTimeMinutes > 0 
+                        ? (category.TotalMinutes * 100.0 / activityData.Summary.TotalFocusTimeMinutes) 
+                        : 0;
+                    sb.AppendLine($"- {category.CategoryName}: {category.TotalMinutes}分 ({percentage:F1}%)");
+                }
+            }
+            
             sb.AppendLine();
-            sb.AppendLine("## 分析してほしい観点:");
+            sb.AppendLine("---");
+            sb.AppendLine();
+            
+            // 分析依頼内容
+            sb.AppendLine("## 🎯 分析依頼");
+            sb.AppendLine("以下のJSONデータは、私の1日の作業アクティビティを詳細に記録したものです。");
+            sb.AppendLine("上記のサマリーと詳細なJSONデータを分析して、生産性向上のための具体的なアドバイスと振り返りを提供してください。");
+            sb.AppendLine();
+            
+            // 期待する出力形式を最初に明示
+            sb.AppendLine("## 📝 期待する出力形式");
+            sb.AppendLine("以下の形式で**必ずサマリーから開始**してください:");
+            sb.AppendLine();
+            sb.AppendLine("### 🏆 今日の成果ハイライト");
+            sb.AppendLine("- 最も重要な成果3つを簡潔に");
+            sb.AppendLine("- 定量的な数値を含めて");
+            sb.AppendLine();
+            sb.AppendLine("### ✅ 良かった点");
+            sb.AppendLine("- 継続すべき行動や判断");
+            sb.AppendLine("- 効果的だった時間の使い方");
+            sb.AppendLine();
+            sb.AppendLine("### 🔄 改善点");
+            sb.AppendLine("- 具体的な改善アクション");
+            sb.AppendLine("- 時間配分の最適化案");
+            sb.AppendLine();
+            sb.AppendLine("### 🚀 明日への提案");
+            sb.AppendLine("- 明日の計画立案に役立つ実践的アドバイス");
+            sb.AppendLine("- 優先順位付けの改善案");
+            sb.AppendLine();
+            
+            // 分析観点
+            sb.AppendLine("## 🔍 分析してほしい観点");
             sb.AppendLine("1. **時間配分の効率性**");
             sb.AppendLine("   - カテゴリごとの時間配分は適切か");
-            sb.AppendLine("   - 優先度と実際の時間投入のバランスは取れているか");
+            sb.AppendLine("   - 優先度と実際の時間投入のバランス");
             sb.AppendLine();
             sb.AppendLine("2. **タスク管理の精度**");
             sb.AppendLine("   - 見積もりと実際の作業時間の差異分析");
-            sb.AppendLine("   - タスクのサイズ設定は適切だったか");
+            sb.AppendLine("   - タスクのサイズ設定の適切性");
             sb.AppendLine();
             sb.AppendLine("3. **集中力と生産性**");
             sb.AppendLine("   - ポモドーロテクニックの活用効果");
             sb.AppendLine("   - 深い作業（Deep Work）の割合と質");
-            sb.AppendLine("   - 集中できた時間帯とパターン");
+            sb.AppendLine("   - 集中できた時間帯とパターン分析");
             sb.AppendLine();
-            sb.AppendLine("4. **改善提案**");
-            sb.AppendLine("   - 明日の作業で改善できそうなポイント");
-            sb.AppendLine("   - タスクの優先順位付けの改善案");
-            sb.AppendLine("   - 時間管理の最適化提案");
-            sb.AppendLine();
-            sb.AppendLine("## 出力形式:");
-            sb.AppendLine("- **今日の成果サマリー**: 定量的な成果を3つの重要ポイントで");
-            sb.AppendLine("- **良かった点**: 継続すべき行動や判断");
-            sb.AppendLine("- **改善点**: 具体的な改善アクション");
-            sb.AppendLine("- **明日への提案**: 明日の計画立案に役立つ実践的アドバイス");
-            sb.AppendLine();
-            sb.AppendLine("## アクティビティデータ:");
-            sb.AppendLine($"対象日: {activityData.Date:yyyy年MM月dd日}");
-            sb.AppendLine($"総集中時間: {activityData.Summary.TotalFocusTimeMinutes}分");
-            sb.AppendLine($"完了ポモドーロ数: {activityData.Summary.TotalPomodorosCompleted}個");
-            sb.AppendLine($"完了タスク数: {activityData.Summary.TotalTasksCompleted}個");
-            sb.AppendLine($"集中効率: {activityData.Summary.FocusEfficiencyPercentage:F1}%");
-            sb.AppendLine();
+            
             sb.AppendLine("---");
             sb.AppendLine();
+            sb.AppendLine("## 📄 詳細データ");
             sb.AppendLine("詳細なJSONデータは以下のファイルを参照してください:");
-            sb.AppendLine($"ファイル名: {jsonFileName}");
+            sb.AppendLine($"**ファイル名**: {jsonFileName}");
             sb.AppendLine();
-            sb.AppendLine("このプロンプトと一緒にJSONファイルの内容を生成AIに渡して、");
+            sb.AppendLine("💡 **使用方法**: このプロンプトと一緒にJSONファイルの内容を生成AIに渡して、");
             sb.AppendLine("パーソナライズされた振り返りと改善提案を受けてください。");
 
             return sb.ToString();
