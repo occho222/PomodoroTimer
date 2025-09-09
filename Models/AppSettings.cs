@@ -8,7 +8,7 @@
         /// <summary>
         /// データフォーマットのバージョン
         /// </summary>
-        public string DataVersion { get; set; } = "1.6.8";
+        public string DataVersion { get; set; } = "1.6.9";
 
         /// <summary>
         /// 作業セッション時間（分）
