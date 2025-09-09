@@ -368,7 +368,7 @@ namespace PomodoroTimer.ViewModels
                 // 統計情報を読み込み
                 LoadTodayStatistics();
 
-                // クイックテンプレートを初期化（同期的に実行）
+                // クイックテンプレートコレクションを初期化（実際の読み込みはInitializeDataAsyncで行う）
                 InitializeQuickTemplatesSync();
                 
                 // デバッグ用：QuickTemplatesの状態を確認
@@ -1453,44 +1453,16 @@ namespace PomodoroTimer.ViewModels
         {
             try
             {
-                
                 // QuickTemplatesが確実に初期化されていることを確認
                 if (QuickTemplates == null)
                 {
                     QuickTemplates = new ObservableCollection<QuickTemplate>();
                 }
                 
+                Console.WriteLine("InitializeQuickTemplatesSync: QuickTemplatesコレクションを初期化しました");
                 
-                // 初期化時はデフォルトテンプレートを即座に作成
-                CreateDefaultQuickTemplates();
-                
-                // 非同期でファイルからの読み込みを試行
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        var templates = await _dataPersistenceService.LoadDataAsync<List<QuickTemplate>>("quick_templates.json");
-                        if (templates != null && templates.Count > 0)
-                        {
-                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                Console.WriteLine($"ファイルから {templates.Count} 個のテンプレートを読み込み、既存のデフォルトを置き換え");
-                                QuickTemplates.Clear();
-                                foreach (var template in templates)
-                                {
-                                    QuickTemplates.Add(template);
-                                    Console.WriteLine($"読み込み済みテンプレート: DisplayName='{template.DisplayName}', TaskTitle='{template.TaskTitle}'");
-                                }
-                                Console.WriteLine($"ファイルからの読み込み完了。QuickTemplatesの数: {QuickTemplates.Count}");
-                                OnPropertyChanged(nameof(QuickTemplates));
-                            });
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"ファイルからの読み込みに失敗（デフォルトを維持）: {ex.Message}");
-                    }
-                });
+                // 実際の読み込みは LoadQuickTemplates() に任せる
+                // ここでは空のコレクションを用意するだけ
             }
             catch (Exception ex)
             {
@@ -1523,8 +1495,9 @@ namespace PomodoroTimer.ViewModels
                     else
                     {
                         Console.WriteLine("テンプレートファイルが見つからないか空のため、デフォルトテンプレートを作成");
-                        // デフォルトのクイックテンプレートを作成
+                        // デフォルトのクイックテンプレートを作成し保存
                         CreateDefaultQuickTemplates();
+                        SaveQuickTemplates();
                     }
                     Console.WriteLine($"QuickTemplatesに追加後の数: {QuickTemplates.Count}");
                     OnPropertyChanged(nameof(QuickTemplates));
@@ -1533,10 +1506,11 @@ namespace PomodoroTimer.ViewModels
             catch (Exception ex)
             {
                 Console.WriteLine($"クイックテンプレートの読み込みに失敗しました: {ex.Message}");
-                // エラー時もデフォルトテンプレートを作成
+                // エラー時もデフォルトテンプレートを作成し保存
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     CreateDefaultQuickTemplates();
+                    SaveQuickTemplates();
                     Console.WriteLine($"エラー時のQuickTemplatesの数: {QuickTemplates.Count}");
                     OnPropertyChanged(nameof(QuickTemplates));
                 });
