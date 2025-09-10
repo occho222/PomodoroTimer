@@ -226,16 +226,16 @@ namespace PomodoroTimer.Services
             sb.AppendLine($"**集中効率**: {activityData.Summary.FocusEfficiencyPercentage:F1}%");
             
             // カテゴリ別時間配分を追加
-            if (activityData.CategoryBreakdown.Any())
+            if (activityData.TimeDistribution.Any())
             {
                 sb.AppendLine();
                 sb.AppendLine("**カテゴリ別時間配分**:");
-                foreach (var category in activityData.CategoryBreakdown.OrderByDescending(c => c.TotalMinutes))
+                foreach (var category in activityData.TimeDistribution.OrderByDescending(c => c.Value))
                 {
                     var percentage = activityData.Summary.TotalFocusTimeMinutes > 0 
-                        ? (category.TotalMinutes * 100.0 / activityData.Summary.TotalFocusTimeMinutes) 
+                        ? (category.Value * 100.0 / activityData.Summary.TotalFocusTimeMinutes) 
                         : 0;
-                    sb.AppendLine($"- {category.CategoryName}: {category.TotalMinutes}分 ({percentage:F1}%)");
+                    sb.AppendLine($"- {category.Key}: {category.Value}分 ({percentage:F1}%)");
                 }
             }
             

@@ -468,8 +468,6 @@
                                     <Button Content="{Binding}" 
                                             Command="{Binding DataContext.AddTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                             CommandParameter="{Binding}"
-                                            Style="{StaticResource RoundButton}" 
-                                            Background="#E5E7EB" Foreground="#374151"
                                             FontSize="11" Padding="8,4" Margin="3,2" Height="28" MinWidth="50">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource RoundButton}">
