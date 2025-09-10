@@ -116,6 +116,61 @@ namespace PomodoroTimer.Models
         /// </summary>
         [ObservableProperty]
         private bool exportAIAnalysisHotkeyEnabled = false;
+
+        // 各ホットキーの非アクティブ時動作設定
+        /// <summary>
+        /// 開始/一時停止ショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool startPauseHotkeyGlobal = false;
+
+        /// <summary>
+        /// 停止ショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool stopHotkeyGlobal = false;
+
+        /// <summary>
+        /// スキップショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool skipHotkeyGlobal = false;
+
+        /// <summary>
+        /// 新しいタスク追加ショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool addTaskHotkeyGlobal = false;
+
+        /// <summary>
+        /// 設定を開くショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool openSettingsHotkeyGlobal = false;
+
+        /// <summary>
+        /// 統計を開くショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool openStatisticsHotkeyGlobal = false;
+
+        /// <summary>
+        /// 集中モードショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool focusModeHotkeyGlobal = false;
+
+        /// <summary>
+        /// クイックタスク追加ショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool quickAddTaskHotkeyGlobal = false;
+
+        /// <summary>
+        /// AI分析データエクスポートショートカットキーを非アクティブ時も有効にするかどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool exportAIAnalysisHotkeyGlobal = false;
     }
 
     /// <summary>
@@ -154,5 +209,16 @@ namespace PomodoroTimer.Models
         /// </summary>
         [ObservableProperty]
         private bool isEnabled = true;
+
+        /// <summary>
+        /// グローバル（非アクティブ時も有効）かどうか
+        /// </summary>
+        [ObservableProperty]
+        private bool isGlobal = false;
+
+        /// <summary>
+        /// グローバル設定のプロパティ名（設定保存用）
+        /// </summary>
+        public string GlobalPropertyName { get; set; } = "";
     }
 }

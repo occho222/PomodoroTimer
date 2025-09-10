@@ -8,7 +8,7 @@
         /// <summary>
         /// データフォーマットのバージョン
         /// </summary>
-        public string DataVersion { get; set; } = "1.7.1";
+        public string DataVersion { get; set; } = "1.7.2";
 
         /// <summary>
         /// 作業セッション時間（分）
@@ -100,10 +100,6 @@
         /// </summary>
         public bool EnableGlobalHotkeys { get; set; } = true;
 
-        /// <summary>
-        /// アプリがアクティブでない時もホットキーを有効にするかどうか
-        /// </summary>
-        public bool EnableHotkeysWhenInactive { get; set; } = false;
 
         /// <summary>
         /// 開始/一時停止のホットキー

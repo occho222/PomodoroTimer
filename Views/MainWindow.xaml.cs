@@ -95,8 +95,7 @@ namespace PomodoroTimer.Views
                 PomodoroTimer.Converters.CompletedGroupCollapseVisibilityConverter.IsCompletedGroupCollapsed = 
                     (category) => collapsedCompletedGroups.Contains(category);
 
-                // ホットキーの登録
-                RegisterHotKeys();
+                // ホットキーの登録は後でOnWindowLoadedで行う
                 
                 // ウィンドウイベントの購読
                 StateChanged += OnWindowStateChanged;
@@ -405,83 +404,6 @@ namespace PomodoroTimer.Views
             }
         }
 
-        /// <summary>
-        /// ホットキーを登録する
-        /// </summary>
-        private void RegisterHotKeys()
-        {
-            try
-            {
-                if (_viewModel == null) return;
-
-                // Ctrl+Space: 開始/一時停止
-                var startPauseCommand = new RoutedCommand();
-                startPauseCommand.InputGestures.Add(new KeyGesture(Key.Space, ModifierKeys.Control));
-                CommandBindings.Add(new CommandBinding(startPauseCommand, (s, e) => _viewModel.StartPauseCommand?.Execute(null)));
-
-                // Ctrl+S: 停止
-                var stopCommand = new RoutedCommand();
-                stopCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
-                CommandBindings.Add(new CommandBinding(stopCommand, (s, e) => _viewModel.StopCommand?.Execute(null)));
-
-                // Ctrl+N: 次のセッション
-                var skipCommand = new RoutedCommand();
-                skipCommand.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
-                CommandBindings.Add(new CommandBinding(skipCommand, (s, e) => _viewModel.SkipCommand?.Execute(null)));
-
-                // Ctrl+T: タスク追加
-                var addTaskCommand = new RoutedCommand();
-                addTaskCommand.InputGestures.Add(new KeyGesture(Key.T, ModifierKeys.Control));
-                CommandBindings.Add(new CommandBinding(addTaskCommand, (s, e) => _viewModel.AddTaskCommand?.Execute(null)));
-
-                // F1: 設定画面
-                var settingsCommand = new RoutedCommand();
-                settingsCommand.InputGestures.Add(new KeyGesture(Key.F1));
-                CommandBindings.Add(new CommandBinding(settingsCommand, (s, e) => _viewModel.OpenSettingsCommand?.Execute(null)));
-
-                // F2: 統計画面
-                var statisticsCommand = new RoutedCommand();
-                statisticsCommand.InputGestures.Add(new KeyGesture(Key.F2));
-                CommandBindings.Add(new CommandBinding(statisticsCommand, (s, e) => _viewModel.OpenStatisticsCommand?.Execute(null)));
-
-                // F3: プロジェクト・タグ管理
-                var projectTagCommand = new RoutedCommand();
-                projectTagCommand.InputGestures.Add(new KeyGesture(Key.F3));
-                CommandBindings.Add(new CommandBinding(projectTagCommand, (s, e) => _viewModel.OpenProjectTagManagerCommand?.Execute(null)));
-
-                // Ctrl+R: 全て更新
-                var refreshCommand = new RoutedCommand();
-                refreshCommand.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
-                CommandBindings.Add(new CommandBinding(refreshCommand, (s, e) => _viewModel.RefreshAllCommand?.Execute(null)));
-
-                // Ctrl+B: 一括選択モード切り替え
-                var bulkSelectCommand = new RoutedCommand();
-                bulkSelectCommand.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
-                CommandBindings.Add(new CommandBinding(bulkSelectCommand, (s, e) => _viewModel.ToggleBulkSelectionCommand?.Execute(null)));
-
-
-                // Escape: フィルタークリア
-                var clearFiltersCommand = new RoutedCommand();
-                clearFiltersCommand.InputGestures.Add(new KeyGesture(Key.Escape));
-                CommandBindings.Add(new CommandBinding(clearFiltersCommand, (s, e) => _viewModel.ClearFiltersCommand?.Execute(null)));
-
-                // Ctrl+1-4: カンバン列フォーカス移動
-                for (int i = 1; i <= 4; i++)
-                {
-                    var columnFocusCommand = new RoutedCommand();
-                    var key = (Key)Enum.Parse(typeof(Key), $"D{i}");
-                    columnFocusCommand.InputGestures.Add(new KeyGesture(key, ModifierKeys.Control));
-                    var columnIndex = i - 1;
-                    CommandBindings.Add(new CommandBinding(columnFocusCommand, (s, e) => FocusKanbanColumn(columnIndex)));
-                }
-                
-                Console.WriteLine("ホットキーが正常に登録されました");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ホットキーの登録でエラー: {ex.Message}");
-            }
-        }
 
         /// <summary>
         /// クイックタスク入力フィールドでのキー入力処理
@@ -997,18 +919,13 @@ namespace PomodoroTimer.Views
         {
             try
             {
-                if (settings.EnableHotkeysWhenInactive)
-                {
-                    // グローバルホットキーを使用（アプリが非アクティブでも有効）
-                    InitializeGlobalHotkeys(settings);
-                    Console.WriteLine("グローバルホットキーを初期化しました（非アクティブ時も有効）");
-                }
-                else
-                {
-                    // ローカルホットキーのみ使用（アプリがアクティブ時のみ有効）
-                    // RegisterHotKeys()は既にコンストラクタで呼ばれているのでここでは何もしない
-                    Console.WriteLine("ローカルホットキーを使用します（アクティブ時のみ有効）");
-                }
+                // グローバルホットキーを初期化（個別設定でGlobal=trueのもののみ）
+                InitializeGlobalHotkeys(settings);
+                
+                // ローカルホットキーを動的に登録（個別設定でGlobal=falseのもののみ）
+                RegisterLocalHotkeys(settings);
+                
+                Console.WriteLine("ホットキーシステムを初期化しました（個別設定対応）");
             }
             catch (Exception ex)
             {
@@ -1029,6 +946,118 @@ namespace PomodoroTimer.Views
         }
 
         /// <summary>
+        /// ローカルホットキーを動的に登録
+        /// </summary>
+        private void RegisterLocalHotkeys(AppSettings settings)
+        {
+            try
+            {
+                // 既存のコマンドバインディングをクリア
+                CommandBindings.Clear();
+                
+                var localHotkeyMappings = new List<(string name, string hotkey, bool enabled, bool global, Action<object?, ExecutedRoutedEventArgs> action)>
+                {
+                    ("StartPause", settings.HotkeySettings.StartPauseHotkey, settings.HotkeySettings.StartPauseHotkeyEnabled, settings.HotkeySettings.StartPauseHotkeyGlobal, (s, e) => _viewModel?.StartPauseCommand?.Execute(null)),
+                    ("Stop", settings.HotkeySettings.StopHotkey, settings.HotkeySettings.StopHotkeyEnabled, settings.HotkeySettings.StopHotkeyGlobal, (s, e) => _viewModel?.StopCommand?.Execute(null)),
+                    ("Skip", settings.HotkeySettings.SkipHotkey, settings.HotkeySettings.SkipHotkeyEnabled, settings.HotkeySettings.SkipHotkeyGlobal, (s, e) => _viewModel?.SkipCommand?.Execute(null)),
+                    ("AddTask", settings.HotkeySettings.AddTaskHotkey, settings.HotkeySettings.AddTaskHotkeyEnabled, settings.HotkeySettings.AddTaskHotkeyGlobal, (s, e) => _viewModel?.AddTaskCommand?.Execute(null)),
+                    ("OpenSettings", settings.HotkeySettings.OpenSettingsHotkey, settings.HotkeySettings.OpenSettingsHotkeyEnabled, settings.HotkeySettings.OpenSettingsHotkeyGlobal, (s, e) => _viewModel?.OpenSettingsCommand?.Execute(null)),
+                    ("OpenStatistics", settings.HotkeySettings.OpenStatisticsHotkey, settings.HotkeySettings.OpenStatisticsHotkeyEnabled, settings.HotkeySettings.OpenStatisticsHotkeyGlobal, (s, e) => _viewModel?.OpenStatisticsCommand?.Execute(null)),
+                    ("FocusMode", settings.HotkeySettings.FocusModeHotkey, settings.HotkeySettings.FocusModeHotkeyEnabled, settings.HotkeySettings.FocusModeHotkeyGlobal, (s, e) => {
+                        if (_viewModel?.EnableFocusMode == true) ShowFocusMode();
+                        else CloseFocusMode();
+                    }),
+                    ("QuickAddTask", settings.HotkeySettings.QuickAddTaskHotkey, settings.HotkeySettings.QuickAddTaskHotkeyEnabled, settings.HotkeySettings.QuickAddTaskHotkeyGlobal, (s, e) => {
+                        BringToFront();
+                        _viewModel?.AddTaskCommand?.Execute(null);
+                    })
+                };
+                
+                foreach (var mapping in localHotkeyMappings)
+                {
+                    // 無効またはグローバル設定のものはスキップ
+                    if (!mapping.enabled || mapping.global || string.IsNullOrWhiteSpace(mapping.hotkey))
+                    {
+                        Console.WriteLine($"ローカルホットキースキップ: {mapping.name} -> 有効={mapping.enabled}, グローバル={mapping.global}");
+                        continue;
+                    }
+                    
+                    try
+                    {
+                        var keyGesture = ParseKeyGesture(mapping.hotkey);
+                        if (keyGesture != null)
+                        {
+                            var command = new RoutedCommand();
+                            command.InputGestures.Add(keyGesture);
+                            CommandBindings.Add(new CommandBinding(command, mapping.action));
+                            Console.WriteLine($"ローカルホットキー登録: {mapping.name} -> {mapping.hotkey}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"ローカルホットキー登録エラー: {mapping.name} -> {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ローカルホットキー初期化エラー: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// ホットキー文字列をKeyGestureに変換
+        /// </summary>
+        private KeyGesture? ParseKeyGesture(string hotkey)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(hotkey)) return null;
+                
+                var parts = hotkey.Split('+');
+                if (parts.Length == 0) return null;
+                
+                var keyString = parts[^1].Trim();
+                var modifiers = ModifierKeys.None;
+                
+                foreach (var part in parts[..^1])
+                {
+                    modifiers |= part.Trim().ToLower() switch
+                    {
+                        "ctrl" or "control" => ModifierKeys.Control,
+                        "alt" => ModifierKeys.Alt,
+                        "shift" => ModifierKeys.Shift,
+                        "win" or "windows" => ModifierKeys.Windows,
+                        _ => ModifierKeys.None
+                    };
+                }
+                
+                if (Enum.TryParse<Key>(keyString, true, out var key))
+                {
+                    return new KeyGesture(key, modifiers);
+                }
+                
+                // 特殊キーの処理
+                key = keyString.ToUpper() switch
+                {
+                    "SPACE" => Key.Space,
+                    "ENTER" => Key.Enter,
+                    "ESCAPE" or "ESC" => Key.Escape,
+                    "TAB" => Key.Tab,
+                    "BACKSPACE" => Key.Back,
+                    "DELETE" or "DEL" => Key.Delete,
+                    _ => Key.None
+                };
+                
+                return key != Key.None ? new KeyGesture(key, modifiers) : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// すべてのホットキーをクリア
         /// </summary>
         private void ClearAllHotkeys()
@@ -1036,7 +1065,8 @@ namespace PomodoroTimer.Views
             // グローバルホットキーをクリア
             _hotkeyService?.UnregisterAllHotkeys();
             
-            // ローカルホットキーは常に有効のまま（WPFのコマンドバインディング）
+            // ローカルホットキーをクリア
+            CommandBindings.Clear();
         }
 
         /// <summary>

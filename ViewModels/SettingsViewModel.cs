@@ -100,7 +100,9 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.StartPauseHotkey,
                     PropertyName = nameof(HotkeySettings.StartPauseHotkey),
                     IsEnabled = _settings.HotkeySettings.StartPauseHotkeyEnabled,
-                    EnabledPropertyName = nameof(HotkeySettings.StartPauseHotkeyEnabled)
+                    EnabledPropertyName = nameof(HotkeySettings.StartPauseHotkeyEnabled),
+                    IsGlobal = _settings.HotkeySettings.StartPauseHotkeyGlobal,
+                    GlobalPropertyName = nameof(HotkeySettings.StartPauseHotkeyGlobal)
                 },
                 new HotkeyItem
                 {
@@ -109,7 +111,9 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.StopHotkey,
                     PropertyName = nameof(HotkeySettings.StopHotkey),
                     IsEnabled = _settings.HotkeySettings.StopHotkeyEnabled,
-                    EnabledPropertyName = nameof(HotkeySettings.StopHotkeyEnabled)
+                    EnabledPropertyName = nameof(HotkeySettings.StopHotkeyEnabled),
+                    IsGlobal = _settings.HotkeySettings.StopHotkeyGlobal,
+                    GlobalPropertyName = nameof(HotkeySettings.StopHotkeyGlobal)
                 },
                 new HotkeyItem
                 {
@@ -118,7 +122,9 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.SkipHotkey,
                     PropertyName = nameof(HotkeySettings.SkipHotkey),
                     IsEnabled = _settings.HotkeySettings.SkipHotkeyEnabled,
-                    EnabledPropertyName = nameof(HotkeySettings.SkipHotkeyEnabled)
+                    EnabledPropertyName = nameof(HotkeySettings.SkipHotkeyEnabled),
+                    IsGlobal = _settings.HotkeySettings.SkipHotkeyGlobal,
+                    GlobalPropertyName = nameof(HotkeySettings.SkipHotkeyGlobal)
                 },
                 new HotkeyItem
                 {
@@ -127,7 +133,9 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.AddTaskHotkey,
                     PropertyName = nameof(HotkeySettings.AddTaskHotkey),
                     IsEnabled = _settings.HotkeySettings.AddTaskHotkeyEnabled,
-                    EnabledPropertyName = nameof(HotkeySettings.AddTaskHotkeyEnabled)
+                    EnabledPropertyName = nameof(HotkeySettings.AddTaskHotkeyEnabled),
+                    IsGlobal = _settings.HotkeySettings.AddTaskHotkeyGlobal,
+                    GlobalPropertyName = nameof(HotkeySettings.AddTaskHotkeyGlobal)
                 },
                 new HotkeyItem
                 {
@@ -136,7 +144,9 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.OpenSettingsHotkey,
                     PropertyName = nameof(HotkeySettings.OpenSettingsHotkey),
                     IsEnabled = _settings.HotkeySettings.OpenSettingsHotkeyEnabled,
-                    EnabledPropertyName = nameof(HotkeySettings.OpenSettingsHotkeyEnabled)
+                    EnabledPropertyName = nameof(HotkeySettings.OpenSettingsHotkeyEnabled),
+                    IsGlobal = _settings.HotkeySettings.OpenSettingsHotkeyGlobal,
+                    GlobalPropertyName = nameof(HotkeySettings.OpenSettingsHotkeyGlobal)
                 },
                 new HotkeyItem
                 {
@@ -145,7 +155,9 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.OpenStatisticsHotkey,
                     PropertyName = nameof(HotkeySettings.OpenStatisticsHotkey),
                     IsEnabled = _settings.HotkeySettings.OpenStatisticsHotkeyEnabled,
-                    EnabledPropertyName = nameof(HotkeySettings.OpenStatisticsHotkeyEnabled)
+                    EnabledPropertyName = nameof(HotkeySettings.OpenStatisticsHotkeyEnabled),
+                    IsGlobal = _settings.HotkeySettings.OpenStatisticsHotkeyGlobal,
+                    GlobalPropertyName = nameof(HotkeySettings.OpenStatisticsHotkeyGlobal)
                 },
                 new HotkeyItem
                 {
@@ -154,7 +166,9 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.FocusModeHotkey,
                     PropertyName = nameof(HotkeySettings.FocusModeHotkey),
                     IsEnabled = _settings.HotkeySettings.FocusModeHotkeyEnabled,
-                    EnabledPropertyName = nameof(HotkeySettings.FocusModeHotkeyEnabled)
+                    EnabledPropertyName = nameof(HotkeySettings.FocusModeHotkeyEnabled),
+                    IsGlobal = _settings.HotkeySettings.FocusModeHotkeyGlobal,
+                    GlobalPropertyName = nameof(HotkeySettings.FocusModeHotkeyGlobal)
                 },
                 new HotkeyItem
                 {
@@ -163,7 +177,9 @@ namespace PomodoroTimer.ViewModels
                     Hotkey = _settings.HotkeySettings.QuickAddTaskHotkey,
                     PropertyName = nameof(HotkeySettings.QuickAddTaskHotkey),
                     IsEnabled = _settings.HotkeySettings.QuickAddTaskHotkeyEnabled,
-                    EnabledPropertyName = nameof(HotkeySettings.QuickAddTaskHotkeyEnabled)
+                    EnabledPropertyName = nameof(HotkeySettings.QuickAddTaskHotkeyEnabled),
+                    IsGlobal = _settings.HotkeySettings.QuickAddTaskHotkeyGlobal,
+                    GlobalPropertyName = nameof(HotkeySettings.QuickAddTaskHotkeyGlobal)
                 }
             };
 
@@ -195,6 +211,11 @@ namespace PomodoroTimer.ViewModels
                 {
                     // 有効/無効設定を更新
                     UpdateHotkeyEnabledSetting(item);
+                }
+                else if (e.PropertyName == nameof(HotkeyItem.IsGlobal))
+                {
+                    // グローバル設定を更新
+                    UpdateHotkeyGlobalSetting(item);
                 }
             }
         }
@@ -236,6 +257,26 @@ namespace PomodoroTimer.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"ホットキー有効設定更新エラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// ホットキーのグローバル設定を更新
+        /// </summary>
+        /// <param name="item">ホットキー項目</param>
+        private void UpdateHotkeyGlobalSetting(HotkeyItem item)
+        {
+            try
+            {
+                var property = typeof(HotkeySettings).GetProperty(item.GlobalPropertyName);
+                if (property != null && property.CanWrite)
+                {
+                    property.SetValue(_settings.HotkeySettings, item.IsGlobal);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ホットキーグローバル設定更新エラー: {ex.Message}");
             }
         }
 

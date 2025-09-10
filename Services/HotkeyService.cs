@@ -144,22 +144,22 @@ namespace PomodoroTimer.Services
         }
 
         /// <summary>
-        /// ホットキー設定から一括登録
+        /// ホットキー設定から一括登録（個別グローバル設定対応）
         /// </summary>
         /// <param name="hotkeySettings">ホットキー設定</param>
         /// <param name="actions">アクション辞書</param>
         public void RegisterHotkeysFromSettings(HotkeySettings hotkeySettings, Dictionary<string, Action> actions)
         {
-            var hotkeyMappings = new Dictionary<string, (string hotkey, bool enabled)>
+            var hotkeyMappings = new Dictionary<string, (string hotkey, bool enabled, bool global)>
             {
-                { "StartPause", (hotkeySettings.StartPauseHotkey, hotkeySettings.StartPauseHotkeyEnabled) },
-                { "Stop", (hotkeySettings.StopHotkey, hotkeySettings.StopHotkeyEnabled) },
-                { "Skip", (hotkeySettings.SkipHotkey, hotkeySettings.SkipHotkeyEnabled) },
-                { "AddTask", (hotkeySettings.AddTaskHotkey, hotkeySettings.AddTaskHotkeyEnabled) },
-                { "OpenSettings", (hotkeySettings.OpenSettingsHotkey, hotkeySettings.OpenSettingsHotkeyEnabled) },
-                { "OpenStatistics", (hotkeySettings.OpenStatisticsHotkey, hotkeySettings.OpenStatisticsHotkeyEnabled) },
-                { "FocusMode", (hotkeySettings.FocusModeHotkey, hotkeySettings.FocusModeHotkeyEnabled) },
-                { "QuickAddTask", (hotkeySettings.QuickAddTaskHotkey, hotkeySettings.QuickAddTaskHotkeyEnabled) }
+                { "StartPause", (hotkeySettings.StartPauseHotkey, hotkeySettings.StartPauseHotkeyEnabled, hotkeySettings.StartPauseHotkeyGlobal) },
+                { "Stop", (hotkeySettings.StopHotkey, hotkeySettings.StopHotkeyEnabled, hotkeySettings.StopHotkeyGlobal) },
+                { "Skip", (hotkeySettings.SkipHotkey, hotkeySettings.SkipHotkeyEnabled, hotkeySettings.SkipHotkeyGlobal) },
+                { "AddTask", (hotkeySettings.AddTaskHotkey, hotkeySettings.AddTaskHotkeyEnabled, hotkeySettings.AddTaskHotkeyGlobal) },
+                { "OpenSettings", (hotkeySettings.OpenSettingsHotkey, hotkeySettings.OpenSettingsHotkeyEnabled, hotkeySettings.OpenSettingsHotkeyGlobal) },
+                { "OpenStatistics", (hotkeySettings.OpenStatisticsHotkey, hotkeySettings.OpenStatisticsHotkeyEnabled, hotkeySettings.OpenStatisticsHotkeyGlobal) },
+                { "FocusMode", (hotkeySettings.FocusModeHotkey, hotkeySettings.FocusModeHotkeyEnabled, hotkeySettings.FocusModeHotkeyGlobal) },
+                { "QuickAddTask", (hotkeySettings.QuickAddTaskHotkey, hotkeySettings.QuickAddTaskHotkeyEnabled, hotkeySettings.QuickAddTaskHotkeyGlobal) }
             };
 
             foreach (var mapping in hotkeyMappings)
@@ -178,10 +178,17 @@ namespace PomodoroTimer.Services
                     continue;
                 }
 
+                // グローバル設定がfalseの場合はスキップ（ローカルホットキーのみ使用）
+                if (!mapping.Value.global)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ホットキー登録スキップ: {mapping.Key} -> (ローカル設定)");
+                    continue;
+                }
+
                 if (actions.TryGetValue(mapping.Key, out var action))
                 {
                     var success = RegisterHotkey(mapping.Key, mapping.Value.hotkey, action);
-                    System.Diagnostics.Debug.WriteLine($"ホットキー登録: {mapping.Key} -> {mapping.Value.hotkey} : {(success ? "成功" : "失敗")}");
+                    System.Diagnostics.Debug.WriteLine($"グローバルホットキー登録: {mapping.Key} -> {mapping.Value.hotkey} : {(success ? "成功" : "失敗")}");
                 }
                 else
                 {

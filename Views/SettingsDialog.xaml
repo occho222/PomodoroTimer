@@ -186,16 +186,11 @@
                                     <TextBlock Text="アプリケーション全体で使用できるショートカットキーを設定できます。" 
                                                FontSize="12" Foreground="Gray" Margin="0,0,0,10" TextWrapping="Wrap"/>
                                     
-                                    <!-- ホットキーのグローバル設定 -->
+                                    <!-- 説明テキスト -->
                                     <Border Background="#E3F2FD" BorderBrush="#1976D2" BorderThickness="1" 
                                             Padding="12" Margin="0,0,0,15" CornerRadius="6">
-                                        <StackPanel>
-                                            <CheckBox IsChecked="{Binding EnableHotkeysWhenInactive, Mode=TwoWay}" 
-                                                      Content="アプリがアクティブでない時もショートカットを有効にする"
-                                                      FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
-                                            <TextBlock Text="有効にすると、他のアプリケーションを使用中でもショートカットキーが動作します。無効の場合は、このアプリがアクティブな時のみ動作します。"
-                                                       FontSize="11" Foreground="#1565C0" TextWrapping="Wrap"/>
-                                        </StackPanel>
+                                        <TextBlock Text="各ショートカットキーごとに、アプリが非アクティブ時でも動作するかどうかを設定できます。「グローバル」にチェックを入れると、他のアプリ使用中でも動作します。"
+                                                   FontSize="11" Foreground="#1565C0" TextWrapping="Wrap"/>
                                     </Border>
                                     
                                     <!-- ショートカット一覧 -->
@@ -208,6 +203,7 @@
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="180"/>
                                                             <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="90"/>
                                                         </Grid.ColumnDefinitions>
                                                         
                                                         <!-- 機能名と説明 -->
@@ -234,6 +230,15 @@
                                                                  Content="有効"
                                                                  VerticalAlignment="Center"
                                                                  HorizontalAlignment="Center"/>
+                                                                 
+                                                        <!-- グローバル設定 -->
+                                                        <CheckBox Grid.Column="3" 
+                                                                 IsChecked="{Binding IsGlobal, Mode=TwoWay}"
+                                                                 Content="グローバル"
+                                                                 VerticalAlignment="Center"
+                                                                 HorizontalAlignment="Center"
+                                                                 FontSize="11"
+                                                                 ToolTip="アプリが非アクティブ時でも動作するかどうか"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
