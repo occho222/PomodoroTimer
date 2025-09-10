@@ -955,7 +955,7 @@ namespace PomodoroTimer.Views
                 // 既存のコマンドバインディングをクリア
                 CommandBindings.Clear();
                 
-                var localHotkeyMappings = new List<(string name, string hotkey, bool enabled, bool global, Action<object?, ExecutedRoutedEventArgs> action)>
+                var localHotkeyMappings = new List<(string name, string hotkey, bool enabled, bool global, ExecutedRoutedEventHandler action)>
                 {
                     ("StartPause", settings.HotkeySettings.StartPauseHotkey, settings.HotkeySettings.StartPauseHotkeyEnabled, settings.HotkeySettings.StartPauseHotkeyGlobal, (s, e) => _viewModel?.StartPauseCommand?.Execute(null)),
                     ("Stop", settings.HotkeySettings.StopHotkey, settings.HotkeySettings.StopHotkeyEnabled, settings.HotkeySettings.StopHotkeyGlobal, (s, e) => _viewModel?.StopCommand?.Execute(null)),
