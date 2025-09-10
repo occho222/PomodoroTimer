@@ -161,17 +161,17 @@ namespace PomodoroTimer.Views
         {
             try
             {
-                if (_hotkeyService != null && _viewModel != null)
+                if (_viewModel != null)
                 {
                     // 現在の設定を取得
                     var currentSettings = _viewModel.GetCurrentSettings();
                     
-                    // すべてのホットキーを一旦削除
-                    _hotkeyService.UnregisterAllHotkeys();
+                    // 既存のホットキーをクリア
+                    ClearAllHotkeys();
                     Console.WriteLine("[DEBUG] 既存のホットキーをすべて削除しました");
                     
                     // 新しい設定でホットキーを再登録
-                    RegisterHotkeys(_hotkeyService, currentSettings);
+                    InitializeHotkeySystem(currentSettings);
                     Console.WriteLine("[DEBUG] 新しい設定でホットキーを再登録しました");
                 }
             }
@@ -217,11 +217,10 @@ namespace PomodoroTimer.Views
         {
             try
             {
-                // ホットキーサービスを初期化（ウィンドウハンドルが利用可能になった後）
-                if (_hotkeyService != null && _appSettings != null)
+                // 設定に応じてホットキーシステムを初期化
+                if (_appSettings != null)
                 {
-                    _hotkeyService.Initialize(this);
-                    RegisterHotkeys(_hotkeyService, _appSettings);
+                    InitializeHotkeySystem(_appSettings);
                     Console.WriteLine("ホットキーが正常に登録されました");
                 }
             }
@@ -989,6 +988,55 @@ namespace PomodoroTimer.Views
             {
                 base.OnClosed(e);
             }
+        }
+
+        /// <summary>
+        /// 設定に応じてホットキーシステムを初期化
+        /// </summary>
+        private void InitializeHotkeySystem(AppSettings settings)
+        {
+            try
+            {
+                if (settings.EnableHotkeysWhenInactive)
+                {
+                    // グローバルホットキーを使用（アプリが非アクティブでも有効）
+                    InitializeGlobalHotkeys(settings);
+                    Console.WriteLine("グローバルホットキーを初期化しました（非アクティブ時も有効）");
+                }
+                else
+                {
+                    // ローカルホットキーのみ使用（アプリがアクティブ時のみ有効）
+                    // RegisterHotKeys()は既にコンストラクタで呼ばれているのでここでは何もしない
+                    Console.WriteLine("ローカルホットキーを使用します（アクティブ時のみ有効）");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ホットキーシステム初期化でエラー: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// グローバルホットキーを初期化
+        /// </summary>
+        private void InitializeGlobalHotkeys(AppSettings settings)
+        {
+            if (_hotkeyService != null && _viewModel != null)
+            {
+                _hotkeyService.Initialize(this);
+                RegisterHotkeys(_hotkeyService, settings);
+            }
+        }
+
+        /// <summary>
+        /// すべてのホットキーをクリア
+        /// </summary>
+        private void ClearAllHotkeys()
+        {
+            // グローバルホットキーをクリア
+            _hotkeyService?.UnregisterAllHotkeys();
+            
+            // ローカルホットキーは常に有効のまま（WPFのコマンドバインディング）
         }
 
         /// <summary>

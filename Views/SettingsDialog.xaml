@@ -184,7 +184,19 @@
                             <GroupBox Header="ショートカットキー設定" Margin="0,0,0,15" Padding="15">
                                 <StackPanel>
                                     <TextBlock Text="アプリケーション全体で使用できるショートカットキーを設定できます。" 
-                                               FontSize="12" Foreground="Gray" Margin="0,0,0,15" TextWrapping="Wrap"/>
+                                               FontSize="12" Foreground="Gray" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                    
+                                    <!-- ホットキーのグローバル設定 -->
+                                    <Border Background="#E3F2FD" BorderBrush="#1976D2" BorderThickness="1" 
+                                            Padding="12" Margin="0,0,0,15" CornerRadius="6">
+                                        <StackPanel>
+                                            <CheckBox IsChecked="{Binding EnableHotkeysWhenInactive, Mode=TwoWay}" 
+                                                      Content="アプリがアクティブでない時もショートカットを有効にする"
+                                                      FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                                            <TextBlock Text="有効にすると、他のアプリケーションを使用中でもショートカットキーが動作します。無効の場合は、このアプリがアクティブな時のみ動作します。"
+                                                       FontSize="11" Foreground="#1565C0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
                                     
                                     <!-- ショートカット一覧 -->
                                     <ItemsControl x:Name="HotkeyItemsControl" ItemsSource="{Binding HotkeyItems}">
