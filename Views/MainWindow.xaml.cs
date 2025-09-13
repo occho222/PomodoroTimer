@@ -948,8 +948,10 @@ namespace PomodoroTimer.Views
                     ("OpenSettings", settings.HotkeySettings.OpenSettingsHotkey, settings.HotkeySettings.OpenSettingsHotkeyEnabled, settings.HotkeySettings.OpenSettingsHotkeyGlobal, (s, e) => _viewModel?.OpenSettingsCommand?.Execute(null)),
                     ("OpenStatistics", settings.HotkeySettings.OpenStatisticsHotkey, settings.HotkeySettings.OpenStatisticsHotkeyEnabled, settings.HotkeySettings.OpenStatisticsHotkeyGlobal, (s, e) => _viewModel?.OpenStatisticsCommand?.Execute(null)),
                     ("FocusMode", settings.HotkeySettings.FocusModeHotkey, settings.HotkeySettings.FocusModeHotkeyEnabled, settings.HotkeySettings.FocusModeHotkeyGlobal, (s, e) => {
-                        if (_viewModel?.EnableFocusMode == true) ShowFocusMode();
-                        else CloseFocusMode();
+                        if (_viewModel != null) {
+                            _viewModel.EnableFocusMode = !_viewModel.EnableFocusMode;
+                            Console.WriteLine($"FocusMode hotkey (global) pressed: EnableFocusMode = {_viewModel.EnableFocusMode}");
+                        }
                     }),
                     ("QuickAddTask", settings.HotkeySettings.QuickAddTaskHotkey, settings.HotkeySettings.QuickAddTaskHotkeyEnabled, settings.HotkeySettings.QuickAddTaskHotkeyGlobal, (s, e) => {
                         BringToFront();
@@ -1102,10 +1104,9 @@ namespace PomodoroTimer.Views
                 { "FocusMode", () => { 
                     System.Windows.Application.Current.Dispatcher.BeginInvoke(() => {
                         try { 
-                            if (_viewModel.EnableFocusMode)
-                                ShowFocusMode();
-                            else
-                                CloseFocusMode();
+                            // 集中モードのオン/オフを切り替える
+                            _viewModel.EnableFocusMode = !_viewModel.EnableFocusMode;
+                            Console.WriteLine($"FocusMode hotkey pressed: EnableFocusMode = {_viewModel.EnableFocusMode}");
                         }
                         catch (Exception ex) { Console.WriteLine($"FocusMode hotkey error: {ex.Message}"); }
                     });
