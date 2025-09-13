@@ -25,9 +25,11 @@
 
 4. **ZIP圧縮**:
    ```bash
-   "C:\Program Files\7-Zip\7z.exe" a -tzip "release/PomobanXXX.zip" "release/PomobanXXX/"
+   cd "release/PomobanXXX"
+   "C:\Program Files\7-Zip\7z.exe" a -tzip "../PomobanXXX.zip" *
+   cd ../..
    ```
-   - 配布用のZIPファイルを生成する
+   - 配布用のZIPファイルを生成する（フォルダ直下のファイルがZIPの直下に展開される）
    - パッケージディレクトリと同じ場所にZIPファイルが作成される
 
 5. **Gitにコミット・プッシュ**
