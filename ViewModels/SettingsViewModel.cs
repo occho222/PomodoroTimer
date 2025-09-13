@@ -84,6 +84,16 @@ namespace PomodoroTimer.ViewModels
             set => SetProperty(_settings.OpenSharePointInOffice, value, _settings, (s, v) => s.OpenSharePointInOffice = v);
         }
 
+        /// <summary>
+        /// アプリケーション名
+        /// </summary>
+        public string AppName => Helpers.AppVersionHelper.GetProductName();
+
+        /// <summary>
+        /// アプリケーションバージョン
+        /// </summary>
+        public string AppVersion => Helpers.AppVersionHelper.GetVersion();
+
         public SettingsViewModel(AppSettings settings)
         {
             _settings = settings;

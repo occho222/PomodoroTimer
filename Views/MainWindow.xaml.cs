@@ -128,9 +128,7 @@ namespace PomodoroTimer.Views
         {
             try
             {
-                var assembly = Assembly.GetExecutingAssembly();
-                var version = assembly.GetName().Version?.ToString(3) ?? "1.0.0";
-                Title = $"Pomoban v{version}{suffix}";
+                Title = Helpers.AppVersionHelper.GetWindowTitle(suffix);
             }
             catch (Exception ex)
             {
