@@ -13,9 +13,14 @@
    - `PomodoroTimer.csproj` の Version, AssemblyVersion, FileVersion を更新
    - `Models/AppSettings.cs` の DataVersion を更新
 
-2. **最終リリースビルド**: バージョン更新後に `dotnet build -c Release`
+2. **リリースノート更新**:
+   - `RELEASE_NOTES.md` の先頭に新バージョンの変更内容を追加
+   - 新機能（✨）、改善（🔧）、修正（🐛）、削除（🗑️）に分類して記載
+   - Git履歴を参考にして主要な変更点を網羅
 
-3. **リリースファイルのパッケージ化**:
+3. **最終リリースビルド**: バージョン更新後に `dotnet build -c Release`
+
+4. **リリースファイルのパッケージ化**:
    ```bash
    mkdir -p "release/PomobanXXX"  # XXX = ドットを除いたバージョン番号
    cp -r "bin/Release/net6.0-windows/"* "release/PomobanXXX/"
@@ -25,7 +30,7 @@
    - `du -sh "release/PomobanXXX/"` でサイズ確認
    - リリースノートを配布パッケージに同梱する
 
-4. **ZIP圧縮**:
+5. **ZIP圧縮**:
    ```bash
    cd "release/PomobanXXX"
    "C:\Program Files\7-Zip\7z.exe" a -tzip "../PomobanXXX.zip" *
@@ -34,7 +39,7 @@
    - 配布用のZIPファイルを生成する（フォルダ直下のファイルがZIPの直下に展開される）
    - パッケージディレクトリと同じ場所にZIPファイルが作成される
 
-5. **Gitにコミット・プッシュ**
+6. **Gitにコミット・プッシュ**
    - 全ての変更をステージング: `git add .`
    - バージョン情報を含むコミット
    - リモートリポジトリにプッシュ: `git push origin main`
