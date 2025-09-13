@@ -23,7 +23,14 @@
    - パッケージ化したファイルサイズを確認する
    - `du -sh "release/PomobanXXX/"` でサイズ確認
 
-4. **Gitにコミット・プッシュ**
+4. **ZIP圧縮**:
+   ```bash
+   "C:\Program Files\7-Zip\7z.exe" a -tzip "release/PomobanXXX.zip" "release/PomobanXXX/"
+   ```
+   - 配布用のZIPファイルを生成する
+   - パッケージディレクトリと同じ場所にZIPファイルが作成される
+
+5. **Gitにコミット・プッシュ**
    - 全ての変更をステージング: `git add .`
    - バージョン情報を含むコミット
    - リモートリポジトリにプッシュ: `git push origin main`
