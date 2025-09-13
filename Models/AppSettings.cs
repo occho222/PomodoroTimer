@@ -8,7 +8,7 @@
         /// <summary>
         /// データフォーマットのバージョン
         /// </summary>
-        public string DataVersion { get; set; } = "1.7.4";
+        public string DataVersion { get; set; } = "1.7.5";
 
         /// <summary>
         /// 作業セッション時間（分）
@@ -185,6 +185,11 @@
         /// ホットキー設定
         /// </summary>
         public HotkeySettings HotkeySettings { get; set; } = new HotkeySettings();
+
+        /// <summary>
+        /// SharePointリンクをOfficeアプリで開くかどうか
+        /// </summary>
+        public bool OpenSharePointInOffice { get; set; } = false;
 
         /// <summary>
         /// コンストラクタでGraphSettingsの初期化を確実にする

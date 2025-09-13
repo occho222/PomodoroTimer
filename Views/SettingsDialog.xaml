@@ -82,6 +82,15 @@
                                 <TextBlock Text="{Binding ElementName=QuickTaskDefaultMinutesSlider, Path=Value, StringFormat={}{0} 分}" 
                                            FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
                             </StackPanel>
+
+                            <!-- リンク設定 -->
+                            <StackPanel Margin="0,0,0,15">
+                                <TextBlock Text="リンク設定" Margin="0,0,0,10" FontWeight="SemiBold" FontSize="14"/>
+                                <CheckBox Content="SharePointリンクをOfficeアプリで開く" IsChecked="{Binding OpenSharePointInOffice, Mode=TwoWay}" 
+                                          Margin="0,0,0,5"/>
+                                <TextBlock Text="有効にすると、SharePointのドキュメントリンクを直接Officeアプリケーションで開きます" 
+                                           FontSize="11" Foreground="Gray" Margin="20,0,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

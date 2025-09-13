@@ -696,17 +696,115 @@ namespace PomodoroTimer.ViewModels
                 }
                 Uri.TryCreate(url, UriKind.Absolute, out var uri);
 
-                // デフォルトブラウザでURLを開く
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                // SharePointリンクをOfficeで開く設定が有効な場合の処理
+                if (_settings.OpenSharePointInOffice && IsSharePointUrl(url))
                 {
-                    FileName = url,
-                    UseShellExecute = true
-                });
+                    OpenUrlInOffice(url);
+                }
+                else
+                {
+                    // デフォルトブラウザでURLを開く
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = url,
+                        UseShellExecute = true
+                    });
+                }
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show($"URLを開けませんでした: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// URLがSharePointのURLかどうかを判定する
+        /// </summary>
+        /// <param name="url">判定するURL</param>
+        /// <returns>SharePointのURLの場合true</returns>
+        private bool IsSharePointUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return false;
+
+            try
+            {
+                var uri = new Uri(url);
+                var host = uri.Host.ToLowerInvariant();
+                
+                // SharePointのドメインパターンをチェック
+                return host.Contains("sharepoint.com") || 
+                       host.EndsWith(".sharepoint.com") ||
+                       host.Contains("office.com") ||
+                       url.Contains("/sites/") ||
+                       url.Contains("/_layouts/");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// URLをOfficeアプリで開く
+        /// </summary>
+        /// <param name="url">開くURL</param>
+        private void OpenUrlInOffice(string url)
+        {
+            try
+            {
+                // Office URIスキームを使用してOfficeアプリで開く
+                // ms-word:、ms-excel:、ms-powerpoint: などのスキームを使用
+                string officeUrl = ConvertToOfficeUrl(url);
+                
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = officeUrl,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                // Officeアプリで開けない場合はブラウザで開く
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+                
+                DebugLog($"Officeアプリで開けませんでした。ブラウザで開きます: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// URLをOffice URIスキームに変換する
+        /// </summary>
+        /// <param name="url">元のURL</param>
+        /// <returns>Office URIスキーム形式のURL</returns>
+        private string ConvertToOfficeUrl(string url)
+        {
+            // SharePoint Online のドキュメントライブラリのURLを
+            // Office URIスキームに変換する
+            if (url.Contains(".docx") || url.Contains(".doc"))
+            {
+                return $"ms-word:ofe|u|{url}";
+            }
+            else if (url.Contains(".xlsx") || url.Contains(".xls"))
+            {
+                return $"ms-excel:ofe|u|{url}";
+            }
+            else if (url.Contains(".pptx") || url.Contains(".ppt"))
+            {
+                return $"ms-powerpoint:ofe|u|{url}";
+            }
+            else if (url.Contains("sharepoint.com") || url.Contains("/sites/"))
+            {
+                // 一般的なSharePointサイトの場合はOffice Online で開く
+                return $"ms-office:ofe|u|{url}";
+            }
+            
+            // その他の場合は元のURLを返す
+            return url;
         }
 
         /// <summary>

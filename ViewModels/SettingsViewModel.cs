@@ -78,6 +78,12 @@ namespace PomodoroTimer.ViewModels
             set => SetProperty(_settings.QuickTaskDefaultMinutes, value, _settings, (s, v) => s.QuickTaskDefaultMinutes = v);
         }
 
+        public bool OpenSharePointInOffice
+        {
+            get => _settings.OpenSharePointInOffice;
+            set => SetProperty(_settings.OpenSharePointInOffice, value, _settings, (s, v) => s.OpenSharePointInOffice = v);
+        }
+
         public SettingsViewModel(AppSettings settings)
         {
             _settings = settings;
