@@ -19,9 +19,11 @@
    ```bash
    mkdir -p "release/PomobanXXX"  # XXX = ドットを除いたバージョン番号
    cp -r "bin/Release/net6.0-windows/"* "release/PomobanXXX/"
+   cp "RELEASE_NOTES.md" "release/PomobanXXX/"
    ```
    - パッケージ化したファイルサイズを確認する
    - `du -sh "release/PomobanXXX/"` でサイズ確認
+   - リリースノートを配布パッケージに同梱する
 
 4. **ZIP圧縮**:
    ```bash
