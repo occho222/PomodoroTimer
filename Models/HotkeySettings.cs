@@ -181,12 +181,22 @@ namespace PomodoroTimer.Models
         /// <summary>
         /// 表示名
         /// </summary>
-        public string DisplayName { get; set; } = "";
+        public string DisplayName
+        {
+            get => displayName;
+            set => SetProperty(ref displayName, value);
+        }
+        private string displayName = "";
 
         /// <summary>
         /// 説明
         /// </summary>
-        public string Description { get; set; } = "";
+        public string Description
+        {
+            get => description;
+            set => SetProperty(ref description, value);
+        }
+        private string description = "";
 
         /// <summary>
         /// ホットキー文字列

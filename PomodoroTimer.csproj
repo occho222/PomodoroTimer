@@ -7,9 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>1.7.3</Version>
-    <AssemblyVersion>1.7.3.0</AssemblyVersion>
-    <FileVersion>1.7.3.0</FileVersion>
+    <Version>1.7.4</Version>
+    <AssemblyVersion>1.7.4.0</AssemblyVersion>
+    <FileVersion>1.7.4.0</FileVersion>
     <AssemblyName>Pomoban</AssemblyName>
     <Product>Pomoban</Product>
     <Description>効率的なタスク管理とポモドーロテクニックを組み合わせたタイマーアプリケーション</Description>
@@ -26,10 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.14.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Markdig" Version="0.41.3" />
-    <PackageReference Include="Microsoft.Graph" Version="5.86.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
   </ItemGroup>
 

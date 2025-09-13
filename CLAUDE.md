@@ -9,14 +9,14 @@
 
 ユーザーがリリースを要求した場合、以下の手順を自動的に実行する:
 
-1. **初回リリースビルド**: `dotnet build -c Release`
 
-2. **バージョン更新**(Verはデータ管理にもあります。)
+1. **バージョン更新**(Verはデータ管理にもあります。)
 
-3. **最終リリースビルド**: バージョン更新後に `dotnet build -c Release`
+2. **最終リリースビルド**: バージョン更新後に `dotnet build -c Release`
 
-4. **リリースファイルのパッケージ化**:
+3. **リリースファイルのパッケージ化**:
    ```
    mkdir "release/PomobanXXX"  # XXX = ドットを除いたバージョン番号
    cp -r "bin/Release/net8.0-windows/"* "release/PomobanXXX/"
-   ```
+
+4.Gitにコミットプッシュ

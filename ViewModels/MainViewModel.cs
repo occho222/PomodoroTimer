@@ -27,7 +27,6 @@ namespace PomodoroTimer.ViewModels
         private readonly IStatisticsService _statisticsService;
         private readonly IDataPersistenceService _dataPersistenceService;
         private readonly ISystemTrayService _systemTrayService;
-        private readonly IGraphService _graphService;
         private readonly ITaskTemplateService _taskTemplateService;
         private readonly INotificationService _notificationService;
         private readonly IActivityExportService _activityExportService;
@@ -310,7 +309,7 @@ namespace PomodoroTimer.ViewModels
         /// </summary>
         public MainViewModel(IPomodoroService pomodoroService, ITimerService timerService, 
             IStatisticsService statisticsService, IDataPersistenceService dataPersistenceService,
-            ISystemTrayService systemTrayService, IGraphService graphService, ITaskTemplateService taskTemplateService,
+            ISystemTrayService systemTrayService, ITaskTemplateService taskTemplateService,
             INotificationService notificationService, IActivityExportService activityExportService)
         {
             _pomodoroService = pomodoroService ?? throw new ArgumentNullException(nameof(pomodoroService));
@@ -318,7 +317,6 @@ namespace PomodoroTimer.ViewModels
             _statisticsService = statisticsService ?? throw new ArgumentNullException(nameof(statisticsService));
             _dataPersistenceService = dataPersistenceService ?? throw new ArgumentNullException(nameof(dataPersistenceService));
             _systemTrayService = systemTrayService ?? throw new ArgumentNullException(nameof(systemTrayService));
-            _graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
             _taskTemplateService = taskTemplateService ?? throw new ArgumentNullException(nameof(taskTemplateService));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
             _activityExportService = activityExportService ?? throw new ArgumentNullException(nameof(activityExportService));
@@ -2486,94 +2484,6 @@ namespace PomodoroTimer.ViewModels
             }
         }
 
-        /// <summary>
-        /// Microsoft Graphからタスクをインポートするコマンド
-        /// </summary>
-        [RelayCommand]
-        private async System.Threading.Tasks.Task ImportFromMicrosoftGraph()
-        {
-            try
-            {
-                // 認証を行う
-                bool isAuthenticated = await _graphService.AuthenticateAsync();
-                if (!isAuthenticated)
-                {
-                    System.Windows.MessageBox.Show("Microsoft Graphの認証に失敗しました。", "認証エラー", 
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // インポート先選択ダイアログを表示
-                var importDialog = new Views.GraphImportDialog();
-                if (importDialog.ShowDialog() != true)
-                {
-                    return;
-                }
-
-                var importedTasks = new List<PomodoroTask>();
-
-                // 選択されたソースからタスクをインポート
-                if (importDialog.ImportFromMicrosoftToDo)
-                {
-                    var todoTasks = await _graphService.ImportTasksFromMicrosoftToDoAsync();
-                    importedTasks.AddRange(todoTasks);
-                }
-
-                if (importDialog.ImportFromPlanner)
-                {
-                    var plannerTasks = await _graphService.ImportTasksFromPlannerAsync();
-                    importedTasks.AddRange(plannerTasks);
-                }
-
-                if (importDialog.ImportFromOutlook)
-                {
-                    var outlookTasks = await _graphService.ImportTasksFromOutlookAsync();
-                    importedTasks.AddRange(outlookTasks);
-                }
-
-                if (importedTasks.Count > 0)
-                {
-                    // PomodoroServiceを通じてタスクをインポート
-                    await _pomodoroService.ImportTasksFromGraphAsync(importedTasks);
-                    
-                    // UI更新
-                    RefreshUI();
-
-                    System.Windows.MessageBox.Show($"{importedTasks.Count} 件のタスクをインポートしました。", "インポート完了", 
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    System.Windows.MessageBox.Show("インポートするタスクが見つかりませんでした。", "情報", 
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"Microsoft Graphからのタスクインポートに失敗しました: {ex.Message}", "エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                DebugLog($"Microsoft Graphインポートエラー: {ex}");
-            }
-        }
-
-        /// <summary>
-        /// Microsoft Graphからログアウトするコマンド
-        /// </summary>
-        [RelayCommand]
-        private async System.Threading.Tasks.Task LogoutFromMicrosoftGraph()
-        {
-            try
-            {
-                await _graphService.LogoutAsync();
-                System.Windows.MessageBox.Show("Microsoft Graphからログアウトしました。", "ログアウト", 
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"ログアウトに失敗しました: {ex.Message}", "エラー", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
 
         /// <summary>
         /// テンプレート管理画面を開くコマンド

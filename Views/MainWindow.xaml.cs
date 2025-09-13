@@ -41,31 +41,17 @@ namespace PomodoroTimer.Views
                 var statisticsService = new StatisticsService(dataPersistenceService);
                 _systemTrayService = new SystemTrayService();
                 
-                // 設定を読み込んでからGraphServiceを初期化
-                var settings = new AppSettings();
-                try
-                {
-                    // 同期的な初期化のため、デフォルト設定を使用し、後で非同期で読み込む
-                    Console.WriteLine("デフォルト設定を使用して初期化します");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"設定の初期化に失敗しました: {ex.Message}");
-                    // デフォルト設定を使用
-                }
-                
-                var graphService = new GraphService(settings);
                 var taskTemplateService = new TaskTemplateService(dataPersistenceService);
                 var notificationService = new NotificationService();
                 var activityExportService = new ActivityExportService(pomodoroService, statisticsService);
                 var hotkeyService = new HotkeyService();
                 
                 _viewModel = new MainViewModel(pomodoroService, timerService, statisticsService, 
-                    dataPersistenceService, _systemTrayService, graphService, taskTemplateService, notificationService, activityExportService);
+                    dataPersistenceService, _systemTrayService, taskTemplateService, notificationService, activityExportService);
                 
                 // ホットキーサービスをクラスフィールドとして保存
                 _hotkeyService = hotkeyService;
-                _appSettings = settings;
+                _appSettings = new AppSettings();
                 
                 DataContext = _viewModel;
                 
