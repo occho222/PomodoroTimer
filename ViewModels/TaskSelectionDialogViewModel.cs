@@ -19,6 +19,12 @@ namespace PomodoroTimer.ViewModels
         private ObservableCollection<PomodoroTask> filteredTasks = new();
 
         [ObservableProperty]
+        private ObservableCollection<PomodoroTask> todoTasks = new();
+
+        [ObservableProperty]
+        private ObservableCollection<PomodoroTask> waitingTasks = new();
+
+        [ObservableProperty]
         private ObservableCollection<string> availableCategories = new();
 
         [ObservableProperty]
@@ -166,10 +172,27 @@ namespace PomodoroTimer.ViewModels
                 filtered = ApplyDueDateFilter(filtered, SelectedDueDateFilter);
             }
 
+            // 旧フィルター結果を維持（レガシー対応）
             FilteredTasks.Clear();
             foreach (var task in filtered.OrderByDescending(t => t.Status == TaskStatus.Waiting).ThenBy(t => t.DisplayOrder))
             {
                 FilteredTasks.Add(task);
+            }
+
+            // カンバン表示用に分離
+            var filteredList = filtered.ToList();
+            
+            TodoTasks.Clear();
+            WaitingTasks.Clear();
+            
+            foreach (var task in filteredList.Where(t => t.Status == TaskStatus.Todo).OrderBy(t => t.DisplayOrder))
+            {
+                TodoTasks.Add(task);
+            }
+            
+            foreach (var task in filteredList.Where(t => t.Status == TaskStatus.Waiting).OrderBy(t => t.DisplayOrder))
+            {
+                WaitingTasks.Add(task);
             }
         }
 
